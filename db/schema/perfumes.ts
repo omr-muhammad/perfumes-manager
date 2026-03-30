@@ -14,7 +14,7 @@ import { seasonsEn, sexEn } from "./enums";
 // later for better structure
 // export const familiesEn = pgEnum("families", ["fresh", "aromatic", "citrus", "water", "green", "fruity", "floral", "soft floral", "oriental(Amber)", "floral oriental", "soft oriental", "woody oriental", "woody", "woods", "mossy woods", "dry woods"])
 
-export const perfumesTable = pgTable(
+export const perfumes = pgTable(
   "perfumes",
   {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
