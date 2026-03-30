@@ -3,7 +3,7 @@ import { timestamps } from "../columns.helpers";
 import { langEn, roleEn } from "./enums";
 
 export const users = pgTable("users", {
-  id: integer().generatedAlwaysAsIdentity(),
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 50 }).notNull(),
   email: varchar({ length: 100 }).notNull().unique(),
   password: varchar({ length: 200 }).notNull(),
