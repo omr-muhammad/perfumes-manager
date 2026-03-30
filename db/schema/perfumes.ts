@@ -9,14 +9,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { timestamps } from "../columns.helpers";
 import { sql } from "drizzle-orm";
-
-export const seasonsEn = pgEnum("seasons", [
-  "winter",
-  "spring",
-  "summer",
-  "fall",
-]);
-export const sexEn = pgEnum("sex", ["men", "women", "unisex"]);
+import { seasonsEn, sexEn } from "./enums";
 
 // later for better structure
 // export const familiesEn = pgEnum("families", ["fresh", "aromatic", "citrus", "water", "green", "fruity", "floral", "soft floral", "oriental(Amber)", "floral oriental", "soft oriental", "woody oriental", "woody", "woods", "mossy woods", "dry woods"])
