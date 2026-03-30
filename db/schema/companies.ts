@@ -7,6 +7,7 @@ import {
   unique,
   varchar,
 } from "drizzle-orm/pg-core";
+import { timestamps } from "../columns.helpers";
 
 export const companies = pgTable(
   "companies",
@@ -15,6 +16,7 @@ export const companies = pgTable(
     name: varchar({ length: 100 }).notNull(),
     country: varchar({ length: 50 }),
     approved: boolean().default(false),
+    ...timestamps,
   },
   (table) => [
     unique().on(table.name, table.country),
