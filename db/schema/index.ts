@@ -1,0 +1,10 @@
+export * as User from "./users";
+export * as Perfumes from "./perfumes";
+export * as Companies from "./companies";
+export * as Shops from "./shops";
+export * as ShopStaff from "./shopStaff";
+export * as Alcohols from "./alcohols";
+export * as PerfumesCompounds from "./perfumesCompounds";
+export * as Bottles from "./bottles";
+export * as Aging from "./aging";
+export * as Addresses from "./addresses";
