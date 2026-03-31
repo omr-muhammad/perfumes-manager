@@ -38,5 +38,13 @@ export const perfumes = pgTable(
       )
     `,
     ),
+    check(
+      "seasons_array_cannot_exceed_four",
+      sql`
+        NOT ${table.approved}
+        OR
+        array_length(${table.seasons}, 1) <= 4
+      `,
+    ),
   ],
 );
