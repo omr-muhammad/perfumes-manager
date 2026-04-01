@@ -15,6 +15,13 @@
       "when": 1774989549984,
       "tag": "0001_premium_odin",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1775045047412,
+      "tag": "0002_solid_carmella_unuscione",
+      "breakpoints": true
     }
   ]
 }
