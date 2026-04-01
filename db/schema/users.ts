@@ -3,12 +3,12 @@ import { timestamps } from "../columns.helpers";
 import { langEn, roleEn } from "./enums";
 
 export const users = pgTable("users", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: varchar({ length: 50 }).notNull(),
-  email: varchar({ length: 100 }).notNull().unique(),
-  password: varchar({ length: 200 }).notNull(),
-  role: roleEn().notNull().default("customer"),
-  language: langEn().default("ar"),
-  phone: varchar({ length: 50 }).unique(),
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar("name", { length: 50 }).notNull(),
+  email: varchar("email", { length: 100 }).notNull().unique(),
+  password: varchar("password", { length: 200 }).notNull(),
+  role: roleEn("role").notNull().default("customer"),
+  language: langEn("language").default("ar"),
+  phone: varchar("phone", { length: 50 }).unique(),
   ...timestamps,
 });

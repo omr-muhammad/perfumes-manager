@@ -17,12 +17,12 @@ import { seasonsEn, sexEn } from "./enums";
 export const perfumes = pgTable(
   "perfumes",
   {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar({ length: 100 }).unique().notNull(),
-    seasons: seasonsEn().array(),
-    sex: sexEn(),
-    description: text().default(""),
-    approved: boolean().notNull().default(false),
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    name: varchar("name", { length: 100 }).unique().notNull(),
+    seasons: seasonsEn("seasons").array(),
+    sex: sexEn("sex"),
+    description: text("description").default(""),
+    approved: boolean("approved").notNull().default(false),
     ...timestamps,
   },
   (table) => [

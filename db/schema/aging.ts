@@ -12,17 +12,22 @@ import { sql } from "drizzle-orm";
 export const aging = pgTable(
   "aging",
   {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    amount: integer().notNull(),
-    startDate: timestamp().notNull(),
-    endDate: timestamp().notNull(),
-    compoundId: integer()
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    amount: integer("amount").notNull(),
+    startDate: timestamp("start_date").notNull(),
+    endDate: timestamp("end_date").notNull(),
+    compoundId: integer("compound_id")
       .notNull()
       .references(() => perfumesCompounds.id, { onDelete: "cascade" }),
     ...timestamps,
   },
   (table) => [
-    unique().on(table.amount, table.startDate, table.endDate, table.compoundId),
+    unique("duplicate_entry").on(
+      table.amount,
+      table.startDate,
+      table.endDate,
+      table.compoundId,
+    ),
     check(
       "amount_must_be_positive",
       sql`

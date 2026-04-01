@@ -16,18 +16,21 @@ import { shops } from "./shops";
 export const alcohols = pgTable(
   "alcohols",
   {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar({ length: 100 }).notNull(),
-    type: varchar({ length: 50 }).notNull(),
-    amountInMl: integer().notNull().default(0),
-    ltBuyPrice: numeric({ scale: 4, precision: 4 }).notNull(),
-    ltSellPrice: numeric({ scale: 4, precision: 4 }).notNull(),
-    unitSellPrice: numeric({ scale: 2, precision: 2 }).notNull(),
-    unit: varchar({ length: 2 }).notNull().default("ml"),
-    concentration: smallint().default(96),
-    madeDate: timestamp().notNull(),
-    expiryDate: timestamp().notNull(),
-    shopId: integer()
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    name: varchar("name", { length: 100 }).notNull(),
+    type: varchar("type", { length: 50 }).notNull(),
+    amountInMl: integer("amount_in_ml").notNull().default(0),
+    ltBuyPrice: numeric("lt_buy_price", { scale: 4, precision: 4 }).notNull(),
+    ltSellPrice: numeric("lt_sell_price", { scale: 4, precision: 4 }).notNull(),
+    unitSellPrice: numeric("unit_sell_price", {
+      scale: 2,
+      precision: 2,
+    }).notNull(),
+    unit: varchar("unit", { length: 2 }).notNull().default("ml"),
+    concentration: smallint("concentration").default(96),
+    madeDate: timestamp("made_date").notNull(),
+    expiryDate: timestamp("expiry_date").notNull(),
+    shopId: integer("shop_id")
       .notNull()
       .references(() => shops.id, { onDelete: "cascade" }),
     ...timestamps,

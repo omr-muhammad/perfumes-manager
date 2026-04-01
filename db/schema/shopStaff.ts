@@ -7,15 +7,15 @@ import { timestamps } from "../columns.helpers";
 export const shopStaff = pgTable(
   "shop_staff",
   {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    shopId: integer()
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    shopId: integer("shop_id")
       .references(() => shops.id, { onDelete: "cascade" })
       .notNull(),
-    userId: integer()
+    userId: integer("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
-    role: staffEn().notNull(),
+    role: staffEn("role").notNull(),
     ...timestamps,
   },
-  (table) => [unique().on(table.shopId, table.userId)],
+  (table) => [unique("duplicate_staff").on(table.shopId, table.userId)],
 );

@@ -12,10 +12,10 @@ import { timestamps } from "../columns.helpers";
 export const companies = pgTable(
   "companies",
   {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar({ length: 100 }).notNull(),
-    country: varchar({ length: 50 }),
-    approved: boolean().default(false),
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    name: varchar("name", { length: 100 }).notNull(),
+    country: varchar("country", { length: 50 }),
+    approved: boolean("approved").default(false),
     ...timestamps,
   },
   (table) => [

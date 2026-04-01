@@ -15,14 +15,14 @@ import { sql } from "drizzle-orm";
 export const bottles = pgTable(
   "bottles",
   {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar({ length: 50 }),
-    type: bottleTypeEn().notNull(),
-    size: smallint().notNull(),
-    category: bottleCatgeroyEn().notNull(),
-    price: numeric({ scale: 3, precision: 3 }).notNull(),
-    img: text(),
-    shopId: integer()
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    name: varchar("name", { length: 50 }),
+    type: bottleTypeEn("type").notNull(),
+    size: smallint("size").notNull(),
+    category: bottleCatgeroyEn("category").notNull(),
+    price: numeric("price", { scale: 3, precision: 3 }).notNull(),
+    img: text("img"),
+    shopId: integer("shop_id")
       .references(() => shops.id, { onDelete: "cascade" })
       .notNull(),
     ...timestamps,

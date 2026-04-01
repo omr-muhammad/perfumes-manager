@@ -16,24 +16,29 @@ import { sql } from "drizzle-orm";
 export const perfumesCompounds = pgTable(
   "perfumes_compounds",
   {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    oilAmountInMl: integer().notNull().default(0),
-    sprayAmountInMl: integer().notNull().default(0),
-    concentration: smallint(),
-    code: varchar({ length: 50 }).notNull(),
-    perfumeId: integer()
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    oilAmountInMl: integer("oil_amount_in_ml").notNull().default(0),
+    sprayAmountInMl: integer("spray_amount_in_ml").notNull().default(0),
+    concentration: smallint("concentration"),
+    code: varchar("code", { length: 50 }).notNull(),
+    perfumeId: integer("perfume_id")
       .notNull()
       .references(() => perfumes.id, { onDelete: "restrict" }),
-    companyId: integer()
+    companyId: integer("company_id")
       .notNull()
       .references(() => companies.id, { onDelete: "restrict" }),
-    shopId: integer()
+    shopId: integer("shop_id")
       .notNull()
       .references(() => shops.id, { onDelete: "cascade" }),
     ...timestamps,
   },
   (table) => [
-    unique().on(table.perfumeId, table.companyId, table.shopId, table.code),
+    unique("duplicate_compound").on(
+      table.perfumeId,
+      table.companyId,
+      table.shopId,
+      table.code,
+    ),
     check(
       "oil_amount_cannot_be_negative",
       sql`

@@ -14,17 +14,17 @@ import { sql } from "drizzle-orm";
 export const addresses = pgTable(
   "addresses",
   {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    country: varchar({ length: 50 }).notNull(),
-    city: varchar({ length: 50 }).notNull(),
-    strict: varchar({ length: 50 }).default(""),
-    street: varchar({ length: 50 }).default(""),
-    buildingNumber: smallint(),
-    notes: text().default(""),
-    shopId: integer()
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    country: varchar("country", { length: 50 }).notNull(),
+    city: varchar("city", { length: 50 }).notNull(),
+    strict: varchar("strict", { length: 50 }).default(""),
+    street: varchar("street", { length: 50 }).default(""),
+    buildingNumber: smallint("building_number"),
+    notes: text("notes").default(""),
+    shopId: integer("shop_id")
       .references(() => shops.id, { onDelete: "cascade" })
       .unique(),
-    userId: integer()
+    userId: integer("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .unique(),
     ...timestamps,

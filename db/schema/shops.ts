@@ -3,11 +3,11 @@ import { timestamps } from "../columns.helpers";
 import { users } from "./users";
 
 export const shops = pgTable("shops", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: varchar({ length: 100 }).notNull().unique(),
-  ownerId: integer()
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar("name", { length: 100 }).notNull().unique(),
+  ownerId: integer("owner_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  logo: text().default(""),
+  logo: text("logo").default(""),
   ...timestamps,
 });
