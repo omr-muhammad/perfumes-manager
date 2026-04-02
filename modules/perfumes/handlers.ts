@@ -5,13 +5,17 @@ import type {
   CreatePerfumeBody,
   UpdatePerfumeBody,
 } from "./schema";
+import { response } from "../../utils/response";
 
 export async function createPerfume(context: { body: CreatePerfumeBody }) {
   const { body } = context;
 
   const perfume = await perfumeService.create(body.name);
 
-  return perfume;
+  return response.ok("Perfume Created", {
+    id: perfume?.id,
+    name: perfume?.name,
+  });
 }
 
 export async function createAdminPerfume(context: {
@@ -21,7 +25,10 @@ export async function createAdminPerfume(context: {
 
   const perfume = await perfumeService.adminCreate(body);
 
-  return perfume;
+  return response.ok("Approved Perfume Created", {
+    id: perfume?.id,
+    name: perfume?.name,
+  });
 }
 
 export async function approvePerfume(context: {
@@ -30,21 +37,24 @@ export async function approvePerfume(context: {
 }) {
   const { body, params } = context;
 
-  const updatedPerfume = await perfumeService.adminApprove(params.id, body);
+  const perfume = await perfumeService.adminApprove(params.id, body);
 
-  return updatedPerfume;
+  return response.ok("Perfume Approved", {
+    id: perfume?.id,
+    name: perfume?.name,
+  });
 }
 
 export async function getPerfumesDashboard() {
   const perfumes = await perfumeService.queryAll("dashboard");
 
-  return perfumes;
+  return response.ok("Perfumes fetched", perfumes);
 }
 
 export async function getPerfumesPublic() {
   const perfumes = await perfumeService.queryAll();
 
-  return perfumes;
+  return response.ok("Perfumes fetched", perfumes);
 }
 
 export async function updatePerfume(context: {
@@ -55,7 +65,10 @@ export async function updatePerfume(context: {
 
   const perfume = await perfumeService.update(params.id, body);
 
-  return perfume;
+  return response.ok("Perfume updated", {
+    id: perfume?.id,
+    name: perfume?.name,
+  });
 }
 
 export async function deletePerfume(context: { params: { id: number } }) {
@@ -63,5 +76,5 @@ export async function deletePerfume(context: { params: { id: number } }) {
 
   const perfume = await perfumeService.remove(params.id);
 
-  return { message: "Deleted successfully." };
+  return response.ok("Perfume deleted", { name: perfume?.name });
 }
