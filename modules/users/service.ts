@@ -1,7 +1,19 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db/config";
 import { usersTable } from "../../db/schema";
-import type { AdminCreateUserBody, UpdateUserBody } from "./schema";
+import type {
+  AdminCreateUserBody,
+  SignupBody,
+  AdminUpdateUserBody,
+} from "./schema";
+import {
+  jwt,
+  type JWTHeaderParameters,
+  type JWTOption,
+  type JWTPayloadInput,
+  type JWTPayloadSpec,
+} from "@elysiajs/jwt";
+import type { AuthJWT } from "../../utils/jwtPlugins";
 
 // try {
 
@@ -9,6 +21,7 @@ import type { AdminCreateUserBody, UpdateUserBody } from "./schema";
 //   console.log("Error: ", e.cause);
 // }
 
+// Admin
 export async function adminCreate(newUser: AdminCreateUserBody) {
   try {
     const hashedPassword = await Bun.password.hash(newUser.password);
@@ -56,7 +69,7 @@ export async function getById(id: number) {
   }
 }
 
-export async function update(id: number, updates: UpdateUserBody) {
+export async function adminUpdate(id: number, updates: AdminUpdateUserBody) {
   try {
     if (updates.password)
       updates.password = await Bun.password.hash(updates.password);
@@ -73,7 +86,8 @@ export async function update(id: number, updates: UpdateUserBody) {
   }
 }
 
-export async function updatePassword(id: number, oldPw: string, newPw: string) {
+// Non Admin
+export async function ChangePassword(id: number, oldPw: string, newPw: string) {
   try {
     const [user] = await db
       .select()
@@ -93,6 +107,25 @@ export async function updatePassword(id: number, oldPw: string, newPw: string) {
       .returning();
 
     return updated;
+  } catch (e: any) {
+    console.log("Error: ", e.cause);
+  }
+}
+
+export async function signup(jwt: AuthJWT, newUser: SignupBody) {
+  try {
+    const [user] = await db.insert(usersTable).values(newUser).returning();
+
+    if (user) {
+      const authToken = await jwt.sign({
+        userId: user.id,
+        role: user.role,
+      });
+
+      return { user, authToken };
+    }
+
+    return null;
   } catch (e: any) {
     console.log("Error: ", e.cause);
   }

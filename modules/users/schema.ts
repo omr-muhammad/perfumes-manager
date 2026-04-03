@@ -12,7 +12,7 @@ export const AdminCreateUserBody = t.Object({
 });
 export type AdminCreateUserBody = Static<typeof AdminCreateUserBody>;
 
-export const UpdateUserBody = t.Object({
+export const AdminUpdateUserBody = t.Object({
   name: t.Optional(t.String()),
   email: t.Optional(t.String()),
   language: t.Optional(t.Union([t.Literal("ar"), t.Literal("en")])),
@@ -22,10 +22,23 @@ export const UpdateUserBody = t.Object({
   password: t.Optional(t.String()),
   phone: t.Optional(t.String()),
 });
-export type UpdateUserBody = Static<typeof UpdateUserBody>;
+export type AdminUpdateUserBody = Static<typeof AdminUpdateUserBody>;
 
-export const UpdatePasswordBody = t.Object({
+export const ChangePasswordBody = t.Object({
   oldPw: t.String(),
   newPw: t.String(),
 });
-export type UpdatePasswordBody = Static<typeof UpdatePasswordBody>;
+export type ChangePasswordBody = Static<typeof ChangePasswordBody>;
+
+export const SignupBody = t.Object({
+  name: t.String(),
+  email: t.String(),
+  password: t.String(),
+  language: t.Optional(t.Union([t.Literal("ar"), t.Literal("en")])),
+  phone: t.Optional(t.String()),
+  keepLoggedIn: t.Optional(t.Boolean()),
+});
+export type SignupBody = Static<typeof SignupBody>;
+
+export const UpdateUserBody = t.Partial(t.Omit(SignupBody, ["password"]));
+export type UpdateUserBody = Static<typeof UpdateUserBody>;

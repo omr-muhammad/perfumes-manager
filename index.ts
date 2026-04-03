@@ -1,9 +1,11 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { perfumesRouter } from "./modules/perfumes/router";
 import { companiesRouter } from "./modules/companies/router";
 import { usersRouter } from "./modules/users/router";
+import { authJWTPlugin } from "./utils/jwtPlugins";
 
-const app = new Elysia()
+export const app = new Elysia()
+  .use(authJWTPlugin)
   .use(perfumesRouter)
   .use(companiesRouter)
   .use(usersRouter)

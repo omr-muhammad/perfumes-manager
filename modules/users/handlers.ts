@@ -1,12 +1,26 @@
+import type { Cookie } from "elysia";
+import type { AuthJWT } from "../../utils/jwtPlugins";
 import { response as res } from "../../utils/response";
 import type {
   AdminCreateUserBody,
-  UpdatePasswordBody,
-  UpdateUserBody,
+  SignupBody,
+  ChangePasswordBody,
+  AdminUpdateUserBody,
 } from "./schema";
 import * as usersService from "./service";
 
-export async function adminCreateUser(context: { body: AdminCreateUserBody }) {
+// Ctx for context;
+type Ctx<TBody = unknown, TParams = unknown> = {
+  authJWT: AuthJWT;
+  body: TBody;
+  params: TParams;
+  cookie: Record<string, Cookie<unknown>>;
+};
+
+type TParams = { id: number };
+
+// Admin
+export async function adminCreateUser(context: Ctx<AdminCreateUserBody>) {
   const { body } = context;
 
   const user = await usersService.adminCreate(body);
@@ -22,7 +36,7 @@ export async function getAllUsers() {
   });
 }
 
-export async function getUserById(context: { params: { id: number } }) {
+export async function getUserById(context: Ctx<unknown, TParams>) {
   const { params } = context;
 
   const user = await usersService.getById(params.id);
@@ -35,13 +49,12 @@ export async function getUserById(context: { params: { id: number } }) {
   return res.fail("Uesr not found", { code: "NOT_FOUND" });
 }
 
-export async function updateUser(context: {
-  params: { id: number };
-  body: UpdateUserBody;
-}) {
+export async function adminUpdateUser(
+  context: Ctx<AdminUpdateUserBody, TParams>,
+) {
   const { params, body } = context;
 
-  const user = await usersService.update(params.id, body);
+  const user = await usersService.adminUpdate(params.id, body);
 
   if (user) {
     const { password, ...withoutPw } = user;
@@ -51,13 +64,13 @@ export async function updateUser(context: {
   return res.fail("User not found", { code: "NOT_FOUND" });
 }
 
-export async function updateUserPassword(context: {
-  params: { id: number };
-  body: UpdatePasswordBody;
-}) {
+// Non Admin
+export async function changePassword(
+  context: Ctx<ChangePasswordBody, TParams>,
+) {
   const { params, body } = context;
 
-  const user = await usersService.updatePassword(
+  const user = await usersService.ChangePassword(
     params.id,
     body.oldPw,
     body.newPw,
@@ -70,5 +83,29 @@ export async function updateUserPassword(context: {
 
   return res.fail("User not found or old password is wrong", {
     code: "NOT_FOUND",
+  });
+}
+
+export async function signup(context: Ctx<SignupBody>) {
+  const { body, authJWT, cookie } = context;
+
+  const result = await usersService.signup(authJWT, body);
+
+  if (!result) return res.fail("Uknown Error", { code: "UNKNOWN" });
+
+  const { password, phone, role, ...safeUser } = result.user;
+
+  const inProduction = process.env.NODE_ENV === "production";
+  cookie.authToken?.set({
+    value: result.authToken,
+    secrets: process.env.jwt_secret,
+    httpOnly: inProduction, // true => client cannot access with document.cookie
+    maxAge: body.keepLoggedIn ? 7 * 24 * 60 * 60 : 24 * 60 * 60, // 7 days or One
+    secure: inProduction, // true => only send with https
+  });
+
+  return res.ok("Signup Successfully", {
+    user: safeUser,
+    token: result.authToken,
   });
 }
