@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { db } from "../../db/config";
 import { usersTable } from "../../db/schema";
 import type { AdminCreateUserBody } from "./schema";
@@ -27,6 +28,29 @@ export async function adminCreate(newUser: AdminCreateUserBody) {
     }
 
     return null;
+  } catch (e: any) {
+    console.log("Error: ", e.cause);
+  }
+}
+
+export async function queryAll() {
+  try {
+    const users = await db.select().from(usersTable);
+
+    return users;
+  } catch (e: any) {
+    console.log("Error: ", e.cause);
+  }
+}
+
+export async function getById(id: number) {
+  try {
+    const [user] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.id, id));
+
+    return user;
   } catch (e: any) {
     console.log("Error: ", e.cause);
   }
