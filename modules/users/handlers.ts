@@ -1,5 +1,9 @@
 import { response as res } from "../../utils/response";
-import type { AdminCreateUserBody, UpdateUserBody } from "./schema";
+import type {
+  AdminCreateUserBody,
+  UpdatePasswordBody,
+  UpdateUserBody,
+} from "./schema";
 import * as usersService from "./service";
 
 export async function adminCreateUser(context: { body: AdminCreateUserBody }) {
@@ -45,4 +49,26 @@ export async function updateUser(context: {
   }
 
   return res.fail("User not found", { code: "NOT_FOUND" });
+}
+
+export async function updateUserPassword(context: {
+  params: { id: number };
+  body: UpdatePasswordBody;
+}) {
+  const { params, body } = context;
+
+  const user = await usersService.updatePassword(
+    params.id,
+    body.oldPw,
+    body.newPw,
+  );
+
+  if (user) {
+    const { password, ...withoutPw } = user;
+    return res.ok("User Password updated.", { user: withoutPw });
+  }
+
+  return res.fail("User not found or old password is wrong", {
+    code: "NOT_FOUND",
+  });
 }

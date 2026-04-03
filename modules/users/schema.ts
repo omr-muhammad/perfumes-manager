@@ -23,3 +23,9 @@ export const UpdateUserBody = t.Object({
   phone: t.Optional(t.String()),
 });
 export type UpdateUserBody = Static<typeof UpdateUserBody>;
+
+export const UpdatePasswordBody = t.Object({
+  oldPw: t.String(),
+  newPw: t.String(),
+});
+export type UpdatePasswordBody = Static<typeof UpdatePasswordBody>;

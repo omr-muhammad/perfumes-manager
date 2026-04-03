@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../../db/config";
 import { usersTable } from "../../db/schema";
 import type { AdminCreateUserBody, UpdateUserBody } from "./schema";
@@ -63,11 +63,36 @@ export async function update(id: number, updates: UpdateUserBody) {
 
     const [user] = await db
       .update(usersTable)
-      .set(updates)
+      .set({ ...updates, createdAt: new Date() })
       .where(eq(usersTable.id, id))
       .returning();
 
     return user;
+  } catch (e: any) {
+    console.log("Error: ", e.cause);
+  }
+}
+
+export async function updatePassword(id: number, oldPw: string, newPw: string) {
+  try {
+    const [user] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.id, id));
+
+    if (!user) return null;
+
+    const isMatch = await Bun.password.verify(oldPw, user.password);
+
+    if (!isMatch) return null;
+
+    const newHashed = await Bun.password.hash(newPw);
+    const [updated] = await db
+      .update(usersTable)
+      .set({ password: newHashed, updatedAt: new Date() })
+      .returning();
+
+    return updated;
   } catch (e: any) {
     console.log("Error: ", e.cause);
   }
