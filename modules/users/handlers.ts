@@ -10,14 +10,15 @@ import type {
   UpdateUserBody,
 } from "./schema";
 import * as usersService from "./service";
-import type { UserPayload } from "../../utils/globalSchema";
+import type { CtxCookie, UserPayload } from "../../utils/globalSchema";
+import { setCookie, signToken } from "../../utils/token";
 
 // Ctx for context;
 type Ctx<TBody = unknown, TParams = unknown> = {
   authJWT: AuthJWT;
   body: TBody;
   params: TParams;
-  cookie: Record<string, Cookie<unknown>>;
+  cookie: CtxCookie;
   authPayload: UserPayload;
 };
 
@@ -95,20 +96,20 @@ export async function changePassword(context: Ctx<ChangePasswordBody>) {
 export async function signup(context: CtxWithoutPayload<SignupBody>) {
   const { body, authJWT, cookie } = context;
 
-  const result = await usersService.signup(authJWT, body);
+  const user = await usersService.signup(body);
 
-  if (!result) return res.fail("Uknown Error", { code: "UNKNOWN" });
+  if (!user) return res.fail("Fail to Signup", { code: "FAIL_SIGNUP" });
 
-  const { password, phone, role, ...safeInfo } = result.user;
+  const { password, phone, role, ...safeInfo } = user;
 
-  const inProduction = process.env.NODE_ENV === "production";
-  cookie.authToken?.set({
-    value: result.token,
-    secrets: process.env.jwt_secret,
-    httpOnly: inProduction, // true => client cannot access with document.cookie
-    maxAge: body.keepLogin ? 30 * 24 * 60 * 60 : 24 * 60 * 60, // 30 days or One
-    secure: inProduction, // true => only send with https
-  });
+  const token = await signToken(
+    authJWT,
+    { userId: user.id, role: user.role },
+    body.keepLogin,
+  );
+
+  const maxAge = body.keepLogin ? 30 * 24 * 60 * 60 : 24 * 60 * 60;
+  setCookie(cookie, "authToken", token, maxAge);
 
   return res.ok("Signup Successfully", {
     user: safeInfo,
@@ -118,16 +119,19 @@ export async function signup(context: CtxWithoutPayload<SignupBody>) {
 export async function login(context: CtxWithoutPayload<LoginBody>) {
   const { body, authJWT, cookie } = context;
 
-  const token = await usersService.login(authJWT, body);
+  const user = await usersService.login(body);
 
-  const inProduction = process.env.NODE_ENV === "production";
-  cookie.authToken?.set({
-    value: token,
-    secrets: process.env.jwt_secret,
-    httpOnly: inProduction, // true => client cannot access with document.cookie
-    maxAge: body.keepLogin ? 30 * 24 * 60 * 60 : 24 * 60 * 60, // 30 days or One
-    secure: inProduction, // true => only send with https
-  });
+  if (!user)
+    return res.fail("Invalid credentials", { code: "INVALID_CREDENTIALS" });
+
+  const token = await signToken(
+    authJWT,
+    { userId: user.id, role: user.role },
+    body.keepLogin,
+  );
+
+  const maxAge = body.keepLogin ? 30 * 24 * 60 * 60 : 24 * 60 * 60;
+  setCookie(cookie, "authToken", token, maxAge);
 
   return res.ok("User logged");
 }

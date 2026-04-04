@@ -121,28 +121,17 @@ export async function ChangePassword(id: number, oldPw: string, newPw: string) {
   }
 }
 
-export async function signup(jwt: AuthJWT, newUser: SignupBody) {
+export async function signup(newUser: SignupBody) {
   try {
     const [user] = await db.insert(usersTable).values(newUser).returning();
 
-    const expDuration = newUser.keepLogin ? 30 * 24 * 60 * 60 : 24 * 60 * 60;
-    if (user) {
-      const authToken = await jwt.sign({
-        userId: user.id,
-        role: user.role,
-        exp: Math.floor(Date.now() / 1000) + expDuration,
-      });
-
-      return { user, token: authToken };
-    }
-
-    return null;
+    return user;
   } catch (e: any) {
     console.log("Error: ", e.cause);
   }
 }
 
-export async function login(jwt: AuthJWT, loginData: LoginBody) {
+export async function login(loginData: LoginBody) {
   try {
     const { email, password, keepLogin } = loginData;
     const [user] = await db
@@ -156,15 +145,10 @@ export async function login(jwt: AuthJWT, loginData: LoginBody) {
 
     if (!pwMatch) return null;
 
-    const expDuration = keepLogin ? 30 * 24 * 60 * 60 : 24 * 60 * 60;
-    const authToken = jwt.sign({
-      userId: user.id,
-      role: user.role,
-      exp: Math.floor(Date.now() / 1000) + expDuration,
-    });
-
-    return authToken;
+    return user;
   } catch (e: any) {
     console.log("Error: ", e.cause);
   }
 }
+
+// export async function remove();

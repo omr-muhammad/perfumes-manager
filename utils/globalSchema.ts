@@ -1,4 +1,4 @@
-import { t, type Static } from "elysia";
+import { Cookie, t, type Static } from "elysia";
 
 export const UserPayload = t.Object({
   userId: t.Number(),
@@ -10,3 +10,4 @@ export const UserPayload = t.Object({
   ]),
 });
 export type UserPayload = Static<typeof UserPayload>;
+export type CtxCookie = Record<string, Cookie<unknown>>;
