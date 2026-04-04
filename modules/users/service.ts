@@ -123,6 +123,9 @@ export async function ChangePassword(id: number, oldPw: string, newPw: string) {
 
 export async function signup(newUser: SignupBody) {
   try {
+    const hashedPassword = await Bun.password.hash(newUser.password);
+    newUser.password = hashedPassword;
+
     const [user] = await db.insert(usersTable).values(newUser).returning();
 
     return user;
@@ -151,4 +154,30 @@ export async function login(loginData: LoginBody) {
   }
 }
 
-// export async function remove();
+export async function remove(id: number, password?: string) {
+  try {
+    if (!password)
+      return await db
+        .delete(usersTable)
+        .where(eq(usersTable.id, id))
+        .returning({ id: usersTable.id });
+
+    const [user] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.id, id));
+
+    if (!user) return -1;
+
+    const passwordMatch = await Bun.password.verify(password, user.password);
+
+    if (!passwordMatch) return null;
+
+    return await db
+      .delete(usersTable)
+      .where(eq(usersTable.id, id))
+      .returning({ id: usersTable.id });
+  } catch (e: any) {
+    console.log("Error: ", e.cause);
+  }
+}

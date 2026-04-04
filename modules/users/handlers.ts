@@ -122,7 +122,9 @@ export async function login(context: CtxWithoutPayload<LoginBody>) {
   const user = await usersService.login(body);
 
   if (!user)
-    return res.fail("Invalid credentials", { code: "INVALID_CREDENTIALS" });
+    return res.fail("Invalid email or password.", {
+      code: "INVALID_CREDENTIALS",
+    });
 
   const token = await signToken(
     authJWT,
@@ -156,4 +158,25 @@ export async function getMe(context: Ctx) {
 
   const { password, ...safeInfo } = user;
   return res.ok("User fetched", { user: safeInfo });
+}
+
+export async function deleteUser(context: Ctx<unknown, TParams>) {
+  const { params } = context;
+
+  const userId = await usersService.remove(params.id);
+
+  return res.ok("User deleted");
+}
+
+export async function deleteMe(context: Ctx<{ password: string }>) {
+  const { body, authPayload } = context;
+
+  const userId = await usersService.remove(authPayload.userId, body.password);
+
+  if (!userId)
+    return res.fail("Cannot delete account, invalid password", {
+      code: "INVALID_CREDENTIALS",
+    });
+
+  return res.ok("User delete", { userId });
 }

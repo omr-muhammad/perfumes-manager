@@ -14,11 +14,9 @@ import { UserPayload } from "../../utils/globalSchema";
 export const usersRouter = new Elysia({ prefix: "/users" })
   .use(authJWTPlugin)
   .post("/signup", handlers.signup, {
-    authJWT: authJWTPlugin,
     body: SignupBody,
   })
   .post("/login", handlers.login, {
-    authJWT: authJWTPlugin,
     body: LoginBody,
   })
   .resolve(async ({ cookie: { authToken }, authJWT }) => {
@@ -30,7 +28,7 @@ export const usersRouter = new Elysia({ prefix: "/users" })
 
     if (!payload) throw new Error("Unauthorized.");
 
-    console.log("payload", payload);
+    // console.log("payload", payload);
     return { authPayload: payload };
   })
   .group("/admin", (app) =>
@@ -49,13 +47,22 @@ export const usersRouter = new Elysia({ prefix: "/users" })
       .patch("/:id", handlers.adminUpdateUser, {
         params: t.Object({ id: t.Number() }),
         body: AdminUpdateUserBody,
+      })
+      .delete("/:id", handlers.deleteUser, {
+        params: t.Object({ id: t.Number() }),
       }),
   )
-  .get("/me", handlers.getMe)
-  //
-  .patch("/", handlers.updateMe, {
-    body: UpdateUserBody,
-  })
-  .patch("/update-password", handlers.changePassword, {
-    body: ChangePasswordBody,
-  });
+  .group("/profile", (app) =>
+    app
+      .get("/", handlers.getMe)
+      //
+      .patch("/", handlers.updateMe, {
+        body: UpdateUserBody,
+      })
+      .patch("/password", handlers.changePassword, {
+        body: ChangePasswordBody,
+      })
+      .delete("/", handlers.deleteMe, {
+        body: t.Object({ password: t.String() }),
+      }),
+  );
