@@ -6,6 +6,7 @@ import {
   ChangePasswordBody,
   AdminUpdateUserBody,
   LoginBody,
+  UpdateUserBody,
 } from "./schema";
 import { authJWTPlugin } from "../../utils/jwtPlugins";
 import { UserPayload } from "../../utils/globalSchema";
@@ -29,6 +30,7 @@ export const usersRouter = new Elysia({ prefix: "/users" })
 
     if (!payload) throw new Error("Unauthorized.");
 
+    console.log("payload", payload);
     return { authPayload: payload };
   })
   .group("/admin", (app) =>
@@ -50,6 +52,9 @@ export const usersRouter = new Elysia({ prefix: "/users" })
       }),
   )
   //
+  .patch("/", handlers.updateMe, {
+    body: UpdateUserBody,
+  })
   .patch("/:id/update-password", handlers.changePassword, {
     params: t.Object({ id: t.Number() }),
     body: ChangePasswordBody,

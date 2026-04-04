@@ -6,14 +6,8 @@ import type {
   SignupBody,
   AdminUpdateUserBody,
   LoginBody,
+  UpdateUserBody,
 } from "./schema";
-import {
-  jwt,
-  type JWTHeaderParameters,
-  type JWTOption,
-  type JWTPayloadInput,
-  type JWTPayloadSpec,
-} from "@elysiajs/jwt";
 import type { AuthJWT } from "../../utils/jwtPlugins";
 
 // try {
@@ -88,6 +82,20 @@ export async function adminUpdate(id: number, updates: AdminUpdateUserBody) {
 }
 
 // Non Admin
+export async function update(id: number, updates: UpdateUserBody) {
+  try {
+    const [user] = await db
+      .update(usersTable)
+      .set(updates)
+      .where(eq(usersTable.id, id))
+      .returning();
+
+    return user;
+  } catch (e: any) {
+    console.log("Error: ", e.cause);
+  }
+}
+
 export async function ChangePassword(id: number, oldPw: string, newPw: string) {
   try {
     const [user] = await db
@@ -135,24 +143,28 @@ export async function signup(jwt: AuthJWT, newUser: SignupBody) {
 }
 
 export async function login(jwt: AuthJWT, loginData: LoginBody) {
-  const { email, password, keepLogin } = loginData;
-  const [user] = await db
-    .select()
-    .from(usersTable)
-    .where(eq(usersTable.email, email));
+  try {
+    const { email, password, keepLogin } = loginData;
+    const [user] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.email, email));
 
-  if (!user) return null;
+    if (!user) return null;
 
-  const pwMatch = await Bun.password.verify(password, user.password);
+    const pwMatch = await Bun.password.verify(password, user.password);
 
-  if (!pwMatch) return null;
+    if (!pwMatch) return null;
 
-  const expDuration = keepLogin ? 30 * 24 * 60 * 60 : 24 * 60 * 60;
-  const authToken = jwt.sign({
-    userId: user.id,
-    role: user.role,
-    exp: Math.floor(Date.now() / 1000) + expDuration,
-  });
+    const expDuration = keepLogin ? 30 * 24 * 60 * 60 : 24 * 60 * 60;
+    const authToken = jwt.sign({
+      userId: user.id,
+      role: user.role,
+      exp: Math.floor(Date.now() / 1000) + expDuration,
+    });
 
-  return authToken;
+    return authToken;
+  } catch (e: any) {
+    console.log("Error: ", e.cause);
+  }
 }

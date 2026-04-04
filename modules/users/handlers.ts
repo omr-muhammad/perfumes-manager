@@ -7,6 +7,7 @@ import type {
   ChangePasswordBody,
   AdminUpdateUserBody,
   LoginBody,
+  UpdateUserBody,
 } from "./schema";
 import * as usersService from "./service";
 import type { UserPayload } from "../../utils/globalSchema";
@@ -84,8 +85,8 @@ export async function changePassword(
   );
 
   if (user) {
-    const { password, ...withoutPw } = user;
-    return res.ok("User Password updated.", { user: withoutPw });
+    const { password, role, phone, ...safeInfo } = user;
+    return res.ok("User Password updated.", { user: safeInfo });
   }
 
   return res.fail("User not found or old password is wrong", {
@@ -129,4 +130,17 @@ export async function login(context: CtxWithoutPayload<LoginBody>) {
     maxAge: body.keepLogin ? 30 * 24 * 60 * 60 : 24 * 60 * 60, // 30 days or One
     secure: inProduction, // true => only send with https
   });
+
+  return res.ok("User logged");
+}
+
+export async function updateMe(context: Ctx<UpdateUserBody>) {
+  const { body, params, authPayload } = context;
+
+  const user = await usersService.update(authPayload.userId, body);
+
+  if (!user) return res.fail("Unknown error", { code: "UNKNOWN" });
+
+  const { password, role, ...safeInfo } = user;
+  return res.ok("User updated", { user: safeInfo });
 }
