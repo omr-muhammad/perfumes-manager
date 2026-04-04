@@ -3,12 +3,12 @@ import { t } from "elysia";
 
 const JWTSchema = t.Object({
   userId: t.Number(),
-  role: t.Enum({
-    admin: "admin",
-    owner: "owner",
-    staff: "staff",
-    customer: "customer",
-  }),
+  role: t.Union([
+    t.Literal("admin"),
+    t.Literal("owner"),
+    t.Literal("staff"),
+    t.Literal("customer"),
+  ]),
 });
 
 export const authJWTPlugin = jwt({

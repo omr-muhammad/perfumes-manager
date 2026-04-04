@@ -5,14 +5,20 @@ import {
   SignupBody,
   ChangePasswordBody,
   AdminUpdateUserBody,
+  LoginBody,
 } from "./schema";
 import { authJWTPlugin } from "../../utils/jwtPlugins";
+import { UserPayload } from "../../utils/globalSchema";
 
 export const usersRouter = new Elysia({ prefix: "/users" })
   .use(authJWTPlugin)
   .post("/signup", handlers.signup, {
     authJWT: authJWTPlugin,
     body: SignupBody,
+  })
+  .post("/login", handlers.login, {
+    authJWT: authJWTPlugin,
+    body: LoginBody,
   })
   .resolve(async ({ cookie: { authToken }, authJWT }) => {
     if (!authToken || typeof authToken.value !== "string")
@@ -31,6 +37,10 @@ export const usersRouter = new Elysia({ prefix: "/users" })
         if (authPayload.role !== "admin") return status(403);
       })
       .get("/", handlers.getAllUsers)
+      .get("/:id", handlers.getUserById, {
+        params: t.Object({ id: t.Number() }),
+        authPayload: UserPayload,
+      })
       .post("/", handlers.adminCreateUser, {
         body: AdminCreateUserBody,
       })
@@ -39,9 +49,6 @@ export const usersRouter = new Elysia({ prefix: "/users" })
         body: AdminUpdateUserBody,
       }),
   )
-  .get("/:id", handlers.getUserById, {
-    params: t.Object({ id: t.Number() }),
-  })
   //
   .patch("/:id/update-password", handlers.changePassword, {
     params: t.Object({ id: t.Number() }),

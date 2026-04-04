@@ -5,6 +5,7 @@ import type {
   AdminCreateUserBody,
   SignupBody,
   AdminUpdateUserBody,
+  LoginBody,
 } from "./schema";
 import {
   jwt,
@@ -116,17 +117,42 @@ export async function signup(jwt: AuthJWT, newUser: SignupBody) {
   try {
     const [user] = await db.insert(usersTable).values(newUser).returning();
 
+    const expDuration = newUser.keepLogin ? 30 * 24 * 60 * 60 : 24 * 60 * 60;
     if (user) {
       const authToken = await jwt.sign({
         userId: user.id,
         role: user.role,
+        exp: Math.floor(Date.now() / 1000) + expDuration,
       });
 
-      return { user, authToken };
+      return { user, token: authToken };
     }
 
     return null;
   } catch (e: any) {
     console.log("Error: ", e.cause);
   }
+}
+
+export async function login(jwt: AuthJWT, loginData: LoginBody) {
+  const { email, password, keepLogin } = loginData;
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.email, email));
+
+  if (!user) return null;
+
+  const pwMatch = await Bun.password.verify(password, user.password);
+
+  if (!pwMatch) return null;
+
+  const expDuration = keepLogin ? 30 * 24 * 60 * 60 : 24 * 60 * 60;
+  const authToken = jwt.sign({
+    userId: user.id,
+    role: user.role,
+    exp: Math.floor(Date.now() / 1000) + expDuration,
+  });
+
+  return authToken;
 }

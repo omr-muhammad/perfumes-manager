@@ -6,8 +6,10 @@ import type {
   SignupBody,
   ChangePasswordBody,
   AdminUpdateUserBody,
+  LoginBody,
 } from "./schema";
 import * as usersService from "./service";
+import type { UserPayload } from "../../utils/globalSchema";
 
 // Ctx for context;
 type Ctx<TBody = unknown, TParams = unknown> = {
@@ -15,8 +17,13 @@ type Ctx<TBody = unknown, TParams = unknown> = {
   body: TBody;
   params: TParams;
   cookie: Record<string, Cookie<unknown>>;
+  authPayload: UserPayload;
 };
 
+type CtxWithoutPayload<TBody = unknown, TParams = unknown> = Omit<
+  Ctx<TBody, TParams>,
+  "authPayload"
+>;
 type TParams = { id: number };
 
 // Admin
@@ -86,26 +93,40 @@ export async function changePassword(
   });
 }
 
-export async function signup(context: Ctx<SignupBody>) {
+export async function signup(context: CtxWithoutPayload<SignupBody>) {
   const { body, authJWT, cookie } = context;
 
   const result = await usersService.signup(authJWT, body);
 
   if (!result) return res.fail("Uknown Error", { code: "UNKNOWN" });
 
-  const { password, phone, role, ...safeUser } = result.user;
+  const { password, phone, role, ...safeInfo } = result.user;
 
   const inProduction = process.env.NODE_ENV === "production";
   cookie.authToken?.set({
-    value: result.authToken,
+    value: result.token,
     secrets: process.env.jwt_secret,
     httpOnly: inProduction, // true => client cannot access with document.cookie
-    maxAge: body.keepLoggedIn ? 7 * 24 * 60 * 60 : 24 * 60 * 60, // 7 days or One
+    maxAge: body.keepLogin ? 30 * 24 * 60 * 60 : 24 * 60 * 60, // 30 days or One
     secure: inProduction, // true => only send with https
   });
 
   return res.ok("Signup Successfully", {
-    user: safeUser,
-    token: result.authToken,
+    user: safeInfo,
+  });
+}
+
+export async function login(context: CtxWithoutPayload<LoginBody>) {
+  const { body, authJWT, cookie } = context;
+
+  const token = await usersService.login(authJWT, body);
+
+  const inProduction = process.env.NODE_ENV === "production";
+  cookie.authToken?.set({
+    value: token,
+    secrets: process.env.jwt_secret,
+    httpOnly: inProduction, // true => client cannot access with document.cookie
+    maxAge: body.keepLogin ? 30 * 24 * 60 * 60 : 24 * 60 * 60, // 30 days or One
+    secure: inProduction, // true => only send with https
   });
 }
