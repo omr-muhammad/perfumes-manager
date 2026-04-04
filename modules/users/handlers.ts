@@ -73,13 +73,11 @@ export async function adminUpdateUser(
 }
 
 // Non Admin
-export async function changePassword(
-  context: Ctx<ChangePasswordBody, TParams>,
-) {
-  const { params, body } = context;
+export async function changePassword(context: Ctx<ChangePasswordBody>) {
+  const { body, authPayload } = context;
 
   const user = await usersService.ChangePassword(
-    params.id,
+    authPayload.userId,
     body.oldPw,
     body.newPw,
   );
@@ -143,4 +141,15 @@ export async function updateMe(context: Ctx<UpdateUserBody>) {
 
   const { password, role, ...safeInfo } = user;
   return res.ok("User updated", { user: safeInfo });
+}
+
+export async function getMe(context: Ctx) {
+  const { authPayload } = context;
+
+  const user = await usersService.getById(authPayload.userId);
+
+  if (!user) return res.fail("User not found", { code: "NOT_FOUND" });
+
+  const { password, ...safeInfo } = user;
+  return res.ok("User fetched", { user: safeInfo });
 }

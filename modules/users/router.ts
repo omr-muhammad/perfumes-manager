@@ -51,11 +51,11 @@ export const usersRouter = new Elysia({ prefix: "/users" })
         body: AdminUpdateUserBody,
       }),
   )
+  .get("/me", handlers.getMe)
   //
   .patch("/", handlers.updateMe, {
     body: UpdateUserBody,
   })
-  .patch("/:id/update-password", handlers.changePassword, {
-    params: t.Object({ id: t.Number() }),
+  .patch("/update-password", handlers.changePassword, {
     body: ChangePasswordBody,
   });
