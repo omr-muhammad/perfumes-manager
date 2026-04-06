@@ -1,7 +1,8 @@
 import Elysia from "elysia";
 import { authJWTPlugin } from "../../utils/jwtPlugins";
 import * as handlers from "./handlers";
-import { CreateNewShopBody } from "./schema";
+import { CreateShopBody, UpdateShopBody } from "./schema";
+import { TParams } from "../../utils/globalSchema";
 
 export const shopsRouter = new Elysia({ prefix: "shops" })
   .use(authJWTPlugin)
@@ -19,6 +20,10 @@ export const shopsRouter = new Elysia({ prefix: "shops" })
     // console.log("payload", payload);
     return { authPayload: payload };
   })
-  .post("/", handlers.createNewUser, {
-    body: CreateNewShopBody,
+  .post("/", handlers.createNewShop, {
+    body: CreateShopBody,
+  })
+  .patch("/:id", handlers.updateShop, {
+    params: TParams,
+    body: UpdateShopBody,
   });

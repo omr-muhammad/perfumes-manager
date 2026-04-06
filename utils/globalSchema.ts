@@ -29,4 +29,6 @@ export type CtxWithoutPayload<TBody = unknown, TParams = unknown> = Omit<
   Ctx<TBody, TParams>,
   "authPayload"
 >;
-export type TParams = { id: number };
+
+export const TParams = t.Object({ id: t.Number() });
+export type TParams = Static<typeof TParams>;

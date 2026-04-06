@@ -1,9 +1,9 @@
-import type { Ctx } from "../../utils/globalSchema";
+import type { Ctx, TParams } from "../../utils/globalSchema";
 import { response as res } from "../../utils/response";
-import type { CreateNewShopBody } from "./schema";
+import type { CreateShopBody, UpdateShopBody } from "./schema";
 import * as shopsService from "./service";
 
-export async function createNewUser(context: Ctx<CreateNewShopBody>) {
+export async function createNewShop(context: Ctx<CreateShopBody>) {
   const { authPayload, body, status } = context;
 
   let ownerId: number;
@@ -16,4 +16,18 @@ export async function createNewUser(context: Ctx<CreateNewShopBody>) {
   const shop = await shopsService.create(ownerId, body, body.address);
 
   return res.ok("Shop created", { shop });
+}
+
+export async function updateShop(context: Ctx<UpdateShopBody, TParams>) {
+  const { body, authPayload, params } = context;
+
+  const shop = await shopsService.updateShop(
+    params.id,
+    authPayload.userId,
+    body,
+  );
+
+  if (!shop) return res.fail("Failed to update shop.", { code: "FAIL" });
+
+  return res.ok("Shop updated.", { shop });
 }

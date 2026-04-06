@@ -8,14 +8,21 @@ const AddressBase = t.Object({
   buildingNumber: t.Optional(t.Number()),
   notes: t.Optional(t.String()),
 });
+export type Address = Static<typeof AddressBase>;
 
-export const CreateNewShopBody = t.Object({
+export const UpdateAddressBody = t.Partial(AddressBase);
+export type UpdateAddressBody = Static<typeof UpdateAddressBody>;
+
+export const CreateShopBody = t.Object({
   ownerId: t.Optional(t.Number()),
   name: t.String(),
   logo: t.Optional(t.String()),
   address: t.Optional(AddressBase),
 });
+export type CreateShopBody = Static<typeof CreateShopBody>;
+export type NewShop = Omit<CreateShopBody, "address" | "ownerId">;
 
-export type CreateNewShopBody = Static<typeof CreateNewShopBody>;
-export type NewShop = Omit<CreateNewShopBody, "address">;
-export type Address = Static<typeof AddressBase>;
+export const UpdateShopBody = t.Partial(
+  t.Omit(CreateShopBody, ["ownerId", "address"]),
+);
+export type UpdateShopBody = Static<typeof UpdateShopBody>;
