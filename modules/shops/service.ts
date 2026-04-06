@@ -1,9 +1,13 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db/config";
-import { shopsTable, usersTable } from "../../db/schema";
-import type { CreateNewShopBody } from "./schema";
+import { addressesTable, shopsTable, usersTable } from "../../db/schema";
+import type { Address, CreateNewShopBody, NewShop } from "./schema";
 
-export async function create(ownerId: number, newShop: CreateNewShopBody) {
+export async function create(
+  ownerId: number,
+  newShop: NewShop,
+  address?: Address,
+) {
   await assertIsOwner(ownerId);
 
   const [shop] = await db
@@ -14,8 +18,20 @@ export async function create(ownerId: number, newShop: CreateNewShopBody) {
     })
     .returning();
 
-  return shop;
+  if (!address || !shop) return shop;
+
+  const [add] = await db
+    .insert(addressesTable)
+    .values({
+      ...address,
+      shopId: shop.id,
+    })
+    .returning();
+
+  return { ...shop, address: add };
 }
+
+// export async function update(shopId: number, ownerId: number, updates);
 
 // HELPERS
 async function assertIsOwner(userId: number) {

@@ -1,4 +1,4 @@
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 import { perfumesRouter } from "./modules/perfumes/router";
 import { companiesRouter } from "./modules/companies/router";
 import { usersRouter } from "./modules/users/router";

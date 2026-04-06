@@ -13,7 +13,7 @@ export async function createNewUser(context: Ctx<CreateNewShopBody>) {
     ownerId = body.ownerId;
   } else ownerId = authPayload.userId;
 
-  const shop = await shopsService.create(ownerId, body);
+  const shop = await shopsService.create(ownerId, body, body.address);
 
   return res.ok("Shop created", { shop });
 }
