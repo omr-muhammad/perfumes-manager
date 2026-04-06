@@ -1,6 +1,10 @@
 import type { Ctx, TParams } from "../../utils/globalSchema";
 import { response as res } from "../../utils/response";
-import type { CreateShopBody, UpdateShopBody } from "./schema";
+import type {
+  CreateShopBody,
+  UpdateAddressBody,
+  UpdateShopBody,
+} from "./schema";
 import * as shopsService from "./service";
 
 export async function createNewShop(context: Ctx<CreateShopBody>) {
@@ -21,13 +25,25 @@ export async function createNewShop(context: Ctx<CreateShopBody>) {
 export async function updateShop(context: Ctx<UpdateShopBody, TParams>) {
   const { body, authPayload, params } = context;
 
-  const shop = await shopsService.updateShop(
+  const shop = await shopsService.update(params.id, authPayload.userId, body);
+
+  if (!shop) return res.fail("Failed to update shop.", { code: "FAIL" });
+
+  return res.ok("Shop updated.", { shop });
+}
+
+export async function updateShopAddress(
+  context: Ctx<UpdateAddressBody, TParams>,
+) {
+  const { body, params, authPayload } = context;
+
+  const address = await shopsService.upsertShopAddress(
     params.id,
     authPayload.userId,
     body,
   );
 
-  if (!shop) return res.fail("Failed to update shop.", { code: "FAIL" });
+  if (!address) return res.fail("Failed to update address.", { code: "FAIL" });
 
-  return res.ok("Shop updated.", { shop });
+  return res.ok("Address updated.", { address });
 }

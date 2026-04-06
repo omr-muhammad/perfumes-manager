@@ -5,6 +5,7 @@ import type {
   Address,
   CreateShopBody,
   NewShop,
+  UpdateAddressBody,
   UpdateShopBody,
 } from "./schema";
 
@@ -41,7 +42,7 @@ export async function create(
   }
 }
 
-export async function updateShop(
+export async function update(
   shopId: number,
   ownerId: number,
   updates: UpdateShopBody,
@@ -49,7 +50,11 @@ export async function updateShop(
   try {
     await assertOwnership(shopId, ownerId);
 
-    const [shop] = await db.update(shopsTable).set(updates).returning();
+    const [shop] = await db
+      .update(shopsTable)
+      .set(updates)
+      .where(and(eq(shopsTable.id, shopId), eq(shopsTable.ownerId, ownerId)))
+      .returning();
 
     return shop;
   } catch (e: any) {
@@ -58,6 +63,36 @@ export async function updateShop(
   }
 }
 
+export async function upsertShopAddress(
+  shopId: number,
+  ownerId: number,
+  newAddress: UpdateAddressBody,
+) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    let [address] = await db
+      .update(addressesTable)
+      .set(newAddress)
+      .where(eq(addressesTable.shopId, shopId))
+      .returning();
+
+    if (!address) {
+      if (!newAddress.country || !newAddress.city || !newAddress.street)
+        throw new Error("Missing country, city or street");
+
+      [address] = await db
+        .insert(addressesTable)
+        .values({ ...(newAddress as Address), shopId })
+        .returning();
+    }
+
+    return address;
+  } catch (e: any) {
+    console.log("Error: ", e.cause);
+    throw e;
+  }
+}
 // HELPERS
 async function assertIsOwner(userId: number) {
   const [user] = await db

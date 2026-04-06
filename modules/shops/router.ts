@@ -1,7 +1,7 @@
 import Elysia from "elysia";
 import { authJWTPlugin } from "../../utils/jwtPlugins";
 import * as handlers from "./handlers";
-import { CreateShopBody, UpdateShopBody } from "./schema";
+import { CreateShopBody, UpdateAddressBody, UpdateShopBody } from "./schema";
 import { TParams } from "../../utils/globalSchema";
 
 export const shopsRouter = new Elysia({ prefix: "shops" })
@@ -26,4 +26,8 @@ export const shopsRouter = new Elysia({ prefix: "shops" })
   .patch("/:id", handlers.updateShop, {
     params: TParams,
     body: UpdateShopBody,
+  })
+  .patch("/:id/address", handlers.updateShopAddress, {
+    params: TParams,
+    body: UpdateAddressBody,
   });
