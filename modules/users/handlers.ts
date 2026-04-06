@@ -1,5 +1,3 @@
-import type { Cookie } from "elysia";
-import type { AuthJWT } from "../../utils/jwtPlugins";
 import { response as res } from "../../utils/response";
 import type {
   AdminCreateUserBody,
@@ -10,23 +8,8 @@ import type {
   UpdateUserBody,
 } from "./schema";
 import * as usersService from "./service";
-import type { CtxCookie, UserPayload } from "../../utils/globalSchema";
+import type { Ctx, CtxWithoutPayload, TParams } from "../../utils/globalSchema";
 import { setCookie, signToken } from "../../utils/token";
-
-// Ctx for context;
-type Ctx<TBody = unknown, TParams = unknown> = {
-  authJWT: AuthJWT;
-  body: TBody;
-  params: TParams;
-  cookie: CtxCookie;
-  authPayload: UserPayload;
-};
-
-type CtxWithoutPayload<TBody = unknown, TParams = unknown> = Omit<
-  Ctx<TBody, TParams>,
-  "authPayload"
->;
-type TParams = { id: number };
 
 // Admin
 export async function adminCreateUser(context: Ctx<AdminCreateUserBody>) {

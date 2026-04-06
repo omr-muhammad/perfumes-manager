@@ -1,4 +1,9 @@
-import { Cookie, t, type Static } from "elysia";
+import { Cookie, status, t, type Static } from "elysia";
+import { authJWTPlugin } from "./jwtPlugins";
+
+export type CtxCookie = Record<string, Cookie<unknown>>;
+export type AuthJWT =
+  (typeof authJWTPlugin)["~Singleton"]["decorator"]["authJWT"];
 
 export const UserPayload = t.Object({
   userId: t.Number(),
@@ -10,4 +15,18 @@ export const UserPayload = t.Object({
   ]),
 });
 export type UserPayload = Static<typeof UserPayload>;
-export type CtxCookie = Record<string, Cookie<unknown>>;
+
+export type Ctx<TBody = unknown, TParams = unknown> = {
+  authJWT: AuthJWT;
+  body: TBody;
+  params: TParams;
+  cookie: CtxCookie;
+  authPayload: UserPayload;
+  status: typeof status;
+};
+
+export type CtxWithoutPayload<TBody = unknown, TParams = unknown> = Omit<
+  Ctx<TBody, TParams>,
+  "authPayload"
+>;
+export type TParams = { id: number };

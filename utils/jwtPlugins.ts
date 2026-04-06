@@ -17,5 +17,3 @@ export const authJWTPlugin = jwt({
   exp: process.env.jwt_exp,
   schema: JWTSchema,
 });
-export type AuthJWT =
-  (typeof authJWTPlugin)["~Singleton"]["decorator"]["authJWT"];

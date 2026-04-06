@@ -1,8 +1,36 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db/config";
-import { shopsTable } from "../../db/schema";
+import { shopsTable, usersTable } from "../../db/schema";
+import type { CreateNewShopBody } from "./schema";
+
+export async function create(ownerId: number, newShop: CreateNewShopBody) {
+  await assertIsOwner(ownerId);
+
+  const [shop] = await db
+    .insert(shopsTable)
+    .values({
+      ...newShop,
+      ownerId,
+    })
+    .returning();
+
+  return shop;
+}
 
 // HELPERS
+async function assertIsOwner(userId: number) {
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.id, userId));
+
+  if (!user) throw new Error("User not found");
+
+  if (user.role !== "owner") throw new Error("Owner role required");
+
+  return user;
+}
+
 async function assertOwnership(shopId: number, ownerId: number) {
   const [shop] = await db
     .select()
