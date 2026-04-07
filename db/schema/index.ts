@@ -2,7 +2,7 @@ export { perfumes as perfumesTable } from "./perfumes";
 export { users as usersTable } from "./users";
 export { companies as companiesTable } from "./companies";
 export { shops as shopsTable } from "./shops";
-export { shopStaff as shopStaffTable } from "./shopStaff";
+export { shopStaff as shopsStaffTable } from "./shopStaff";
 export { alcohols as alcoholsTable } from "./alcohols";
 export { perfumesCompounds as perfumesCompoundsTable } from "./perfumesCompounds";
 export { bottles as bottlesTable } from "./bottles";

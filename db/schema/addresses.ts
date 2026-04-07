@@ -17,8 +17,8 @@ export const addresses = pgTable(
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     country: varchar("country", { length: 50 }).notNull(),
     city: varchar("city", { length: 50 }).notNull(),
-    strict: varchar("strict", { length: 50 }).default(""),
-    street: varchar("street", { length: 50 }).default(""),
+    district: varchar("district", { length: 50 }).default(""),
+    street: varchar("street", { length: 50 }).notNull(),
     buildingNumber: smallint("building_number"),
     notes: text("notes").default(""),
     shopId: integer("shop_id")
