@@ -30,4 +30,7 @@ export const shopsRouter = new Elysia({ prefix: "shops" })
   .patch("/:id/address", handlers.updateShopAddress, {
     params: TParams,
     body: UpdateAddressBody,
+  })
+  .delete("/:id", handlers.deleteShop, {
+    params: TParams,
   });

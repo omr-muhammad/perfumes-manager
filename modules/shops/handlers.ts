@@ -47,3 +47,13 @@ export async function updateShopAddress(
 
   return res.ok("Address updated.", { address });
 }
+
+export async function deleteShop(context: Ctx<unknown, TParams>) {
+  const { params, authPayload } = context;
+
+  const shop = await shopsService.remove(params.id, authPayload.userId);
+
+  if (!shop) return res.fail("Failed to delete", { code: "FAIL" });
+
+  return res.ok("Shop deleted.", { id: shop.id });
+}

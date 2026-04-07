@@ -93,6 +93,22 @@ export async function upsertShopAddress(
     throw e;
   }
 }
+
+export async function remove(shopId: number, ownerId: number) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const [shop] = await db
+      .delete(shopsTable)
+      .where(and(eq(shopsTable.id, shopId), eq(shopsTable.ownerId, ownerId)))
+      .returning();
+
+    return shop;
+  } catch (e: any) {
+    console.log("Error: ", e.cause);
+    throw e;
+  }
+}
 // HELPERS
 async function assertIsOwner(userId: number) {
   const [user] = await db
