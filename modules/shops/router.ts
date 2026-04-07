@@ -1,7 +1,12 @@
 import Elysia from "elysia";
 import { authJWTPlugin } from "../../utils/jwtPlugins";
 import * as handlers from "./handlers";
-import { CreateShopBody, UpdateAddressBody, UpdateShopBody } from "./schema";
+import {
+  CreateShopBody,
+  StaffBody,
+  UpdateAddressBody,
+  UpdateShopBody,
+} from "./schema";
 import { TParams } from "../../utils/globalSchema";
 
 export const shopsRouter = new Elysia({ prefix: "shops" })
@@ -37,4 +42,8 @@ export const shopsRouter = new Elysia({ prefix: "shops" })
   .get("/", handlers.getShops)
   .get("/:id", handlers.getShopById, {
     params: TParams,
+  })
+  .post("/:id/staff", handlers.addShopStaff, {
+    params: TParams,
+    body: StaffBody,
   });

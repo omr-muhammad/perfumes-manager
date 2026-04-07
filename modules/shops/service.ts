@@ -5,9 +5,11 @@ import type {
   Address,
   CreateShopBody,
   NewShop,
+  StaffBody,
   UpdateAddressBody,
   UpdateShopBody,
 } from "./schema";
+import { shopsStaffTable } from "../../db/schema/index";
 
 export async function create(
   ownerId: number,
@@ -158,6 +160,46 @@ export async function queryById(shopId: number, ownerId?: number) {
     throw e;
   }
 }
+
+export async function addStaff(
+  ownerId: number,
+  shopId: number,
+  staff: StaffBody,
+) {
+  try {
+    const shop = await assertOwnership(shopId, ownerId);
+
+    const [user] = await db
+      .update(usersTable)
+      .set({ role: "staff" })
+      .where(eq(usersTable.email, staff.email))
+      .returning();
+
+    if (!user) throw new Error(`User with email: ${staff.email} not found`);
+
+    const [shopStaff] = await db
+      .insert(shopsStaffTable)
+      .values({
+        shopId,
+        userId: user.id,
+        role: staff.role,
+      })
+      .returning();
+
+    if (!shopStaff) throw new Error("Cannot create shop staff.");
+
+    return {
+      shop,
+      user,
+      staffRole: shopStaff.role,
+    };
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
 // HELPERS
 async function assertIsOwner(userId: number) {
   const [user] = await db

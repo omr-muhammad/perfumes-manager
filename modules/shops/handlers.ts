@@ -2,6 +2,7 @@ import type { Ctx, TParams } from "../../utils/globalSchema";
 import { response as res } from "../../utils/response";
 import type {
   CreateShopBody,
+  StaffBody,
   UpdateAddressBody,
   UpdateShopBody,
 } from "./schema";
@@ -82,4 +83,22 @@ export async function getShopById(context: Ctx<unknown, TParams>) {
   if (!shop) return res.fail("Shop not found", { code: "NOT_FOUND" });
 
   return res.ok("Shop fetched.", { shop });
+}
+
+export async function addShopStaff(context: Ctx<StaffBody, TParams>) {
+  const { params, body, authPayload } = context;
+
+  const staff = await shopsService.addStaff(
+    authPayload.userId,
+    params.id,
+    body,
+  );
+
+  return res.ok("Staff added.", {
+    shopName: staff.shop.name,
+    staffEmail: staff.user.email,
+    staffName: staff.user.name,
+    shopRole: staff.staffRole,
+    appRole: staff.user.role,
+  });
 }

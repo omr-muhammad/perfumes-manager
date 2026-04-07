@@ -1,4 +1,8 @@
 import { t, type Static } from "elysia";
+import { shopStaff } from "../../db/schema/shopStaff";
+import { createInsertSchema } from "drizzle-typebox";
+
+export const ShopStaffSchema = createInsertSchema(shopStaff);
 
 const AddressBase = t.Object({
   country: t.String(),
@@ -26,3 +30,12 @@ export const UpdateShopBody = t.Partial(
   t.Omit(CreateShopBody, ["ownerId", "address"]),
 );
 export type UpdateShopBody = Static<typeof UpdateShopBody>;
+
+export const StaffRole = t.Pick(ShopStaffSchema, ["role"]);
+export type StaffRole = Static<typeof StaffRole>;
+
+export const StaffBody = t.Object({
+  email: t.String(),
+  role: StaffRole.properties.role,
+});
+export type StaffBody = Static<typeof StaffBody>;
