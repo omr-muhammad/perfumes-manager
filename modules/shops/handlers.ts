@@ -122,3 +122,19 @@ export async function removeShopStaff(context: Ctx<unknown, TStaffParams>) {
     shopRole: staff.role,
   });
 }
+
+export async function getShopStaff(context: Ctx<unknown, TParams>) {
+  const { params, authPayload } = context;
+
+  const staff = await shopsService.getShopStaff(authPayload.userId, params.id);
+
+  return res.ok("Staff fetched.", {
+    staff: staff.map((s) => ({
+      id: s.users.id,
+      name: s.users.name,
+      email: s.users.email,
+      appRole: s.users.role,
+      shopRole: s.shop_staff.role,
+    })),
+  });
+}

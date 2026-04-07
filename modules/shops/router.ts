@@ -49,4 +49,7 @@ export const shopsRouter = new Elysia({ prefix: "shops" })
   })
   .delete("/:id/staff/:staffId", handlers.removeShopStaff, {
     params: TStaffParams,
+  })
+  .get("/:id/staff", handlers.getShopStaff, {
+    params: TParams,
   });

@@ -233,6 +233,24 @@ export async function removeStaff(
     throw e;
   }
 }
+
+export async function getShopStaff(ownerId: number, shopId: number) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const staff = await db
+      .select()
+      .from(shopsStaffTable)
+      .innerJoin(usersTable, eq(usersTable.id, shopsStaffTable.userId))
+      .where(eq(shopsStaffTable.shopId, shopId));
+
+    return staff;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
 // HELPERS
 async function assertIsOwner(userId: number) {
   const [user] = await db
