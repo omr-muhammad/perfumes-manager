@@ -7,7 +7,7 @@ import {
   UpdateAddressBody,
   UpdateShopBody,
 } from "./schema";
-import { TParams } from "../../utils/globalSchema";
+import { TParams, TStaffParams } from "../../utils/globalSchema";
 
 export const shopsRouter = new Elysia({ prefix: "shops" })
   .use(authJWTPlugin)
@@ -46,4 +46,7 @@ export const shopsRouter = new Elysia({ prefix: "shops" })
   .post("/:id/staff", handlers.addShopStaff, {
     params: TParams,
     body: StaffBody,
+  })
+  .delete("/:id/staff/:staffId", handlers.removeShopStaff, {
+    params: TStaffParams,
   });

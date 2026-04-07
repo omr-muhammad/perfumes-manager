@@ -1,4 +1,4 @@
-import type { Ctx, TParams } from "../../utils/globalSchema";
+import type { Ctx, TParams, TStaffParams } from "../../utils/globalSchema";
 import { response as res } from "../../utils/response";
 import type {
   CreateShopBody,
@@ -100,5 +100,25 @@ export async function addShopStaff(context: Ctx<StaffBody, TParams>) {
     staffName: staff.user.name,
     shopRole: staff.staffRole,
     appRole: staff.user.role,
+  });
+}
+
+export async function removeShopStaff(context: Ctx<unknown, TStaffParams>) {
+  const { params, authPayload } = context;
+
+  const staff = await shopsService.removeStaff(
+    authPayload.userId,
+    params.id,
+    params.staffId,
+  );
+
+  if (!staff)
+    return res.fail("Failed to delete, may user not belong to this shop", {
+      code: "FAILED",
+    });
+
+  return res.ok("Staff deleted.", {
+    staffId: staff.userId,
+    shopRole: staff.role,
   });
 }

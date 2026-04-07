@@ -200,6 +200,39 @@ export async function addStaff(
   }
 }
 
+export async function removeStaff(
+  ownerId: number,
+  shopId: number,
+  staffId: number,
+) {
+  try {
+    const shop = await assertOwnership(shopId, ownerId);
+
+    const [user] = await db
+      .update(usersTable)
+      .set({ role: "customer" })
+      .where(eq(usersTable.id, staffId))
+      .returning();
+
+    if (!user) throw new Error(`User with id: ${staffId} not found`);
+
+    const [shopStaff] = await db
+      .delete(shopsStaffTable)
+      .where(
+        and(
+          eq(shopsStaffTable.userId, staffId),
+          eq(shopsStaffTable.shopId, shopId),
+        ),
+      )
+      .returning();
+
+    return shopStaff;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
 // HELPERS
 async function assertIsOwner(userId: number) {
   const [user] = await db

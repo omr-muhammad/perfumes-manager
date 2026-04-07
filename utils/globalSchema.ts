@@ -32,3 +32,8 @@ export type CtxWithoutPayload<TBody = unknown, TParams = unknown> = Omit<
 
 export const TParams = t.Object({ id: t.Number() });
 export type TParams = Static<typeof TParams>;
+export const TStaffParams = t.Object({
+  id: t.Number(),
+  staffId: t.Number(),
+});
+export type TStaffParams = Static<typeof TStaffParams>;
