@@ -5,6 +5,7 @@ import type {
   StaffBody,
   UpdateAddressBody,
   UpdateShopBody,
+  UpdateStaffBody,
 } from "./schema";
 import * as shopsService from "./service";
 
@@ -136,5 +137,26 @@ export async function getShopStaff(context: Ctx<unknown, TParams>) {
       appRole: s.users.role,
       shopRole: s.shop_staff.role,
     })),
+  });
+}
+
+export async function updateShopStaff(
+  context: Ctx<UpdateStaffBody, TStaffParams>,
+) {
+  const { params, authPayload, body } = context;
+
+  const staff = await shopsService.updateShopStaff(
+    authPayload.userId,
+    params.id,
+    params.staffId,
+    body,
+  );
+
+  if (!staff) return res.fail("Failed to update staff", { code: "FAILED" });
+
+  return res.ok("Staff updated.", {
+    staffId: staff.userId,
+    shopId: staff.shopId,
+    shopRole: staff.role,
   });
 }

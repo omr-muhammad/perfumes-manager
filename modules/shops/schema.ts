@@ -39,3 +39,8 @@ export const StaffBody = t.Object({
   role: StaffRole.properties.role,
 });
 export type StaffBody = Static<typeof StaffBody>;
+
+export const UpdateStaffBody = t.Object({
+  role: StaffRole.properties.role,
+});
+export type UpdateStaffBody = Static<typeof UpdateStaffBody>;

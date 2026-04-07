@@ -8,6 +8,7 @@ import type {
   StaffBody,
   UpdateAddressBody,
   UpdateShopBody,
+  UpdateStaffBody,
 } from "./schema";
 import { shopsStaffTable } from "../../db/schema/index";
 
@@ -243,6 +244,34 @@ export async function getShopStaff(ownerId: number, shopId: number) {
       .from(shopsStaffTable)
       .innerJoin(usersTable, eq(usersTable.id, shopsStaffTable.userId))
       .where(eq(shopsStaffTable.shopId, shopId));
+
+    return staff;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function updateShopStaff(
+  ownerId: number,
+  shopId: number,
+  staffId: number,
+  updates: UpdateStaffBody,
+) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const [staff] = await db
+      .update(shopsStaffTable)
+      .set(updates)
+      .where(
+        and(
+          eq(shopsStaffTable.shopId, shopId),
+          eq(shopsStaffTable.userId, staffId),
+        ),
+      )
+      .returning();
 
     return staff;
   } catch (e: any) {

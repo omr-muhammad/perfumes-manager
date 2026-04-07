@@ -6,6 +6,7 @@ import {
   StaffBody,
   UpdateAddressBody,
   UpdateShopBody,
+  UpdateStaffBody,
 } from "./schema";
 import { TParams, TStaffParams } from "../../utils/globalSchema";
 
@@ -52,4 +53,8 @@ export const shopsRouter = new Elysia({ prefix: "shops" })
   })
   .get("/:id/staff", handlers.getShopStaff, {
     params: TParams,
+  })
+  .patch("/:id/staff/:staffId", handlers.updateShopStaff, {
+    params: TStaffParams,
+    body: UpdateStaffBody,
   });
