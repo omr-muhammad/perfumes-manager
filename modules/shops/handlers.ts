@@ -57,3 +57,29 @@ export async function deleteShop(context: Ctx<unknown, TParams>) {
 
   return res.ok("Shop deleted.", { id: shop.id });
 }
+
+export async function getShops(context: Ctx) {
+  const { authPayload } = context;
+
+  const service = shopsService.query;
+
+  const shops = await (authPayload.role === "admin"
+    ? service()
+    : service(authPayload.userId));
+
+  return res.ok("Shops fetched.", { shops });
+}
+
+export async function getShopById(context: Ctx<unknown, TParams>) {
+  const { authPayload, params } = context;
+
+  const service = shopsService.queryById;
+
+  const shop = await (authPayload.role === "admin"
+    ? service(params.id)
+    : service(params.id, authPayload.userId));
+
+  if (!shop) return res.fail("Shop not found", { code: "NOT_FOUND" });
+
+  return res.ok("Shop fetched.", { shop });
+}

@@ -109,6 +109,55 @@ export async function remove(shopId: number, ownerId: number) {
     throw e;
   }
 }
+
+export async function query(ownerId?: number) {
+  try {
+    if (!ownerId) return await db.select().from(shopsTable);
+
+    await assertIsOwner(ownerId);
+
+    const shops = await db
+      .select()
+      .from(shopsTable)
+      .where(eq(shopsTable.ownerId, ownerId));
+
+    return shops;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function queryById(shopId: number, ownerId?: number) {
+  try {
+    if (!ownerId)
+      return await db
+        .select()
+        .from(shopsTable)
+        .where(eq(shopsTable.id, shopId));
+
+    await assertOwnership(shopId, ownerId);
+
+    const [shop] = await db
+      .select()
+      .from(shopsTable)
+      .innerJoin(addressesTable, eq(addressesTable.shopId, shopsTable.id))
+      .where(and(eq(shopsTable.id, shopId), eq(shopsTable.ownerId, ownerId)));
+
+    if (!shop) return null;
+
+    const {
+      shops,
+      addresses: { shopId: adShopId, createdAt, updatedAt, ...others },
+    } = shop;
+    return { ...shops, ...others };
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
 // HELPERS
 async function assertIsOwner(userId: number) {
   const [user] = await db
