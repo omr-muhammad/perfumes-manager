@@ -1,4 +1,4 @@
-import type { Ctx, TParams, TStaffParams } from "../../utils/globalSchema";
+import type { Ctx, ShopParams, TStaffParams } from "../../utils/globalSchema";
 import { response as res } from "../../utils/response";
 import type {
   CreateShopBody,
@@ -24,7 +24,7 @@ export async function createNewShop(context: Ctx<CreateShopBody>) {
   return res.ok("Shop created", { shop });
 }
 
-export async function updateShop(context: Ctx<UpdateShopBody, TParams>) {
+export async function updateShop(context: Ctx<UpdateShopBody, ShopParams>) {
   const { body, authPayload, params } = context;
 
   const shop = await shopsService.update(
@@ -39,7 +39,7 @@ export async function updateShop(context: Ctx<UpdateShopBody, TParams>) {
 }
 
 export async function updateShopAddress(
-  context: Ctx<UpdateAddressBody, TParams>,
+  context: Ctx<UpdateAddressBody, ShopParams>,
 ) {
   const { body, params, authPayload } = context;
 
@@ -54,7 +54,7 @@ export async function updateShopAddress(
   return res.ok("Address updated.", { address });
 }
 
-export async function deleteShop(context: Ctx<unknown, TParams>) {
+export async function deleteShop(context: Ctx<unknown, ShopParams>) {
   const { params, authPayload } = context;
 
   const shop = await shopsService.remove(params.shopId, authPayload.userId);
@@ -76,7 +76,7 @@ export async function getShops(context: Ctx) {
   return res.ok("Shops fetched.", { shops });
 }
 
-export async function getShopById(context: Ctx<unknown, TParams>) {
+export async function getShopById(context: Ctx<unknown, ShopParams>) {
   const { authPayload, params } = context;
 
   const service = shopsService.queryById;
@@ -90,7 +90,7 @@ export async function getShopById(context: Ctx<unknown, TParams>) {
   return res.ok("Shop fetched.", { shop });
 }
 
-export async function addShopStaff(context: Ctx<StaffBody, TParams>) {
+export async function addShopStaff(context: Ctx<StaffBody, ShopParams>) {
   const { params, body, authPayload } = context;
 
   const staff = await shopsService.addStaff(
@@ -128,7 +128,7 @@ export async function removeShopStaff(context: Ctx<unknown, TStaffParams>) {
   });
 }
 
-export async function getShopStaff(context: Ctx<unknown, TParams>) {
+export async function getShopStaff(context: Ctx<unknown, ShopParams>) {
   const { params, authPayload } = context;
 
   const staff = await shopsService.getShopStaff(

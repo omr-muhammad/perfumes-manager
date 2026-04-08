@@ -7,7 +7,7 @@ import {
   UpdateShopBody,
   UpdateStaffBody,
 } from "./schema";
-import { TParams, TStaffParams } from "../../utils/globalSchema";
+import { ShopParams, TStaffParams } from "../../utils/globalSchema";
 import { alcoholsRouter } from "../inventory/alcohols/router";
 import { protect, restrictTo } from "../../utils/auth";
 
@@ -21,29 +21,29 @@ export const shopsRouter = new Elysia({ prefix: "shops" })
   .group("/:shopId", (app) =>
     app
       .get("/", handlers.getShopById, {
-        params: TParams,
+        params: ShopParams,
       })
       .delete("/", handlers.deleteShop, {
-        params: TParams,
+        params: ShopParams,
       })
       .use(restrictTo("owner"))
       .patch("/", handlers.updateShop, {
-        params: TParams,
+        params: ShopParams,
         body: UpdateShopBody,
       })
       .patch("/address", handlers.updateShopAddress, {
-        params: TParams,
+        params: ShopParams,
         body: UpdateAddressBody,
       })
       .post("/staff", handlers.addShopStaff, {
-        params: TParams,
+        params: ShopParams,
         body: StaffBody,
       })
       .delete("/staff/:staffId", handlers.removeShopStaff, {
         params: TStaffParams,
       })
       .get("/staff", handlers.getShopStaff, {
-        params: TParams,
+        params: ShopParams,
       })
       .patch("/staff/:staffId", handlers.updateShopStaff, {
         params: TStaffParams,

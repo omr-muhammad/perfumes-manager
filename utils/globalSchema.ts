@@ -35,16 +35,16 @@ export type CtxWithoutPayload<TBody = unknown, TParams = unknown> = Omit<
   "authPayload"
 >;
 
-export const TParams = t.Object({ shopId: t.Number() });
-export type TParams = Static<typeof TParams>;
+export const ShopParams = t.Object({ shopId: t.Number() });
+export type ShopParams = Static<typeof ShopParams>;
 export const TStaffParams = t.Object({
   shopId: t.Number(),
   staffId: t.Number(),
 });
 export type TStaffParams = Static<typeof TStaffParams>;
 
-export const TAlcoParams = t.Object({
+export const AlcoInvParams = t.Object({
   shopId: ID,
   alcoholId: ID,
 });
-export type TAlcoParams = Static<typeof TAlcoParams>;
+export type AlcoInvParams = Static<typeof AlcoInvParams>;

@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../../db/config";
-import { alcoholsTable } from "../../../db/schema";
+import { alcoholsTable, shopsTable } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
 import type { CreateAlcoBody, UpdateAlcoBody } from "./schema";
 
@@ -56,24 +56,20 @@ export async function update(
     const [alcohol] = await db
       .update(alcoholsTable)
       .set({
-        ...(updates.name ? { name: updates.name } : {}),
-        ...(updates.type ? { type: updates.type } : {}),
-        ...(updates.concentration
-          ? { concentration: updates.concentration }
-          : {}),
-        ...(updates.ltBuyPrice
-          ? { ltBuyPrice: updates.ltBuyPrice.toFixed(2) }
-          : {}),
-        ...(updates.ltSellPrice
-          ? { ltSellPrice: updates.ltSellPrice.toFixed(2) }
-          : {}),
-        ...(updates.ltSellPrice
-          ? { unitSellPrice: (updates.ltSellPrice / 1000).toFixed(2) }
-          : {}),
-        ...(updates.amountInMl ? { amountInMl: updates.amountInMl } : {}),
-        ...(updates.expiryDate
-          ? { expiryDate: new Date(updates.expiryDate) }
-          : {}),
+        ...(updates.name && { name: updates.name }),
+        ...(updates.type && { type: updates.type }),
+        ...(updates.concentration && { concentration: updates.concentration }),
+        ...(updates.ltBuyPrice && {
+          ltBuyPrice: updates.ltBuyPrice.toFixed(2),
+        }),
+        ...(updates.ltSellPrice && {
+          ltSellPrice: updates.ltSellPrice.toFixed(2),
+        }),
+        ...(updates.ltSellPrice && {
+          unitSellPrice: (updates.ltSellPrice / 1000).toFixed(2),
+        }),
+        ...(updates.amountInMl && { amountInMl: updates.amountInMl }),
+        ...(updates.expiryDate && { expiryDate: new Date(updates.expiryDate) }),
         updatedAt: new Date(),
       })
       .where(
@@ -103,6 +99,48 @@ export async function remove(
         and(eq(alcoholsTable.shopId, shopId), eq(alcoholsTable.id, alcoholId)),
       )
       .returning();
+
+    return alcohol;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function queryAll(ownerId: number, shopId: number) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const alcohols = await db
+      .select()
+      .from(alcoholsTable)
+      .innerJoin(shopsTable, eq(shopsTable.id, alcoholsTable.shopId))
+      .where(eq(alcoholsTable.shopId, shopId));
+
+    return alcohols;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function queryById(
+  ownerId: number,
+  shopId: number,
+  alcoholId: number,
+) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const [alcohol] = await db
+      .select()
+      .from(alcoholsTable)
+      .innerJoin(shopsTable, eq(shopsTable.id, alcoholsTable.shopId))
+      .where(
+        and(eq(alcoholsTable.shopId, shopId), eq(alcoholsTable.id, alcoholId)),
+      );
 
     return alcohol;
   } catch (e: any) {
