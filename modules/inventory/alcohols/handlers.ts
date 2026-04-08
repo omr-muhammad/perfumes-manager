@@ -29,3 +29,20 @@ export async function updateAlco(context: Ctx<UpdateAlcoBody, TAlcoParams>) {
 
   return res.ok("Alcohol Inventory Updates.", { alcohol });
 }
+
+export async function deleteAlco(context: Ctx<unknown, TAlcoParams>) {
+  const { authPayload, params } = context;
+
+  const alcohol = await alcoService.remove(
+    authPayload.userId,
+    params.shopId,
+    params.alcoholId,
+  );
+
+  if (!alcohol)
+    return res.fail("Failed to delete, alcohol may not exist.", {
+      code: "FAILED",
+    });
+
+  return res.ok("Alcohol inventory deleted.", { id: alcohol.id });
+}

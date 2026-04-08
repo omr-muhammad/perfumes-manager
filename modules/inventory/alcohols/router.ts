@@ -3,7 +3,6 @@ import * as handlers from "./handlers";
 import { TAlcoParams, TParams } from "../../../utils/globalSchema";
 import { CreateAlcoBody, UpdateAlcoBody } from "./schema";
 import { protect, restrictTo } from "../../../utils/auth";
-import { app } from "../../..";
 
 export const alcoholsRouter = new Elysia({ prefix: "/alcohols" })
   .use(protect)
@@ -13,8 +12,12 @@ export const alcoholsRouter = new Elysia({ prefix: "/alcohols" })
     body: CreateAlcoBody,
   })
   .group("/:alcoholId", (app) =>
-    app.patch("/", handlers.updateAlco, {
-      params: TAlcoParams,
-      body: UpdateAlcoBody,
-    }),
+    app
+      .patch("/", handlers.updateAlco, {
+        params: TAlcoParams,
+        body: UpdateAlcoBody,
+      })
+      .delete("/", handlers.deleteAlco, {
+        params: TAlcoParams,
+      }),
   );

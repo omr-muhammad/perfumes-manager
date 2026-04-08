@@ -47,7 +47,7 @@ export async function create(
 export async function update(
   ownerId: number,
   shopId: number,
-  alcoId: number,
+  alcoholId: number,
   updates: UpdateAlcoBody,
 ) {
   try {
@@ -77,7 +77,30 @@ export async function update(
         updatedAt: new Date(),
       })
       .where(
-        and(eq(alcoholsTable.shopId, shopId), eq(alcoholsTable.id, alcoId)),
+        and(eq(alcoholsTable.shopId, shopId), eq(alcoholsTable.id, alcoholId)),
+      )
+      .returning();
+
+    return alcohol;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function remove(
+  ownerId: number,
+  shopId: number,
+  alcoholId: number,
+) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const [alcohol] = await db
+      .delete(alcoholsTable)
+      .where(
+        and(eq(alcoholsTable.shopId, shopId), eq(alcoholsTable.id, alcoholId)),
       )
       .returning();
 
