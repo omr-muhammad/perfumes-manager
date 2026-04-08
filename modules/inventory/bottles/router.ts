@@ -14,8 +14,12 @@ export const bottlesRouter = new Elysia({ prefix: "/bottles" })
     }),
   )
   .group("/:btlId", (app) =>
-    app.patch("/", handlers.updateBtl, {
-      params: BtlInvParams,
-      body: UpdateBottleBody,
-    }),
+    app
+      .patch("/", handlers.updateBtl, {
+        params: BtlInvParams,
+        body: UpdateBottleBody,
+      })
+      .delete("/", handlers.deleteBtl, {
+        params: BtlInvParams,
+      }),
   );

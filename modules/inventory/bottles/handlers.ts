@@ -35,3 +35,20 @@ export async function updateBtl(context: Ctx<UpdateBottleBody, BtlInvParams>) {
 
   return res.ok("Bottle updated.", { bottle });
 }
+
+export async function deleteBtl(context: Ctx<unknown, BtlInvParams>) {
+  const { params, authPayload } = context;
+
+  const bottle = await btlService.remove(
+    authPayload.userId,
+    params.shopId,
+    params.btlId,
+  );
+
+  if (!bottle)
+    return res.fail("Failed to delete, bottle may not exist", {
+      code: "FAILED",
+    });
+
+  return res.ok("Bottle deleted.", { bottle });
+}

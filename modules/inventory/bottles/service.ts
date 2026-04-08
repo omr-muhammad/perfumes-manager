@@ -61,3 +61,26 @@ export async function update(
     throw e;
   }
 }
+
+export async function remove(
+  ownerId: number,
+  shopId: number,
+  bottleId: number,
+) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const [bottle] = await db
+      .delete(bottlesTable)
+      .where(
+        and(eq(bottlesTable.id, bottleId), eq(bottlesTable.shopId, shopId)),
+      )
+      .returning();
+
+    return bottle;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
