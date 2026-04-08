@@ -1,9 +1,9 @@
 import {
   check,
   integer,
+  numeric,
   pgTable,
   smallint,
-  text,
   unique,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -20,6 +20,15 @@ export const perfumesCompounds = pgTable(
     oilAmountInMl: integer("oil_amount_in_ml").notNull().default(0),
     sprayAmountInMl: integer("spray_amount_in_ml").notNull().default(0),
     concentration: smallint("concentration"),
+    kiloBuyPrice: numeric("kilo_buy_price", {
+      precision: 15,
+      scale: 4,
+    }).notNull(),
+    kiloSellPrice: numeric("kilo_sell_price", {
+      precision: 15,
+      scale: 4,
+    }).notNull(),
+    mlPrice: numeric("ml_price", { precision: 10, scale: 4 }).notNull(),
     code: varchar("code", { length: 50 }).notNull(),
     perfumeId: integer("perfume_id")
       .notNull()
@@ -38,6 +47,18 @@ export const perfumesCompounds = pgTable(
       table.companyId,
       table.shopId,
       table.code,
+    ),
+    check(
+      "ml_price_cannot_be_negative",
+      sql`
+        ${table.mlPrice} > 0
+      `,
+    ),
+    check(
+      "kilo_prices_cannot_be_negative",
+      sql`
+        ${table.kiloBuyPrice} > 0 AND ${table.kiloSellPrice} > 0
+      `,
     ),
     check(
       "oil_amount_cannot_be_negative",

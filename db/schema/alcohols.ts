@@ -20,15 +20,13 @@ export const alcohols = pgTable(
     name: varchar("name", { length: 100 }).notNull(),
     type: varchar("type", { length: 50 }).notNull(),
     amountInMl: integer("amount_in_ml").notNull().default(0),
-    ltBuyPrice: numeric("lt_buy_price", { scale: 4, precision: 4 }).notNull(),
-    ltSellPrice: numeric("lt_sell_price", { scale: 4, precision: 4 }).notNull(),
+    ltBuyPrice: numeric("lt_buy_price", { precision: 5, scale: 2 }).notNull(),
+    ltSellPrice: numeric("lt_sell_price", { precision: 5, scale: 2 }).notNull(),
     unitSellPrice: numeric("unit_sell_price", {
       scale: 2,
-      precision: 2,
+      precision: 5,
     }).notNull(),
-    unit: varchar("unit", { length: 2 }).notNull().default("ml"),
     concentration: smallint("concentration").default(96),
-    madeDate: timestamp("made_date").notNull(),
     expiryDate: timestamp("expiry_date").notNull(),
     shopId: integer("shop_id")
       .notNull()
@@ -36,13 +34,12 @@ export const alcohols = pgTable(
     ...timestamps,
   },
   (table) => [
-    unique().on(
+    unique("alcohol_must_be_unique").on(
       table.name,
       table.type,
       table.ltBuyPrice,
       table.concentration,
       table.shopId,
-      table.madeDate,
     ),
     check("amount_cannot_be_negative", sql`${table.amountInMl} >= 0`),
     check("buying_price_must_be_more_than_zero", sql`${table.ltBuyPrice} > 0`),
@@ -56,8 +53,10 @@ export const alcohols = pgTable(
       sql`${table.concentration} > 0 AND ${table.concentration} <= 100`,
     ),
     check(
-      "expiry_date_must_be_greater_than_made_date",
-      sql`${table.madeDate} < ${table.expiryDate}`,
+      "selling_price_cannot_be_less_than_buying_price",
+      sql`
+        ${table.ltSellPrice} >= ${table.ltBuyPrice}
+      `,
     ),
   ],
 );
