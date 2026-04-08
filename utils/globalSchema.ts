@@ -1,5 +1,5 @@
 import { Cookie, status, t, type Static } from "elysia";
-import { authJWTPlugin } from "./jwtPlugins";
+import { authJWTPlugin } from "./jwtPlugin";
 
 export type CtxCookie = Record<string, Cookie<unknown>>;
 export type AuthJWT =
@@ -30,10 +30,10 @@ export type CtxWithoutPayload<TBody = unknown, TParams = unknown> = Omit<
   "authPayload"
 >;
 
-export const TParams = t.Object({ id: t.Number() });
+export const TParams = t.Object({ shopId: t.Number() });
 export type TParams = Static<typeof TParams>;
 export const TStaffParams = t.Object({
-  id: t.Number(),
+  shopId: t.Number(),
   staffId: t.Number(),
 });
 export type TStaffParams = Static<typeof TStaffParams>;
