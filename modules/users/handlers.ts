@@ -8,7 +8,11 @@ import type {
   UpdateUserBody,
 } from "./schema";
 import * as usersService from "./service";
-import type { Ctx, CtxWithoutPayload, TParams } from "../../utils/globalSchema";
+import type {
+  Ctx,
+  CtxWithoutPayload,
+  ShopParams,
+} from "../../utils/globalSchema";
 import { setCookie, signToken } from "../../utils/token";
 
 // Admin
@@ -28,7 +32,7 @@ export async function getAllUsers() {
   });
 }
 
-export async function getUserById(context: Ctx<unknown, TParams>) {
+export async function getUserById(context: Ctx<unknown, ShopParams>) {
   const { params } = context;
 
   const user = await usersService.getById(params.id);
@@ -42,7 +46,7 @@ export async function getUserById(context: Ctx<unknown, TParams>) {
 }
 
 export async function adminUpdateUser(
-  context: Ctx<AdminUpdateUserBody, TParams>,
+  context: Ctx<AdminUpdateUserBody, ShopParams>,
 ) {
   const { params, body } = context;
 
@@ -143,7 +147,7 @@ export async function getMe(context: Ctx) {
   return res.ok("User fetched", { user: safeInfo });
 }
 
-export async function deleteUser(context: Ctx<unknown, TParams>) {
+export async function deleteUser(context: Ctx<unknown, ShopParams>) {
   const { params } = context;
 
   const userId = await usersService.remove(params.id);

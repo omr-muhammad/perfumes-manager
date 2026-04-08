@@ -1,4 +1,4 @@
-import type { Ctx, TParams, TStaffParams } from "../../utils/globalSchema";
+import type { Ctx, ShopParams, TStaffParams } from "../../utils/globalSchema";
 import { response as res } from "../../utils/response";
 import type {
   CreateShopBody,
@@ -24,10 +24,14 @@ export async function createNewShop(context: Ctx<CreateShopBody>) {
   return res.ok("Shop created", { shop });
 }
 
-export async function updateShop(context: Ctx<UpdateShopBody, TParams>) {
+export async function updateShop(context: Ctx<UpdateShopBody, ShopParams>) {
   const { body, authPayload, params } = context;
 
-  const shop = await shopsService.update(params.id, authPayload.userId, body);
+  const shop = await shopsService.update(
+    params.shopId,
+    authPayload.userId,
+    body,
+  );
 
   if (!shop) return res.fail("Failed to update shop.", { code: "FAIL" });
 
@@ -35,12 +39,12 @@ export async function updateShop(context: Ctx<UpdateShopBody, TParams>) {
 }
 
 export async function updateShopAddress(
-  context: Ctx<UpdateAddressBody, TParams>,
+  context: Ctx<UpdateAddressBody, ShopParams>,
 ) {
   const { body, params, authPayload } = context;
 
   const address = await shopsService.upsertShopAddress(
-    params.id,
+    params.shopId,
     authPayload.userId,
     body,
   );
@@ -50,10 +54,10 @@ export async function updateShopAddress(
   return res.ok("Address updated.", { address });
 }
 
-export async function deleteShop(context: Ctx<unknown, TParams>) {
+export async function deleteShop(context: Ctx<unknown, ShopParams>) {
   const { params, authPayload } = context;
 
-  const shop = await shopsService.remove(params.id, authPayload.userId);
+  const shop = await shopsService.remove(params.shopId, authPayload.userId);
 
   if (!shop) return res.fail("Failed to delete", { code: "FAIL" });
 
@@ -72,26 +76,26 @@ export async function getShops(context: Ctx) {
   return res.ok("Shops fetched.", { shops });
 }
 
-export async function getShopById(context: Ctx<unknown, TParams>) {
+export async function getShopById(context: Ctx<unknown, ShopParams>) {
   const { authPayload, params } = context;
 
   const service = shopsService.queryById;
 
   const shop = await (authPayload.role === "admin"
-    ? service(params.id)
-    : service(params.id, authPayload.userId));
+    ? service(params.shopId)
+    : service(params.shopId, authPayload.userId));
 
   if (!shop) return res.fail("Shop not found", { code: "NOT_FOUND" });
 
   return res.ok("Shop fetched.", { shop });
 }
 
-export async function addShopStaff(context: Ctx<StaffBody, TParams>) {
+export async function addShopStaff(context: Ctx<StaffBody, ShopParams>) {
   const { params, body, authPayload } = context;
 
   const staff = await shopsService.addStaff(
     authPayload.userId,
-    params.id,
+    params.shopId,
     body,
   );
 
@@ -109,7 +113,7 @@ export async function removeShopStaff(context: Ctx<unknown, TStaffParams>) {
 
   const staff = await shopsService.removeStaff(
     authPayload.userId,
-    params.id,
+    params.shopId,
     params.staffId,
   );
 
@@ -124,10 +128,13 @@ export async function removeShopStaff(context: Ctx<unknown, TStaffParams>) {
   });
 }
 
-export async function getShopStaff(context: Ctx<unknown, TParams>) {
+export async function getShopStaff(context: Ctx<unknown, ShopParams>) {
   const { params, authPayload } = context;
 
-  const staff = await shopsService.getShopStaff(authPayload.userId, params.id);
+  const staff = await shopsService.getShopStaff(
+    authPayload.userId,
+    params.shopId,
+  );
 
   return res.ok("Staff fetched.", {
     staff: staff.map((s) => ({
@@ -147,7 +154,7 @@ export async function updateShopStaff(
 
   const staff = await shopsService.updateShopStaff(
     authPayload.userId,
-    params.id,
+    params.shopId,
     params.staffId,
     body,
   );

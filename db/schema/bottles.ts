@@ -20,7 +20,7 @@ export const bottles = pgTable(
     type: bottleTypeEn("type").notNull(),
     size: smallint("size").notNull(),
     category: bottleCatgeroyEn("category").notNull(),
-    price: numeric("price", { scale: 3, precision: 3 }).notNull(),
+    price: numeric("price", { precision: 5, scale: 2 }).notNull(),
     img: text("img"),
     shopId: integer("shop_id")
       .references(() => shops.id, { onDelete: "cascade" })

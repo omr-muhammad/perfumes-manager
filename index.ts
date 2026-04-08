@@ -4,7 +4,7 @@ import { companiesRouter } from "./modules/companies/router";
 import { usersRouter } from "./modules/users/router";
 import { shopsRouter } from "./modules/shops/router";
 
-export const app = new Elysia()
+export const app = new Elysia({ prefix: "/api" })
   .use(perfumesRouter)
   .use(companiesRouter)
   .use(usersRouter)

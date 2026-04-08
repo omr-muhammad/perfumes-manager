@@ -1,5 +1,10 @@
 import { Cookie, status, t, type Static } from "elysia";
-import { authJWTPlugin } from "./jwtPlugins";
+import { authJWTPlugin } from "./jwtPlugin";
+
+const ID = t.Number({
+  minimum: 1,
+  error: "Invalid id, expected a positive number",
+});
 
 export type CtxCookie = Record<string, Cookie<unknown>>;
 export type AuthJWT =
@@ -30,10 +35,16 @@ export type CtxWithoutPayload<TBody = unknown, TParams = unknown> = Omit<
   "authPayload"
 >;
 
-export const TParams = t.Object({ id: t.Number() });
-export type TParams = Static<typeof TParams>;
+export const ShopParams = t.Object({ shopId: t.Number() });
+export type ShopParams = Static<typeof ShopParams>;
 export const TStaffParams = t.Object({
-  id: t.Number(),
+  shopId: t.Number(),
   staffId: t.Number(),
 });
 export type TStaffParams = Static<typeof TStaffParams>;
+
+export const AlcoInvParams = t.Object({
+  shopId: ID,
+  alcoholId: ID,
+});
+export type AlcoInvParams = Static<typeof AlcoInvParams>;

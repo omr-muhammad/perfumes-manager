@@ -50,6 +50,41 @@
       "when": 1775508994476,
       "tag": "0006_lucky_proemial_gods",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1775601000291,
+      "tag": "0007_useful_fenris",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1775601788415,
+      "tag": "0008_deep_liz_osborn",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1775603933970,
+      "tag": "0009_sharp_master_mold",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1775662202969,
+      "tag": "0010_petite_revanche",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1775662387859,
+      "tag": "0011_peaceful_thor",
+      "breakpoints": true
     }
   ]
 }
