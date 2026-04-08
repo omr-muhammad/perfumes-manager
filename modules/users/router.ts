@@ -8,7 +8,7 @@ import {
   LoginBody,
   UpdateUserBody,
 } from "./schema";
-import { authJWTPlugin } from "../../utils/jwtPlugins";
+import { authJWTPlugin } from "../../utils/jwtPlugin";
 import { UserPayload } from "../../utils/globalSchema";
 
 export const usersRouter = new Elysia({ prefix: "/users" })

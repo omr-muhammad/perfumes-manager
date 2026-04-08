@@ -8,7 +8,7 @@ import type {
   LoginBody,
   UpdateUserBody,
 } from "./schema";
-import type { AuthJWT } from "../../utils/jwtPlugins";
+import type { AuthJWT } from "../../utils/jwtPlugin";
 
 // try {
 

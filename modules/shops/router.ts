@@ -1,5 +1,4 @@
 import Elysia from "elysia";
-import { authJWTPlugin } from "../../utils/jwtPlugins";
 import * as handlers from "./handlers";
 import {
   CreateShopBody,
@@ -9,52 +8,47 @@ import {
   UpdateStaffBody,
 } from "./schema";
 import { TParams, TStaffParams } from "../../utils/globalSchema";
+import { alcoholsRouter } from "../inventory/alcohols/router";
+import { protect, restrictTo } from "../../utils/auth";
 
 export const shopsRouter = new Elysia({ prefix: "shops" })
-  .use(authJWTPlugin)
-  .resolve(async ({ cookie: { authToken }, authJWT }) => {
-    if (!authToken || typeof authToken.value !== "string")
-      throw new Error("Unauthorized.");
-
-    const token = authToken.value;
-    const payload = await authJWT.verify(token);
-
-    if (!payload) throw new Error("Unauthorized.");
-
-    if (!["admin", "owner"].includes(payload.role))
-      throw new Error("Forbidden");
-    // console.log("payload", payload);
-    return { authPayload: payload };
-  })
+  .use(protect)
+  .use(restrictTo("admin", "owner"))
   .post("/", handlers.createNewShop, {
     body: CreateShopBody,
   })
-  .patch("/:id", handlers.updateShop, {
-    params: TParams,
-    body: UpdateShopBody,
-  })
-  .patch("/:id/address", handlers.updateShopAddress, {
-    params: TParams,
-    body: UpdateAddressBody,
-  })
-  .delete("/:id", handlers.deleteShop, {
-    params: TParams,
-  })
   .get("/", handlers.getShops)
-  .get("/:id", handlers.getShopById, {
-    params: TParams,
-  })
-  .post("/:id/staff", handlers.addShopStaff, {
-    params: TParams,
-    body: StaffBody,
-  })
-  .delete("/:id/staff/:staffId", handlers.removeShopStaff, {
-    params: TStaffParams,
-  })
-  .get("/:id/staff", handlers.getShopStaff, {
-    params: TParams,
-  })
-  .patch("/:id/staff/:staffId", handlers.updateShopStaff, {
-    params: TStaffParams,
-    body: UpdateStaffBody,
-  });
+  .group("/:shopId", (app) =>
+    app
+      .get("/", handlers.getShopById, {
+        params: TParams,
+      })
+      .delete("/", handlers.deleteShop, {
+        params: TParams,
+      })
+      .use(restrictTo("owner"))
+      .patch("/", handlers.updateShop, {
+        params: TParams,
+        body: UpdateShopBody,
+      })
+      .patch("/address", handlers.updateShopAddress, {
+        params: TParams,
+        body: UpdateAddressBody,
+      })
+      .post("/staff", handlers.addShopStaff, {
+        params: TParams,
+        body: StaffBody,
+      })
+      .delete("/staff/:staffId", handlers.removeShopStaff, {
+        params: TStaffParams,
+      })
+      .get("/staff", handlers.getShopStaff, {
+        params: TParams,
+      })
+      .patch("/staff/:staffId", handlers.updateShopStaff, {
+        params: TStaffParams,
+        body: UpdateStaffBody,
+      })
+      // url /api/shops/:shopId/inventory/
+      .group("/inventory", (app) => app.use(alcoholsRouter)),
+  );

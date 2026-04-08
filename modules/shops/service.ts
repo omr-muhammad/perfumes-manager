@@ -3,7 +3,6 @@ import { db } from "../../db/config";
 import { addressesTable, shopsTable, usersTable } from "../../db/schema";
 import type {
   Address,
-  CreateShopBody,
   NewShop,
   StaffBody,
   UpdateAddressBody,
@@ -11,6 +10,7 @@ import type {
   UpdateStaffBody,
 } from "./schema";
 import { shopsStaffTable } from "../../db/schema/index";
+import { assertOwnership, assertIsOwner } from "../../utils/assertOwnership";
 
 export async function create(
   ownerId: number,
@@ -279,33 +279,4 @@ export async function updateShopStaff(
     console.log("Error Cause: ", e.cause);
     throw e;
   }
-}
-// HELPERS
-async function assertIsOwner(userId: number) {
-  const [user] = await db
-    .select()
-    .from(usersTable)
-    .where(eq(usersTable.id, userId));
-
-  if (!user) throw new Error("User not found");
-
-  if (user.role !== "owner") throw new Error("Owner role required");
-
-  return user;
-}
-
-async function assertOwnership(shopId: number, ownerId: number) {
-  const [shop] = await db
-    .select()
-    .from(shopsTable)
-    .where(eq(shopsTable.id, shopId));
-
-  if (!shop) throw new Error("Shop not found.");
-
-  if (shop.ownerId !== ownerId)
-    throw new Error(
-      `Shop with id: ${shop.id} does not belong to user with id: ${ownerId}`,
-    );
-
-  return shop;
 }
