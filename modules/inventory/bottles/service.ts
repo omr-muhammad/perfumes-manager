@@ -1,7 +1,8 @@
+import { and, eq } from "drizzle-orm";
 import { db } from "../../../db/config";
 import { bottlesTable } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
-import type { CreateBottleBody } from "./schema";
+import type { CreateBottleBody, UpdateBottleBody } from "./schema";
 
 export async function create(
   ownerId: number,
@@ -21,6 +22,39 @@ export async function create(
       .returning();
 
     return newBottle;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function update(
+  ownerId: number,
+  shopId: number,
+  bottleId: number,
+  updates: UpdateBottleBody,
+) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const [bottle] = await db
+      .update(bottlesTable)
+      .set({
+        ...(updates.name && { name: updates.name }),
+        ...(updates.type && { type: updates.type }),
+        ...(updates.category && { category: updates.category }),
+        ...(updates.size && { size: updates.size }),
+        ...(updates.price && { price: updates.price.toFixed(2) }),
+        ...(updates.img && { img: updates.img }),
+        updatedAt: new Date(),
+      })
+      .where(
+        and(eq(bottlesTable.id, bottleId), eq(bottlesTable.shopId, shopId)),
+      )
+      .returning();
+
+    return bottle;
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
