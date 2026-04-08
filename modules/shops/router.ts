@@ -10,6 +10,7 @@ import {
 import { ShopParams, TStaffParams } from "../../utils/globalSchema";
 import { alcoholsRouter } from "../inventory/alcohols/router";
 import { protect, restrictTo } from "../../utils/auth";
+import { bottlesRouter } from "../inventory/bottles/router";
 
 export const shopsRouter = new Elysia({ prefix: "shops" })
   .use(protect)
@@ -50,5 +51,5 @@ export const shopsRouter = new Elysia({ prefix: "shops" })
         body: UpdateStaffBody,
       })
       // url /api/shops/:shopId/inventory/
-      .group("/inventory", (app) => app.use(alcoholsRouter)),
+      .group("/inventory", (app) => app.use(alcoholsRouter).use(bottlesRouter)),
   );

@@ -16,7 +16,9 @@ export const bottles = pgTable(
   "bottles",
   {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar("name", { length: 50 }),
+    name: varchar("name", { length: 50 })
+      .notNull()
+      .unique("name_must_be_unique"),
     type: bottleTypeEn("type").notNull(),
     size: smallint("size").notNull(),
     category: bottleCatgeroyEn("category").notNull(),
