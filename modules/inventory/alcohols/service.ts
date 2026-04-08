@@ -1,7 +1,8 @@
+import { and, eq } from "drizzle-orm";
 import { db } from "../../../db/config";
 import { alcoholsTable } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
-import type { CreateAlcoBody } from "./schema";
+import type { CreateAlcoBody, UpdateAlcoBody } from "./schema";
 
 // try {
 
@@ -34,6 +35,51 @@ export async function create(
       .returning();
 
     if (!alcohol) throw new Error("Failed to create new alcohol");
+
+    return alcohol;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function update(
+  ownerId: number,
+  shopId: number,
+  alcoId: number,
+  updates: UpdateAlcoBody,
+) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const [alcohol] = await db
+      .update(alcoholsTable)
+      .set({
+        ...(updates.name ? { name: updates.name } : {}),
+        ...(updates.type ? { type: updates.type } : {}),
+        ...(updates.concentration
+          ? { concentration: updates.concentration }
+          : {}),
+        ...(updates.ltBuyPrice
+          ? { ltBuyPrice: updates.ltBuyPrice.toFixed(2) }
+          : {}),
+        ...(updates.ltSellPrice
+          ? { ltSellPrice: updates.ltSellPrice.toFixed(2) }
+          : {}),
+        ...(updates.ltSellPrice
+          ? { unitSellPrice: (updates.ltSellPrice / 1000).toFixed(2) }
+          : {}),
+        ...(updates.amountInMl ? { amountInMl: updates.amountInMl } : {}),
+        ...(updates.expiryDate
+          ? { expiryDate: new Date(updates.expiryDate) }
+          : {}),
+        updatedAt: new Date(),
+      })
+      .where(
+        and(eq(alcoholsTable.shopId, shopId), eq(alcoholsTable.id, alcoId)),
+      )
+      .returning();
 
     return alcohol;
   } catch (e: any) {
