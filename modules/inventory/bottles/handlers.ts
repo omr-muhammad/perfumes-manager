@@ -1,3 +1,4 @@
+import { param } from "drizzle-orm";
 import type { Ctx, ShopParams } from "../../../utils/globalSchema";
 import { response as res } from "../../../utils/response";
 import type {
@@ -6,6 +7,7 @@ import type {
   UpdateBottleBody,
 } from "./schema";
 import * as btlService from "./service";
+import { bottles } from "../../../db/schema/bottles";
 
 export async function createBtl(context: Ctx<CreateBottleBody, ShopParams>) {
   const { body, params, authPayload } = context;
@@ -51,4 +53,43 @@ export async function deleteBtl(context: Ctx<unknown, BtlInvParams>) {
     });
 
   return res.ok("Bottle deleted.", { bottle });
+}
+
+export async function getShopBottles(context: Ctx<unknown, ShopParams>) {
+  const { params, authPayload } = context;
+
+  const result = await btlService.queryAll(authPayload.userId, params.shopId);
+
+  if (result.bottles.length === 0)
+    return res.ok("Bottles inventory fetched.", { bottles: [] });
+  return res.ok("Bottles inventory fetched.", {
+    bottles: result.bottles.map(({ shopId, ...b }) => ({
+      ...b,
+      shopName: result.shop.name,
+      ...(result.shop.logo && { shopLogo: result.shop.logo }),
+    })),
+  });
+}
+
+export async function getBtlById(context: Ctx<unknown, BtlInvParams>) {
+  const { authPayload, params } = context;
+
+  const result = await btlService.queryById(
+    authPayload.userId,
+    params.shopId,
+    params.btlId,
+  );
+
+  if (!result.bottle)
+    return res.fail(`Bottle with id ${params.btlId} does not exist.`, {
+      code: "NOT_FOUND",
+    });
+
+  return res.ok("Bottle fetched.", {
+    bottle: {
+      ...result.bottle,
+      shopName: result.shop.name,
+      ...(result.shop.logo && { shopLogo: result.shop.logo }),
+    },
+  });
 }

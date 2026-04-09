@@ -8,13 +8,20 @@ export const bottlesRouter = new Elysia({ prefix: "/bottles" })
   .use(protect)
   .use(restrictTo("owner"))
   .group("/", (app) =>
-    app.post("/", handlers.createBtl, {
-      params: ShopParams,
-      body: CreateBottleBody,
-    }),
+    app
+      .get("/", handlers.getShopBottles, {
+        params: ShopParams,
+      })
+      .post("/", handlers.createBtl, {
+        params: ShopParams,
+        body: CreateBottleBody,
+      }),
   )
   .group("/:btlId", (app) =>
     app
+      .get("/", handlers.getBtlById, {
+        params: BtlInvParams,
+      })
       .patch("/", handlers.updateBtl, {
         params: BtlInvParams,
         body: UpdateBottleBody,

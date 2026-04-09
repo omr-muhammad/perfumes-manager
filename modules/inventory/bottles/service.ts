@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../../db/config";
-import { bottlesTable } from "../../../db/schema";
+import { bottlesTable, shopsTable } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
 import type { CreateBottleBody, UpdateBottleBody } from "./schema";
 
@@ -78,6 +78,44 @@ export async function remove(
       .returning();
 
     return bottle;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function queryAll(ownerId: number, shopId: number) {
+  try {
+    const shop = await assertOwnership(shopId, ownerId);
+
+    const bottles = await db
+      .select()
+      .from(bottlesTable)
+      .where(eq(bottlesTable.shopId, shopId));
+
+    return { bottles, shop };
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function queryById(
+  ownerId: number,
+  shopId: number,
+  btlId: number,
+) {
+  try {
+    const shop = await assertOwnership(shopId, ownerId);
+
+    const [bottle] = await db
+      .select()
+      .from(bottlesTable)
+      .where(and(eq(bottlesTable.shopId, shopId), eq(bottlesTable.id, btlId)));
+
+    return { bottle, shop };
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
