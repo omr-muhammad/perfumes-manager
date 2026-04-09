@@ -1,0 +1,32 @@
+import Elysia from "elysia";
+import { protect, restrictTo } from "../../../utils/auth";
+import * as handlers from "./handlers";
+import { ShopParams } from "../../../utils/globalSchema";
+import { CompParams, CreateCompoundBody, UpdateCompoundBody } from "./schema";
+
+export const perfumesCompoundsRouter = new Elysia({ prefix: "/compounds" })
+  .use(protect)
+  .use(restrictTo("owner"))
+  .group("/", (app) =>
+    app
+      .post("", handlers.createComp, {
+        params: ShopParams,
+        body: CreateCompoundBody,
+      })
+      .get("", handlers.getShopCompounds, {
+        params: ShopParams,
+      }),
+  )
+  .group("/:compId", (app) =>
+    app
+      .get("", handlers.getBtlById, {
+        params: CompParams,
+      })
+      .patch("", handlers.updateComp, {
+        params: CompParams,
+        body: UpdateCompoundBody,
+      })
+      .delete("", handlers.deleteComp, {
+        params: CompParams,
+      }),
+  );
