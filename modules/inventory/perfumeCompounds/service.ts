@@ -1,5 +1,6 @@
+import { and, eq } from "drizzle-orm";
 import { db } from "../../../db/config";
-import { perfumesCompoundsTable } from "../../../db/schema";
+import { perfumesCompoundsTable, shopsTable } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
 import type { UpdateCompanyBody } from "../../companies/schema";
 import type { CreateCompoundBody, UpdateCompoundBody } from "./schema";
@@ -12,7 +13,7 @@ export async function create(
   try {
     await assertOwnership(shopId, ownerId);
 
-    const mlPrice = Math.ceil(newComp.kiloSellPrice / 1000);
+    const mlPrice = newComp.kiloSellPrice / 1000;
 
     const [compound] = await db
       .insert(perfumesCompoundsTable)
@@ -79,9 +80,78 @@ export async function update(
         }),
         updatedAt: new Date(),
       })
+      .where(eq(perfumesCompoundsTable.id, compId))
       .returning();
 
     return compound;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function remove(ownerId: number, shopId: number, compId: number) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const [compound] = await db
+      .delete(perfumesCompoundsTable)
+      .where(eq(perfumesCompoundsTable.id, compId))
+      .returning();
+
+    return compound;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function queryAll(ownerId: number, shopId: number) {
+  try {
+    const shop = await assertOwnership(shopId, ownerId);
+
+    const compounds = await db
+      .select()
+      .from(perfumesCompoundsTable)
+      .where(eq(perfumesCompoundsTable.shopId, shopId));
+
+    if (compounds.length === 0) return [];
+
+    return compounds.map(({ updatedAt, ...comp }) => ({
+      ...comp,
+      shopName: shop.name,
+      ...(shop.logo && { shopLogo: shop.logo }),
+    }));
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function queryById(
+  ownerId: number,
+  shopId: number,
+  compId: number,
+) {
+  try {
+    const shop = await assertOwnership(shopId, ownerId);
+
+    const [compound] = await db
+      .select()
+      .from(perfumesCompoundsTable)
+      .where(eq(perfumesCompoundsTable.id, compId));
+
+    if (!compound) return null;
+
+    const { updatedAt, ...comp } = compound;
+    return {
+      ...comp,
+      shopName: shop.name,
+      ...(shop.logo && { shopLogo: shop.logo }),
+    };
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
