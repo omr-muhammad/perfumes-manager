@@ -17,6 +17,8 @@ export const perfumesCompounds = pgTable(
   "perfumes_compounds",
   {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    perfumeName: varchar("perfume_name", { length: 100 }).notNull(),
+    companyName: varchar("company_name", { length: 100 }).notNull(),
     oilAmountInMl: integer("oil_amount_in_ml").notNull().default(0),
     sprayAmountInMl: integer("spray_amount_in_ml").notNull().default(0),
     concentration: smallint("concentration"),

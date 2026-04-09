@@ -1,2 +1,0 @@
-ALTER TABLE "companies" DROP CONSTRAINT "companies_name_country_unique";--> statement-breakpoint
-ALTER TABLE "companies" ADD CONSTRAINT "company_name_and_country_must_be_unique" UNIQUE("name","country");

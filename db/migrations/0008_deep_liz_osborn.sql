@@ -1,1 +1,0 @@
-ALTER TABLE "alcohols" DROP COLUMN "unit";
