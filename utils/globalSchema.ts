@@ -1,7 +1,7 @@
 import { Cookie, status, t, type Static } from "elysia";
 import { authJWTPlugin } from "./jwtPlugin";
 
-const ID = t.Number({
+export const ID = t.Number({
   minimum: 1,
   error: "Invalid id, expected a positive number",
 });
