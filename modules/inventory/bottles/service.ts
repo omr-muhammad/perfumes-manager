@@ -94,7 +94,13 @@ export async function queryAll(ownerId: number, shopId: number) {
       .from(bottlesTable)
       .where(eq(bottlesTable.shopId, shopId));
 
-    return { bottles, shop };
+    if (bottles.length === 0) return [];
+
+    return bottles.map((b) => ({
+      ...b,
+      shopName: shop.name,
+      ...(shop.logo && { shopLogo: shop.logo }),
+    }));
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
@@ -115,7 +121,13 @@ export async function queryById(
       .from(bottlesTable)
       .where(and(eq(bottlesTable.shopId, shopId), eq(bottlesTable.id, btlId)));
 
-    return { bottle, shop };
+    if (!bottle) return null;
+
+    return {
+      ...bottle,
+      shopName: shop.name,
+      ...(shop.logo && { shopLogo: shop.logo }),
+    };
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);

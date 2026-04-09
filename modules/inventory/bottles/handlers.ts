@@ -58,38 +58,26 @@ export async function deleteBtl(context: Ctx<unknown, BtlInvParams>) {
 export async function getShopBottles(context: Ctx<unknown, ShopParams>) {
   const { params, authPayload } = context;
 
-  const result = await btlService.queryAll(authPayload.userId, params.shopId);
+  const bottles = await btlService.queryAll(authPayload.userId, params.shopId);
 
-  if (result.bottles.length === 0)
-    return res.ok("Bottles inventory fetched.", { bottles: [] });
-  return res.ok("Bottles inventory fetched.", {
-    bottles: result.bottles.map(({ shopId, ...b }) => ({
-      ...b,
-      shopName: result.shop.name,
-      ...(result.shop.logo && { shopLogo: result.shop.logo }),
-    })),
-  });
+  return bottles;
 }
 
 export async function getBtlById(context: Ctx<unknown, BtlInvParams>) {
   const { authPayload, params } = context;
 
-  const result = await btlService.queryById(
+  const bottle = await btlService.queryById(
     authPayload.userId,
     params.shopId,
     params.btlId,
   );
 
-  if (!result.bottle)
+  if (bottle)
     return res.fail(`Bottle with id ${params.btlId} does not exist.`, {
       code: "NOT_FOUND",
     });
 
   return res.ok("Bottle fetched.", {
-    bottle: {
-      ...result.bottle,
-      shopName: result.shop.name,
-      ...(result.shop.logo && { shopLogo: result.shop.logo }),
-    },
+    bottle,
   });
 }
