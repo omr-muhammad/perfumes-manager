@@ -2,7 +2,15 @@ import Elysia from "elysia";
 import { protect, restrictTo } from "../../../utils/auth";
 import * as handlers from "./handlers";
 import { ShopParams } from "../../../utils/globalSchema";
-import { CompParams, CreateCompoundBody, UpdateCompoundBody } from "./schema";
+import {
+  AgingParams,
+  CompParams,
+  CreateAging,
+  CreateCompBody,
+  CreateCompound,
+  UpdateAging,
+  UpdateCompoundBody,
+} from "./schema";
 
 export const perfumesCompoundsRouter = new Elysia({ prefix: "/compounds" })
   .use(protect)
@@ -11,7 +19,7 @@ export const perfumesCompoundsRouter = new Elysia({ prefix: "/compounds" })
     app
       .post("", handlers.createComp, {
         params: ShopParams,
-        body: CreateCompoundBody,
+        body: CreateCompBody,
       })
       .get("", handlers.getShopCompounds, {
         params: ShopParams,
@@ -28,5 +36,25 @@ export const perfumesCompoundsRouter = new Elysia({ prefix: "/compounds" })
       })
       .delete("", handlers.deleteComp, {
         params: CompParams,
-      }),
+      })
+      .group("/aging", (app) =>
+        app
+          .get("", handlers.getCompAgings, {
+            params: CompParams,
+          })
+          .get("/:agingId", handlers.getCompAgingById, {
+            params: AgingParams,
+          })
+          .post("", handlers.addAgingToComp, {
+            body: CreateAging,
+            params: CompParams,
+          })
+          .patch("/:agingId", handlers.updateCompAging, {
+            params: AgingParams,
+            body: UpdateAging,
+          })
+          .delete("/:agingId", handlers.deleteCompAging, {
+            params: AgingParams,
+          }),
+      ),
   );
