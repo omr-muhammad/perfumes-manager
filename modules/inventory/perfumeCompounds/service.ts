@@ -1,18 +1,27 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, type Update } from "drizzle-orm";
 import { db } from "../../../db/config";
-import { perfumesCompoundsTable, shopsTable } from "../../../db/schema";
+import {
+  agingTable,
+  perfumesCompoundsTable,
+  shopsTable,
+} from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
-import type { UpdateCompanyBody } from "../../companies/schema";
-import type { CreateCompoundBody, UpdateCompoundBody } from "./schema";
+import type {
+  CreateAging,
+  CreateCompBody,
+  UpdateAging,
+  UpdateCompoundBody,
+} from "./schema";
 
 export async function create(
   ownerId: number,
   shopId: number,
-  newComp: CreateCompoundBody,
+  compData: CreateCompBody,
 ) {
   try {
     await assertOwnership(shopId, ownerId);
 
+    const { compound: newComp, aging: newAging } = compData;
     const mlPrice = newComp.kiloSellPrice / 1000;
 
     const [compound] = await db
@@ -26,7 +35,26 @@ export async function create(
       })
       .returning();
 
-    return compound;
+    if (!compound) return null;
+    if (!newAging) return compound;
+
+    const [aging] = await db
+      .insert(agingTable)
+      .values({
+        amount: newAging.amount,
+        startDate:
+          newAging.startDate === "now"
+            ? new Date()
+            : new Date(newAging.startDate),
+        endDate: new Date(newAging.endDate),
+        compoundId: compound.id,
+      })
+      .returning();
+
+    // BAD!! => Tx later
+    if (!aging) return compound;
+
+    return { ...compound, aging };
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
@@ -152,6 +180,136 @@ export async function queryById(
       shopName: shop.name,
       ...(shop.logo && { shopLogo: shop.logo }),
     };
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+// AGING
+export async function addAging(
+  ownerId: number,
+  shopId: number,
+  compId: number,
+  newAging: CreateAging,
+) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const [aging] = await db
+      .insert(agingTable)
+      .values({
+        amount: newAging.amount,
+        startDate:
+          newAging.startDate === "now"
+            ? new Date()
+            : new Date(newAging.startDate),
+        endDate: new Date(newAging.endDate),
+        compoundId: compId,
+      })
+      .returning();
+
+    return aging;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function updateAging(
+  ownerId: number,
+  shopId: number,
+  compId: number,
+  agingId: number,
+  updates: UpdateAging,
+) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const [aging] = await db
+      .update(agingTable)
+      .set({
+        ...(updates.amount && { amount: updates.amount }),
+        ...(updates.startDate && {
+          startDate:
+            updates.startDate === "now"
+              ? new Date()
+              : new Date(updates.startDate),
+        }),
+        ...(updates.endDate && { endDate: new Date(updates.endDate) }),
+        updatedAt: new Date(),
+      })
+      .where(and(eq(agingTable.id, agingId), eq(agingTable.compoundId, compId)))
+      .returning();
+
+    return aging;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function deleteAging(
+  ownerId: number,
+  shopId: number,
+  compId: number,
+  agingId: number,
+) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const [aging] = await db
+      .delete(agingTable)
+      .where(and(eq(agingTable.id, agingId), eq(agingTable.compoundId, compId)))
+      .returning();
+
+    return aging;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function queryCompAging(
+  ownerId: number,
+  shopId: number,
+  compId: number,
+) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const compAgings = await db
+      .select()
+      .from(agingTable)
+      .where(eq(agingTable.compoundId, compId));
+
+    return compAgings;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function queryCompAgingById(
+  ownerId: number,
+  shopId: number,
+  compId: number,
+  agingId: number,
+) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const [compAging] = await db
+      .select()
+      .from(agingTable)
+      .where(eq(agingTable.id, agingId));
+
+    return compAging;
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
