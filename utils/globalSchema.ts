@@ -35,6 +35,9 @@ export type CtxWithoutPayload<TBody = unknown, TParams = unknown> = Omit<
   "authPayload"
 >;
 
+export const HandleActiveBody = t.Object({ active: t.Boolean() });
+export type HandleActiveBody = Static<typeof HandleActiveBody>;
+
 export const UserParams = t.Object({ userId: ID });
 export type UserParams = Static<typeof UserParams>;
 

@@ -280,3 +280,22 @@ export async function updateShopStaff(
     throw e;
   }
 }
+
+export async function handleActivation(shopId: number, active: boolean) {
+  try {
+    const [user] = await db
+      .update(usersTable)
+      .set({
+        active,
+        updatedAt: new Date(),
+      })
+      .where(eq(usersTable.id, shopId))
+      .returning();
+
+    return user;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}

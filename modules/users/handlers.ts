@@ -5,12 +5,12 @@ import type {
   ChangePasswordBody,
   LoginBody,
   UpdateUserBody,
-  HandleActiveBody,
 } from "./schema";
 import * as usersService from "./service";
 import type {
   Ctx,
   CtxWithoutPayload,
+  HandleActiveBody,
   UserParams,
 } from "../../utils/globalSchema";
 import { setCookie, signToken } from "../../utils/token";

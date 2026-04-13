@@ -1,11 +1,16 @@
-import type { Ctx, ShopParams, TStaffParams } from "../../utils/globalSchema";
-import { response as res } from "../../utils/response";
 import type {
-  CreateShopBody,
+  Ctx,
+  HandleActiveBody,
+  ShopParams,
+  TStaffParams,
+} from "../../utils/globalSchema";
+import { response as res } from "../../utils/response";
+import {
   StaffBody,
-  UpdateAddressBody,
-  UpdateShopBody,
-  UpdateStaffBody,
+  type CreateShopBody,
+  type UpdateAddressBody,
+  type UpdateShopBody,
+  type UpdateStaffBody,
 } from "./schema";
 import * as shopsService from "./service";
 
@@ -166,4 +171,17 @@ export async function updateShopStaff(
     shopId: staff.shopId,
     shopRole: staff.role,
   });
+}
+
+export async function handleShopActivation(
+  context: Ctx<HandleActiveBody, ShopParams>,
+) {
+  const { params, body } = context;
+
+  const user = await shopsService.handleActivation(params.shopId, body.active);
+
+  if (!user) return res.fail("User not found.", { code: "NOT_FOUND" });
+
+  const { password, ...others } = user;
+  return res.ok("User updated.", { user: others });
 }

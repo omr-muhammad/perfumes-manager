@@ -32,6 +32,3 @@ export const LoginBody = t.Object({
   keepLogin: t.Boolean({ default: false }),
 });
 export type LoginBody = Static<typeof LoginBody>;
-
-export const HandleActiveBody = t.Object({ active: t.Boolean() });
-export type HandleActiveBody = Static<typeof HandleActiveBody>;
