@@ -6,6 +6,7 @@ import type {
 } from "../../utils/globalSchema";
 import { response as res } from "../../utils/response";
 import {
+  HideShopBody,
   StaffBody,
   type CreateShopBody,
   type UpdateAddressBody,
@@ -178,10 +179,29 @@ export async function handleShopActivation(
 ) {
   const { params, body } = context;
 
-  const user = await shopsService.handleActivation(params.shopId, body.active);
+  const shop = await shopsService.handleActivation(params.shopId, body.active);
 
-  if (!user) return res.fail("User not found.", { code: "NOT_FOUND" });
+  if (!shop) return res.fail("Shop not found.", { code: "NOT_FOUND" });
 
-  const { password, ...others } = user;
-  return res.ok("User updated.", { user: others });
+  return res.ok("Shop updated.", { shop });
+}
+
+export async function hideShop(context: Ctx<HideShopBody, ShopParams>) {
+  const { body, params, authPayload } = context;
+
+  const shop = await shopsService.hide(
+    authPayload.userId,
+    params.shopId,
+    body.hidden,
+  );
+
+  const action = body.hidden ? "hide" : "show";
+  const shouldBe = body.hidden ? "hidden" : "shown";
+  if (!shop)
+    return res.fail(
+      `Failed to ${action} shop, shop may not exist or already ${shouldBe}`,
+      { code: "FAILED" },
+    );
+
+  return res.ok(`Shop ${shouldBe} success`, { shop });
 }

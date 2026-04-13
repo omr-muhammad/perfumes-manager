@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { db } from "../../db/config";
 import { addressesTable, shopsTable, usersTable } from "../../db/schema";
 import type {
@@ -119,12 +119,20 @@ export async function query(ownerId?: number) {
 
     await assertIsOwner(ownerId);
 
-    const shops = await db
+    const result = await db
       .select()
       .from(shopsTable)
-      .where(eq(shopsTable.ownerId, ownerId));
+      .leftJoin(usersTable, eq(usersTable.id, ownerId))
+      .leftJoin(addressesTable, eq(addressesTable.shopId, shopsTable.id))
+      .where(
+        and(
+          eq(shopsTable.ownerId, ownerId),
+          eq(shopsTable.active, true),
+          eq(usersTable.active, true),
+        ),
+      );
 
-    return shops;
+    return result.map((item) => ({ ...item.shops, address: item.addresses }));
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
@@ -284,15 +292,36 @@ export async function updateShopStaff(
 export async function handleActivation(shopId: number, active: boolean) {
   try {
     const [user] = await db
-      .update(usersTable)
+      .update(shopsTable)
       .set({
         active,
         updatedAt: new Date(),
       })
-      .where(eq(usersTable.id, shopId))
+      .where(eq(shopsTable.id, shopId))
       .returning();
 
     return user;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function hide(ownerId: number, shopId: number, hidden: boolean) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const [shop] = await db
+      .update(shopsTable)
+      .set({
+        hidden,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(shopsTable.id, shopId), ne(shopsTable.hidden, hidden)))
+      .returning();
+
+    return shop;
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);

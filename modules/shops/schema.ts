@@ -44,3 +44,6 @@ export const UpdateStaffBody = t.Object({
   role: StaffRole.properties.role,
 });
 export type UpdateStaffBody = Static<typeof UpdateStaffBody>;
+
+export const HideShopBody = t.Object({ hidden: t.Boolean() });
+export type HideShopBody = Static<typeof HideShopBody>;

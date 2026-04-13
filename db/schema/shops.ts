@@ -10,5 +10,6 @@ export const shops = pgTable("shops", {
     .references(() => usersTable.id, { onDelete: "cascade" }),
   logo: text("logo").default(""),
   active: boolean().notNull().default(true),
+  hidden: boolean().notNull().default(false),
   ...timestamps,
 });
