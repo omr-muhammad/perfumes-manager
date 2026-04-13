@@ -4,7 +4,6 @@ import { usersTable } from "../../db/schema";
 import type {
   AdminCreateUserBody,
   SignupBody,
-  AdminUpdateUserBody,
   LoginBody,
   UpdateUserBody,
 } from "./schema";
@@ -48,31 +47,12 @@ export async function queryAll() {
   }
 }
 
-export async function getById(id: number) {
+export async function getById(userId: number) {
   try {
     const [user] = await db
       .select()
       .from(usersTable)
-      .where(eq(usersTable.id, id));
-
-    return user;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
-}
-
-export async function adminUpdate(id: number, updates: AdminUpdateUserBody) {
-  try {
-    if (updates.password)
-      updates.password = await Bun.password.hash(updates.password);
-
-    const [user] = await db
-      .update(usersTable)
-      .set({ ...updates, createdAt: new Date() })
-      .where(eq(usersTable.id, id))
-      .returning();
+      .where(eq(usersTable.id, userId));
 
     return user;
   } catch (e: any) {
@@ -195,16 +175,13 @@ export async function remove(id: number, password?: string) {
       .from(usersTable)
       .where(eq(usersTable.id, id));
 
-    if (!user) return -1;
+    if (!user) return null;
 
     const passwordMatch = await Bun.password.verify(password, user.password);
 
     if (!passwordMatch) return null;
 
-    return await db
-      .delete(usersTable)
-      .where(eq(usersTable.id, id))
-      .returning({ id: usersTable.id });
+    return await db.delete(usersTable).where(eq(usersTable.id, id)).returning();
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
