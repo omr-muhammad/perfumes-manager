@@ -1,4 +1,4 @@
-import { integer, pgEnum, pgTable, varchar } from "drizzle-orm/pg-core";
+import { boolean, integer, pgTable, varchar } from "drizzle-orm/pg-core";
 import { timestamps } from "../columns.helpers";
 import { langEn, roleEn } from "./enums";
 
@@ -10,5 +10,6 @@ export const users = pgTable("users", {
   role: roleEn("role").notNull().default("customer"),
   language: langEn("language").default("ar"),
   phone: varchar("phone", { length: 50 }).unique(),
+  active: boolean().notNull().default(true),
   ...timestamps,
 });

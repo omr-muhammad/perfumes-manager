@@ -1,5 +1,4 @@
-import type { CtxCookie, UserPayload } from "./globalSchema";
-import type { AuthJWT } from "./jwtPlugin";
+import type { AuthJWT, CtxCookie, UserPayload } from "./globalSchema";
 
 export async function signToken(
   jwt: AuthJWT,

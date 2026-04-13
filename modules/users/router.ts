@@ -7,9 +7,11 @@ import {
   AdminUpdateUserBody,
   LoginBody,
   UpdateUserBody,
+  ActiveBody,
 } from "./schema";
 import { authJWTPlugin } from "../../utils/jwtPlugin";
-import { UserPayload } from "../../utils/globalSchema";
+import { UserParams, UserPayload } from "../../utils/globalSchema";
+import { protect } from "../../utils/auth";
 
 export const usersRouter = new Elysia({ prefix: "/users" })
   .use(authJWTPlugin)
@@ -19,50 +21,43 @@ export const usersRouter = new Elysia({ prefix: "/users" })
   .post("/login", handlers.login, {
     body: LoginBody,
   })
-  .resolve(async ({ cookie: { authToken }, authJWT }) => {
-    if (!authToken || typeof authToken.value !== "string")
-      throw new Error("Unauthorized.");
-
-    const token = authToken.value;
-    const payload = await authJWT.verify(token);
-
-    if (!payload) throw new Error("Unauthorized.");
-
-    // console.log("payload", payload);
-    return { authPayload: payload };
-  })
+  .use(protect)
   .group("/admin", (app) =>
     app
       .onBeforeHandle(({ authPayload, status }) => {
         if (authPayload.role !== "admin") return status(403);
       })
-      .get("/", handlers.getAllUsers)
-      .get("/:id", handlers.getUserById, {
-        params: t.Object({ id: t.Number() }),
+      .get("", handlers.getAllUsers)
+      .get("/:userId", handlers.getUserById, {
+        params: UserParams,
         authPayload: UserPayload,
       })
-      .post("/", handlers.adminCreateUser, {
+      .post("", handlers.adminCreateUser, {
         body: AdminCreateUserBody,
       })
-      .patch("/:id", handlers.adminUpdateUser, {
-        params: t.Object({ id: t.Number() }),
+      .patch("/:userId", handlers.adminUpdateUser, {
+        params: UserParams,
         body: AdminUpdateUserBody,
       })
-      .delete("/:id", handlers.deleteUser, {
-        params: t.Object({ id: t.Number() }),
+      .patch("/:userId/active", handlers.handleActivation, {
+        params: UserParams,
+        body: ActiveBody,
+      })
+      .delete("/:userId", handlers.deleteUser, {
+        params: UserParams,
       }),
   )
   .group("/profile", (app) =>
     app
-      .get("/", handlers.getMe)
+      .get("", handlers.getMe)
       //
-      .patch("/", handlers.updateMe, {
+      .patch("", handlers.updateMe, {
         body: UpdateUserBody,
       })
       .patch("/password", handlers.changePassword, {
         body: ChangePasswordBody,
       })
-      .delete("/", handlers.deleteMe, {
+      .delete("", handlers.deleteMe, {
         body: t.Object({ password: t.String() }),
       }),
   );

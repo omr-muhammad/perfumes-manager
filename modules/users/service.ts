@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../../db/config";
 import { usersTable } from "../../db/schema";
 import type {
@@ -8,13 +8,6 @@ import type {
   LoginBody,
   UpdateUserBody,
 } from "./schema";
-import type { AuthJWT } from "../../utils/jwtPlugin";
-
-// try {
-
-// } catch (e: any) {
-//   console.log("Error: ", e.cause);
-// }
 
 // Admin
 export async function adminCreate(newUser: AdminCreateUserBody) {
@@ -37,7 +30,9 @@ export async function adminCreate(newUser: AdminCreateUserBody) {
 
     return null;
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
@@ -47,7 +42,9 @@ export async function queryAll() {
 
     return users;
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
@@ -60,7 +57,9 @@ export async function getById(id: number) {
 
     return user;
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
@@ -77,11 +76,32 @@ export async function adminUpdate(id: number, updates: AdminUpdateUserBody) {
 
     return user;
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
-// Non Admin
+export async function handleActive(userId: number, active: boolean) {
+  try {
+    const [user] = await db
+      .update(usersTable)
+      .set({
+        active,
+        updatedAt: new Date(),
+      })
+      .where(eq(usersTable.id, userId))
+      .returning();
+
+    return user;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+// Logged Users
 export async function update(id: number, updates: UpdateUserBody) {
   try {
     const [user] = await db
@@ -92,7 +112,9 @@ export async function update(id: number, updates: UpdateUserBody) {
 
     return user;
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
@@ -117,7 +139,9 @@ export async function ChangePassword(id: number, oldPw: string, newPw: string) {
 
     return updated;
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
@@ -130,7 +154,9 @@ export async function signup(newUser: SignupBody) {
 
     return user;
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
@@ -150,7 +176,9 @@ export async function login(loginData: LoginBody) {
 
     return user;
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
@@ -178,6 +206,8 @@ export async function remove(id: number, password?: string) {
       .where(eq(usersTable.id, id))
       .returning({ id: usersTable.id });
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }

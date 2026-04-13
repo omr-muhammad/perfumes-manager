@@ -6,12 +6,14 @@ import type {
   AdminUpdateUserBody,
   LoginBody,
   UpdateUserBody,
+  ActiveBody,
 } from "./schema";
 import * as usersService from "./service";
 import type {
   Ctx,
   CtxWithoutPayload,
   ShopParams,
+  UserParams,
 } from "../../utils/globalSchema";
 import { setCookie, signToken } from "../../utils/token";
 
@@ -32,10 +34,10 @@ export async function getAllUsers() {
   });
 }
 
-export async function getUserById(context: Ctx<unknown, ShopParams>) {
+export async function getUserById(context: Ctx<unknown, UserParams>) {
   const { params } = context;
 
-  const user = await usersService.getById(params.id);
+  const user = await usersService.getById(params.userId);
 
   if (user) {
     const { password, ...withoutPassword } = user;
@@ -46,11 +48,11 @@ export async function getUserById(context: Ctx<unknown, ShopParams>) {
 }
 
 export async function adminUpdateUser(
-  context: Ctx<AdminUpdateUserBody, ShopParams>,
+  context: Ctx<AdminUpdateUserBody, UserParams>,
 ) {
   const { params, body } = context;
 
-  const user = await usersService.adminUpdate(params.id, body);
+  const user = await usersService.adminUpdate(params.userId, body);
 
   if (user) {
     const { password, ...withoutPw } = user;
@@ -60,7 +62,19 @@ export async function adminUpdateUser(
   return res.fail("User not found", { code: "NOT_FOUND" });
 }
 
-// Non Admin
+export async function handleActivation(context: Ctx<ActiveBody, UserParams>) {
+  const { body, params } = context;
+
+  const user = await usersService.handleActive(params.userId, body.active);
+
+  if (!user) return res.fail("User not found.", { code: "NOT_FOUND" });
+
+  const { password, ...withoutPw } = user;
+
+  return res.ok("User updated.", { user: withoutPw });
+}
+
+// Logged Users
 export async function changePassword(context: Ctx<ChangePasswordBody>) {
   const { body, authPayload } = context;
 
@@ -147,10 +161,10 @@ export async function getMe(context: Ctx) {
   return res.ok("User fetched", { user: safeInfo });
 }
 
-export async function deleteUser(context: Ctx<unknown, ShopParams>) {
+export async function deleteUser(context: Ctx<unknown, UserParams>) {
   const { params } = context;
 
-  const userId = await usersService.remove(params.id);
+  const userId = await usersService.remove(params.userId);
 
   return res.ok("User deleted");
 }
