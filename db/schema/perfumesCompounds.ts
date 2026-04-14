@@ -12,6 +12,7 @@ import { companies } from "./companies";
 import { shops } from "./shops";
 import { timestamps } from "../columns.helpers";
 import { sql } from "drizzle-orm";
+import { alcoholsTable } from ".";
 
 export const perfumesCompounds = pgTable(
   "perfumes_compounds",
@@ -41,6 +42,9 @@ export const perfumesCompounds = pgTable(
     shopId: integer("shop_id")
       .notNull()
       .references(() => shops.id, { onDelete: "cascade" }),
+    alcoholId: integer("alcohol_id").references(() => alcoholsTable.id, {
+      onDelete: "restrict",
+    }),
     ...timestamps,
   },
   (table) => [
@@ -89,6 +93,14 @@ export const perfumesCompounds = pgTable(
           AND
           ${table.concentration} < 100
         )
+      `,
+    ),
+    check(
+      "alcohol_id_is_required_while_spray_amount_provided",
+      sql`
+        ${table.sprayAmountInMl} = 0
+        OR
+        ${table.alcoholId} IS NOT NULL
       `,
     ),
   ],

@@ -8,6 +8,7 @@ import {
 import { timestamps } from "../columns.helpers";
 import { perfumesCompounds } from "./perfumesCompounds";
 import { sql } from "drizzle-orm";
+import { alcoholsTable } from ".";
 
 export const aging = pgTable(
   "aging",
@@ -19,6 +20,9 @@ export const aging = pgTable(
     compoundId: integer("compound_id")
       .notNull()
       .references(() => perfumesCompounds.id, { onDelete: "cascade" }),
+    alcoholId: integer("alcohol_id")
+      .notNull()
+      .references(() => alcoholsTable.id, { onDelete: "restrict" }),
     ...timestamps,
   },
   (table) => [

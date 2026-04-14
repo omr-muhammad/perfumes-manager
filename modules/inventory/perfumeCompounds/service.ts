@@ -1,10 +1,6 @@
-import { and, eq, type Update } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../../../db/config";
-import {
-  agingTable,
-  perfumesCompoundsTable,
-  shopsTable,
-} from "../../../db/schema";
+import { agingTable, perfumesCompoundsTable } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
 import type {
   CreateAging,
@@ -48,6 +44,7 @@ export async function create(
             : new Date(newAging.startDate),
         endDate: new Date(newAging.endDate),
         compoundId: compound.id,
+        alcoholId: newAging.alcoholId,
       })
       .returning();
 
@@ -207,6 +204,7 @@ export async function addAging(
             : new Date(newAging.startDate),
         endDate: new Date(newAging.endDate),
         compoundId: compId,
+        alcoholId: newAging.alcoholId,
       })
       .returning();
 
@@ -239,6 +237,7 @@ export async function updateAging(
               : new Date(updates.startDate),
         }),
         ...(updates.endDate && { endDate: new Date(updates.endDate) }),
+        ...(updates.alcoholId && { alcoholId: updates.alcoholId }),
         updatedAt: new Date(),
       })
       .where(and(eq(agingTable.id, agingId), eq(agingTable.compoundId, compId)))
@@ -274,7 +273,7 @@ export async function deleteAging(
   }
 }
 
-export async function queryCompAging(
+export async function queryCompAgings(
   ownerId: number,
   shopId: number,
   compId: number,
@@ -298,7 +297,6 @@ export async function queryCompAging(
 export async function queryCompAgingById(
   ownerId: number,
   shopId: number,
-  compId: number,
   agingId: number,
 ) {
   try {
