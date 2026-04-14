@@ -1,8 +1,9 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, sql, TransactionRollbackError } from "drizzle-orm";
 import { db } from "../../../db/config";
 import { bottlesTable } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
 import type { CreateBottleBody, UpdateBottleBody } from "./schema";
+import type { DbTx } from "../../../utils/globalSchema";
 
 export async function create(
   ownerId: number,
@@ -135,9 +136,14 @@ export async function queryById(
   }
 }
 
-export async function increaseStock(bottleId: number, quantity: number) {
+export async function increaseStock(
+  bottleId: number,
+  quantity: number,
+  higherTx?: DbTx,
+) {
   try {
-    const [alcohol] = await db
+    const _db = higherTx ?? db;
+    const [alcohol] = await _db
       .update(bottlesTable)
       .set({
         stock: sql`${bottlesTable.stock} + ${Math.abs(quantity)}`,
@@ -149,15 +155,20 @@ export async function increaseStock(bottleId: number, quantity: number) {
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
+    // if (e instanceof TransactionRollbackError) {
+    //   throw e;
+    // }
     throw e;
   }
 }
 
 export async function decreaseStock(
   quantities: { bottleId: number; qty: number }[],
+  higherTx?: DbTx,
 ) {
   try {
-    const result = (await db.transaction(async (tx) => {
+    const _db = higherTx ?? db;
+    const result = (await _db.transaction(async (tx) => {
       const decrementsTable = sql.join(
         quantities.map((obj) => sql`(${obj.bottleId}, ${Math.abs(obj.qty)})`),
         sql`, `,
@@ -185,6 +196,11 @@ export async function decreaseStock(
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
+
+    if (higherTx && e instanceof TransactionRollbackError) {
+      throw e; // re-throw → bubbles up → outer rolls back
+    }
+
     throw e;
   }
 }
