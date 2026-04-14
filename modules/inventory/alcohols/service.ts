@@ -1,16 +1,8 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../../db/config";
 import { alcoholsTable, shopsTable } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
 import type { CreateAlcoBody, UpdateAlcoBody } from "./schema";
-
-// try {
-
-// } catch (e: any) {
-//   console.log("Error: ", e);
-//   console.log("Error Cause: ", e.cause);
-//   throw e;
-// }
 
 export async function create(
   ownerId: number,
@@ -66,7 +58,7 @@ export async function update(
           ltSellPrice: updates.ltSellPrice.toFixed(2),
         }),
         ...(updates.ltSellPrice && {
-          unitSellPrice: (updates.ltSellPrice / 1000).toFixed(2),
+          unitSellPrice: Math.ceil(updates.ltSellPrice / 1000).toFixed(2),
         }),
         ...(updates.amountInMl && { amountInMl: updates.amountInMl }),
         ...(updates.expiryDate && { expiryDate: new Date(updates.expiryDate) }),
@@ -138,11 +130,65 @@ export async function queryById(
       .select()
       .from(alcoholsTable)
       .innerJoin(shopsTable, eq(shopsTable.id, alcoholsTable.shopId))
-      .where(
-        and(eq(alcoholsTable.shopId, shopId), eq(alcoholsTable.id, alcoholId)),
-      );
+      .where(eq(alcoholsTable.id, alcoholId));
 
     return alcohol;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function increaseStock(alcoholId: number, amount: number) {
+  try {
+    const [alcohol] = await db
+      .update(alcoholsTable)
+      .set({
+        amountInMl: sql`${alcoholsTable.amountInMl} + ${Math.abs(amount)}`,
+      })
+      .where(eq(alcoholsTable.id, alcoholId))
+      .returning();
+
+    return alcohol;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function decreaseStock(
+  amounts: { alcoholId: number; amountInMl: number }[],
+) {
+  try {
+    const result = (await db.transaction(async (tx) => {
+      const decrementsTable = sql.join(
+        amounts.map(
+          (obj) => sql`(${obj.alcoholId}, ${Math.abs(obj.amountInMl)})`,
+        ),
+        sql`, `,
+      );
+
+      const rows = await tx.execute(sql`
+        UPDATE alcohols AS alco
+        
+        SET amount_in_ml = amount_in_ml - decs.amount
+        
+        FROM (VALUES ${decrementsTable} AS decs(alco_id, amount))
+        
+        WHERE alco.id = decs.alco_id
+          AND alco.amount_in_ml >= decs.amount
+        
+        RETURNING alco.id AS id, alco.amount_in_ml AS "amountInMl" 
+      `);
+
+      if (rows.length !== amounts.length) tx.rollback();
+
+      return result;
+    })) as { id: number; amountInMl: number }[];
+
+    return result;
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
