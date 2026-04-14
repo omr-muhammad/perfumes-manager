@@ -1,6 +1,6 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../../db/config";
-import { bottlesTable, shopsTable } from "../../../db/schema";
+import { bottlesTable } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
 import type { CreateBottleBody, UpdateBottleBody } from "./schema";
 
@@ -128,6 +128,60 @@ export async function queryById(
       shopName: shop.name,
       ...(shop.logo && { shopLogo: shop.logo }),
     };
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function increaseStock(bottleId: number, quantity: number) {
+  try {
+    const [alcohol] = await db
+      .update(bottlesTable)
+      .set({
+        stock: sql`${bottlesTable.stock} + ${Math.abs(quantity)}`,
+      })
+      .where(eq(bottlesTable.id, bottleId))
+      .returning();
+
+    return alcohol;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function decreaseStock(
+  quantities: { bottleId: number; qty: number }[],
+) {
+  try {
+    const result = (await db.transaction(async (tx) => {
+      const decrementsTable = sql.join(
+        quantities.map((obj) => sql`(${obj.bottleId}, ${Math.abs(obj.qty)})`),
+        sql`, `,
+      );
+
+      const rows = await tx.execute(sql`
+        UPDATE bottles AS b
+        
+        SET stock = stock - decs.qty
+        
+        FROM (VALUES ${decrementsTable} AS decs(b_id, qty))
+        
+        WHERE b.id = decs.b_id
+          AND b.stock >= decs.qty
+        
+        RETURNING b.id AS id, b.stock AS stock 
+      `);
+
+      if (rows.length !== quantities.length) tx.rollback();
+
+      return result;
+    })) as { id: number; stock: number }[];
+
+    return result;
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);

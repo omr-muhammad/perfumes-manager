@@ -28,6 +28,7 @@ export const bottles = pgTable(
       .references(() => shops.id, { onDelete: "cascade" })
       .notNull(),
     ...timestamps,
+    stock: integer("stock").notNull().default(0),
   },
   (bottle) => [
     check(
@@ -41,6 +42,12 @@ export const bottles = pgTable(
       sql`
       ${bottle.price} > 0
     `,
+    ),
+    check(
+      "bottle_stock_must_be_positive",
+      sql`
+        ${bottle.stock} >= 0
+      `,
     ),
   ],
 );
