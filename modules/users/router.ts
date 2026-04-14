@@ -8,6 +8,7 @@ import {
 } from "./schema";
 import { authJWTPlugin } from "../../utils/jwtPlugin";
 import { protect } from "../../utils/auth";
+import { AddressBase } from "../../utils/globalSchema";
 
 export const usersRouter = new Elysia({ prefix: "/users" })
   .use(authJWTPlugin)
@@ -27,6 +28,10 @@ export const usersRouter = new Elysia({ prefix: "/users" })
       })
       .patch("/change-password", handlers.changePassword, {
         body: ChangePasswordBody,
+      })
+      //
+      .put("/address", handlers.upsertUserAddress, {
+        body: AddressBase,
       })
       //
       .delete("", handlers.deleteMe, {

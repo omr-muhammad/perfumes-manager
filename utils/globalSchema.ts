@@ -6,6 +6,19 @@ export const ID = t.Number({
   error: "Invalid id, expected a positive number",
 });
 
+export const AddressBase = t.Object({
+  country: t.String(),
+  city: t.String(),
+  district: t.Optional(t.String()),
+  street: t.String(),
+  buildingNumber: t.Optional(t.Number()),
+  notes: t.Optional(t.String()),
+});
+export type Address = Static<typeof AddressBase>;
+
+export const UpdateAddressBody = t.Partial(AddressBase);
+export type UpdateAddressBody = Static<typeof UpdateAddressBody>;
+
 export type CtxCookie = Record<string, Cookie<unknown>>;
 export type AuthJWT =
   (typeof authJWTPlugin)["~Singleton"]["decorator"]["authJWT"];

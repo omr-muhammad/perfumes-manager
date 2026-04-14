@@ -1,12 +1,19 @@
 import { createInsertSchema } from "drizzle-typebox";
 import { t, type Static } from "elysia";
 import { usersTable } from "../../db/schema";
+import { AddressBase } from "../../utils/globalSchema";
 
-export const AdminCreateUserBody = createInsertSchema(usersTable);
+const CreateUser = createInsertSchema(usersTable);
+type CreateUser = Static<typeof CreateUser>;
+
+export const AdminCreateUserBody = t.Object({
+  user: CreateUser,
+  address: t.Optional(AddressBase),
+});
 export type AdminCreateUserBody = Static<typeof AdminCreateUserBody>;
 
 export const UpdateUserBody = t.Partial(
-  t.Omit(AdminCreateUserBody, ["password", "role", "active"]),
+  t.Omit(CreateUser, ["password", "role", "active"]),
 );
 export type UpdateUserBody = Static<typeof UpdateUserBody>;
 

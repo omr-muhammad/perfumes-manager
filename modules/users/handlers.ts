@@ -8,9 +8,11 @@ import type {
 } from "./schema";
 import * as usersService from "./service";
 import type {
+  Address,
   Ctx,
   CtxWithoutPayload,
   HandleActiveBody,
+  UpdateAddressBody,
   UserParams,
 } from "../../utils/globalSchema";
 import { setCookie, signToken } from "../../utils/token";
@@ -21,7 +23,22 @@ export async function adminCreateUser(context: Ctx<AdminCreateUserBody>) {
 
   const user = await usersService.adminCreate(body);
 
-  return res.ok("User created", { id: user?.id, email: user?.email });
+  if (!user) return res.fail("Failed to create user", { code: "UNKNOWN" });
+
+  if (!body.address)
+    return res.ok("User created.", { id: user.id, email: user.email });
+
+  if (!("address" in user))
+    return res.ok(
+      "User created successfully, but failed to add address data please insert again from profile page.",
+      { id: user.id, email: user.email },
+    );
+
+  return res.ok("User created", {
+    id: user.id,
+    email: user.email,
+    address: user.address,
+  });
 }
 
 export async function getAllUsers() {
@@ -57,25 +74,15 @@ export async function handleActivation(
   return res.ok("User updated.", { user: withoutPw });
 }
 
-// Logged Users
-export async function changePassword(context: Ctx<ChangePasswordBody>) {
-  const { body, authPayload } = context;
+export async function deleteUser(context: Ctx<unknown, UserParams>) {
+  const { params } = context;
 
-  const user = await usersService.ChangePassword(
-    authPayload.userId,
-    body.oldPw,
-    body.newPw,
-  );
+  const user = await usersService.remove(params.userId);
 
-  if (!user)
-    return res.fail("User not found or old password is wrong", {
-      code: "NOT_FOUND",
-    });
-
-  const { password, role, phone, ...safeInfo } = user;
-  return res.ok("User Password updated.", { user: safeInfo });
+  return res.ok("User deleted", user && { id: user.id });
 }
 
+// Non Logged Users
 export async function signup(context: CtxWithoutPayload<SignupBody>) {
   const { body, authJWT, cookie } = context;
 
@@ -121,6 +128,25 @@ export async function login(context: CtxWithoutPayload<LoginBody>) {
   return res.ok("User logged");
 }
 
+// Logged Users
+export async function changePassword(context: Ctx<ChangePasswordBody>) {
+  const { body, authPayload } = context;
+
+  const user = await usersService.ChangePassword(
+    authPayload.userId,
+    body.oldPw,
+    body.newPw,
+  );
+
+  if (!user)
+    return res.fail("User not found or old password is wrong", {
+      code: "NOT_FOUND",
+    });
+
+  const { password, role, phone, ...safeInfo } = user;
+  return res.ok("User Password updated.", { user: safeInfo });
+}
+
 export async function updateMe(context: Ctx<UpdateUserBody>) {
   const { body, authPayload } = context;
 
@@ -132,6 +158,17 @@ export async function updateMe(context: Ctx<UpdateUserBody>) {
   return res.ok("User updated", { user: safeInfo });
 }
 
+export async function upsertUserAddress(context: Ctx<Address>) {
+  const { authPayload, body } = context;
+
+  const address = await usersService.upsertAddress(authPayload.userId, body);
+
+  if (!address)
+    return res.fail("Failed to add/update user address", { code: "FAILED" });
+
+  return res.ok("User Address added.", { address });
+}
+
 export async function getMe(context: Ctx) {
   const { authPayload } = context;
 
@@ -141,14 +178,6 @@ export async function getMe(context: Ctx) {
 
   const { password, ...safeInfo } = user;
   return res.ok("User fetched", { user: safeInfo });
-}
-
-export async function deleteUser(context: Ctx<unknown, UserParams>) {
-  const { params } = context;
-
-  const user = await usersService.remove(params.userId);
-
-  return res.ok("User deleted");
 }
 
 export async function deleteMe(context: Ctx<{ password: string }>) {

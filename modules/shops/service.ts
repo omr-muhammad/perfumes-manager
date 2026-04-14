@@ -2,15 +2,14 @@ import { and, eq, ne } from "drizzle-orm";
 import { db } from "../../db/config";
 import { addressesTable, shopsTable, usersTable } from "../../db/schema";
 import type {
-  Address,
   NewShop,
   StaffBody,
-  UpdateAddressBody,
   UpdateShopBody,
   UpdateStaffBody,
 } from "./schema";
 import { shopsStaffTable } from "../../db/schema/index";
 import { assertOwnership, assertIsOwner } from "../../utils/assertOwnership";
+import type { Address, UpdateAddressBody } from "../../utils/globalSchema";
 
 export async function create(
   ownerId: number,
@@ -291,7 +290,7 @@ export async function updateShopStaff(
 
 export async function handleActivation(shopId: number, active: boolean) {
   try {
-    const [user] = await db
+    const [shop] = await db
       .update(shopsTable)
       .set({
         active,
@@ -300,7 +299,7 @@ export async function handleActivation(shopId: number, active: boolean) {
       .where(eq(shopsTable.id, shopId))
       .returning();
 
-    return user;
+    return shop;
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);

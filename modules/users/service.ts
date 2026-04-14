@@ -1,33 +1,44 @@
 import { eq } from "drizzle-orm";
 import { db } from "../../db/config";
-import { usersTable } from "../../db/schema";
+import { addressesTable, usersTable } from "../../db/schema";
 import type {
   AdminCreateUserBody,
   SignupBody,
   LoginBody,
   UpdateUserBody,
 } from "./schema";
+import type { Address } from "../../utils/globalSchema";
 
 // Admin
 export async function adminCreate(newUser: AdminCreateUserBody) {
   try {
-    const hashedPassword = await Bun.password.hash(newUser.password);
+    const hashedPassword = await Bun.password.hash(newUser.user.password);
 
     const [user] = await db
       .insert(usersTable)
       .values({
-        ...newUser,
+        ...newUser.user,
         password: hashedPassword,
       })
       .returning();
 
-    if (user) {
-      const { password, ...others } = user;
+    if (!user) return null;
 
-      return others;
-    }
+    const { password, ...others } = user;
 
-    return null;
+    if (!newUser.address) return others;
+
+    const [address] = await db
+      .insert(addressesTable)
+      .values({
+        ...newUser.address,
+        userId: user.id,
+      })
+      .returning();
+
+    if (!address) return others;
+
+    return { ...others, address };
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
@@ -91,6 +102,25 @@ export async function update(id: number, updates: UpdateUserBody) {
       .returning();
 
     return user;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function upsertAddress(userId: number, address: Address) {
+  try {
+    const [userAddress] = await db
+      .insert(addressesTable)
+      .values({ ...address, userId })
+      .onConflictDoUpdate({
+        target: addressesTable.userId,
+        set: { ...address, updatedAt: new Date() },
+      })
+      .returning();
+
+    return userAddress;
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
@@ -162,18 +192,20 @@ export async function login(loginData: LoginBody) {
   }
 }
 
-export async function remove(id: number, password?: string) {
+export async function remove(userId: number, password?: string) {
   try {
-    if (!password)
-      return await db
+    if (!password) {
+      const [user] = await db
         .delete(usersTable)
-        .where(eq(usersTable.id, id))
-        .returning({ id: usersTable.id });
+        .where(eq(usersTable.id, userId))
+        .returning();
+      return user;
+    }
 
-    const [user] = await db
+    let [user] = await db
       .select()
       .from(usersTable)
-      .where(eq(usersTable.id, id));
+      .where(eq(usersTable.id, userId));
 
     if (!user) return null;
 
@@ -181,7 +213,12 @@ export async function remove(id: number, password?: string) {
 
     if (!passwordMatch) return null;
 
-    return await db.delete(usersTable).where(eq(usersTable.id, id)).returning();
+    [user] = await db
+      .delete(usersTable)
+      .where(eq(usersTable.id, userId))
+      .returning();
+
+    return user;
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);

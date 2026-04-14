@@ -1,21 +1,9 @@
 import { t, type Static } from "elysia";
 import { shopStaff } from "../../db/schema/shopStaff";
 import { createInsertSchema } from "drizzle-typebox";
+import { AddressBase } from "../../utils/globalSchema";
 
 export const ShopStaffSchema = createInsertSchema(shopStaff);
-
-const AddressBase = t.Object({
-  country: t.String(),
-  city: t.String(),
-  district: t.Optional(t.String()),
-  street: t.String(),
-  buildingNumber: t.Optional(t.Number()),
-  notes: t.Optional(t.String()),
-});
-export type Address = Static<typeof AddressBase>;
-
-export const UpdateAddressBody = t.Partial(AddressBase);
-export type UpdateAddressBody = Static<typeof UpdateAddressBody>;
 
 export const CreateShopBody = t.Object({
   ownerId: t.Optional(t.Number()),
