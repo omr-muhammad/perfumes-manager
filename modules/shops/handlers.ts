@@ -1,4 +1,5 @@
 import type {
+  Address,
   Ctx,
   HandleActiveBody,
   ShopParams,
@@ -9,7 +10,6 @@ import {
   HideShopBody,
   StaffBody,
   type CreateShopBody,
-  type UpdateAddressBody,
   type UpdateShopBody,
   type UpdateStaffBody,
 } from "./schema";
@@ -44,14 +44,12 @@ export async function updateShop(context: Ctx<UpdateShopBody, ShopParams>) {
   return res.ok("Shop updated.", { shop });
 }
 
-export async function updateShopAddress(
-  context: Ctx<UpdateAddressBody, ShopParams>,
-) {
+export async function upsertShopAddress(context: Ctx<Address, ShopParams>) {
   const { body, params, authPayload } = context;
 
   const address = await shopsService.upsertShopAddress(
-    params.shopId,
     authPayload.userId,
+    params.shopId,
     body,
   );
 

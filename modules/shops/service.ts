@@ -66,30 +66,26 @@ export async function update(
 }
 
 export async function upsertShopAddress(
-  shopId: number,
   ownerId: number,
-  newAddress: UpdateAddressBody,
+  shopId: number,
+  address: Address,
 ) {
   try {
     await assertOwnership(shopId, ownerId);
 
-    let [address] = await db
-      .update(addressesTable)
-      .set(newAddress)
-      .where(eq(addressesTable.shopId, shopId))
+    let [shopAddress] = await db
+      .insert(addressesTable)
+      .values(address)
+      .onConflictDoUpdate({
+        target: addressesTable.shopId,
+        set: {
+          ...address,
+          updatedAt: new Date(),
+        },
+      })
       .returning();
 
-    if (!address) {
-      if (!newAddress.country || !newAddress.city || !newAddress.street)
-        throw new Error("Missing country, city or street");
-
-      [address] = await db
-        .insert(addressesTable)
-        .values({ ...(newAddress as Address), shopId })
-        .returning();
-    }
-
-    return address;
+    return shopAddress;
   } catch (e: any) {
     console.log("Error: ", e.cause);
     throw e;

@@ -3,11 +3,14 @@ import * as handlers from "./handlers";
 import {
   CreateShopBody,
   StaffBody,
-  UpdateAddressBody,
   UpdateShopBody,
   UpdateStaffBody,
 } from "./schema";
-import { ShopParams, TStaffParams } from "../../utils/globalSchema";
+import {
+  AddressBase,
+  ShopParams,
+  TStaffParams,
+} from "../../utils/globalSchema";
 import { protect, restrictTo } from "../../utils/auth";
 import { alcoholsRouter } from "../inventory/alcohols/router";
 import { bottlesRouter } from "../inventory/bottles/router";
@@ -32,9 +35,9 @@ export const shopsRouter = new Elysia({ prefix: "shops" })
         params: ShopParams,
         body: UpdateShopBody,
       })
-      .patch("/address", handlers.updateShopAddress, {
+      .put("/address", handlers.upsertShopAddress, {
         params: ShopParams,
-        body: UpdateAddressBody,
+        body: AddressBase,
       })
       .group("/staff", (app) =>
         app
