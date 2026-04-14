@@ -1,43 +1,48 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../../db/config";
-import { usersTable } from "../../db/schema";
+import { addressesTable, usersTable } from "../../db/schema";
 import type {
   AdminCreateUserBody,
   SignupBody,
-  AdminUpdateUserBody,
   LoginBody,
   UpdateUserBody,
 } from "./schema";
-import type { AuthJWT } from "../../utils/jwtPlugin";
-
-// try {
-
-// } catch (e: any) {
-//   console.log("Error: ", e.cause);
-// }
+import type { Address } from "../../utils/globalSchema";
 
 // Admin
 export async function adminCreate(newUser: AdminCreateUserBody) {
   try {
-    const hashedPassword = await Bun.password.hash(newUser.password);
+    const hashedPassword = await Bun.password.hash(newUser.user.password);
 
     const [user] = await db
       .insert(usersTable)
       .values({
-        ...newUser,
+        ...newUser.user,
         password: hashedPassword,
       })
       .returning();
 
-    if (user) {
-      const { password, ...others } = user;
+    if (!user) return null;
 
-      return others;
-    }
+    const { password, ...others } = user;
 
-    return null;
+    if (!newUser.address) return others;
+
+    const [address] = await db
+      .insert(addressesTable)
+      .values({
+        ...newUser.address,
+        userId: user.id,
+      })
+      .returning();
+
+    if (!address) return others;
+
+    return { ...others, address };
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
@@ -47,41 +52,47 @@ export async function queryAll() {
 
     return users;
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
-export async function getById(id: number) {
+export async function getById(userId: number) {
   try {
     const [user] = await db
       .select()
       .from(usersTable)
-      .where(eq(usersTable.id, id));
+      .where(eq(usersTable.id, userId));
 
     return user;
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
-export async function adminUpdate(id: number, updates: AdminUpdateUserBody) {
+export async function handleActive(userId: number, active: boolean) {
   try {
-    if (updates.password)
-      updates.password = await Bun.password.hash(updates.password);
-
     const [user] = await db
       .update(usersTable)
-      .set({ ...updates, createdAt: new Date() })
-      .where(eq(usersTable.id, id))
+      .set({
+        active,
+        updatedAt: new Date(),
+      })
+      .where(eq(usersTable.id, userId))
       .returning();
 
     return user;
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
-// Non Admin
+// Logged Users
 export async function update(id: number, updates: UpdateUserBody) {
   try {
     const [user] = await db
@@ -92,7 +103,28 @@ export async function update(id: number, updates: UpdateUserBody) {
 
     return user;
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function upsertAddress(userId: number, address: Address) {
+  try {
+    const [userAddress] = await db
+      .insert(addressesTable)
+      .values({ ...address, userId })
+      .onConflictDoUpdate({
+        target: addressesTable.userId,
+        set: { ...address, updatedAt: new Date() },
+      })
+      .returning();
+
+    return userAddress;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
@@ -117,7 +149,9 @@ export async function ChangePassword(id: number, oldPw: string, newPw: string) {
 
     return updated;
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
@@ -130,7 +164,9 @@ export async function signup(newUser: SignupBody) {
 
     return user;
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
@@ -150,34 +186,42 @@ export async function login(loginData: LoginBody) {
 
     return user;
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
-export async function remove(id: number, password?: string) {
+export async function remove(userId: number, password?: string) {
   try {
-    if (!password)
-      return await db
+    if (!password) {
+      const [user] = await db
         .delete(usersTable)
-        .where(eq(usersTable.id, id))
-        .returning({ id: usersTable.id });
+        .where(eq(usersTable.id, userId))
+        .returning();
+      return user;
+    }
 
-    const [user] = await db
+    let [user] = await db
       .select()
       .from(usersTable)
-      .where(eq(usersTable.id, id));
+      .where(eq(usersTable.id, userId));
 
-    if (!user) return -1;
+    if (!user) return null;
 
     const passwordMatch = await Bun.password.verify(password, user.password);
 
     if (!passwordMatch) return null;
 
-    return await db
+    [user] = await db
       .delete(usersTable)
-      .where(eq(usersTable.id, id))
-      .returning({ id: usersTable.id });
+      .where(eq(usersTable.id, userId))
+      .returning();
+
+    return user;
   } catch (e: any) {
-    console.log("Error: ", e.cause);
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }

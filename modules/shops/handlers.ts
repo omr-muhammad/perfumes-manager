@@ -1,11 +1,17 @@
-import type { Ctx, ShopParams, TStaffParams } from "../../utils/globalSchema";
-import { response as res } from "../../utils/response";
 import type {
-  CreateShopBody,
+  Address,
+  Ctx,
+  HandleActiveBody,
+  ShopParams,
+  TStaffParams,
+} from "../../utils/globalSchema";
+import { response as res } from "../../utils/response";
+import {
+  HideShopBody,
   StaffBody,
-  UpdateAddressBody,
-  UpdateShopBody,
-  UpdateStaffBody,
+  type CreateShopBody,
+  type UpdateShopBody,
+  type UpdateStaffBody,
 } from "./schema";
 import * as shopsService from "./service";
 
@@ -38,14 +44,12 @@ export async function updateShop(context: Ctx<UpdateShopBody, ShopParams>) {
   return res.ok("Shop updated.", { shop });
 }
 
-export async function updateShopAddress(
-  context: Ctx<UpdateAddressBody, ShopParams>,
-) {
+export async function upsertShopAddress(context: Ctx<Address, ShopParams>) {
   const { body, params, authPayload } = context;
 
   const address = await shopsService.upsertShopAddress(
-    params.shopId,
     authPayload.userId,
+    params.shopId,
     body,
   );
 
@@ -166,4 +170,36 @@ export async function updateShopStaff(
     shopId: staff.shopId,
     shopRole: staff.role,
   });
+}
+
+export async function handleShopActivation(
+  context: Ctx<HandleActiveBody, ShopParams>,
+) {
+  const { params, body } = context;
+
+  const shop = await shopsService.handleActivation(params.shopId, body.active);
+
+  if (!shop) return res.fail("Shop not found.", { code: "NOT_FOUND" });
+
+  return res.ok("Shop updated.", { shop });
+}
+
+export async function hideShop(context: Ctx<HideShopBody, ShopParams>) {
+  const { body, params, authPayload } = context;
+
+  const shop = await shopsService.hide(
+    authPayload.userId,
+    params.shopId,
+    body.hidden,
+  );
+
+  const action = body.hidden ? "hide" : "show";
+  const shouldBe = body.hidden ? "hidden" : "shown";
+  if (!shop)
+    return res.fail(
+      `Failed to ${action} shop, shop may not exist or already ${shouldBe}`,
+      { code: "FAILED" },
+    );
+
+  return res.ok(`Shop ${shouldBe} success`, { shop });
 }

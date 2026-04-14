@@ -146,7 +146,7 @@ export async function deleteCompAging(context: Ctx<unknown, AgingParams>) {
 export async function getCompAgings(context: Ctx<unknown, CompParams>) {
   const { authPayload, params } = context;
 
-  const compAgings = await compService.queryCompAging(
+  const compAgings = await compService.queryCompAgings(
     authPayload.userId,
     params.shopId,
     params.compId,
@@ -161,7 +161,6 @@ export async function getCompAgingById(context: Ctx<unknown, AgingParams>) {
   const compAging = await compService.queryCompAgingById(
     authPayload.userId,
     params.shopId,
-    params.compId,
     params.agingId,
   );
 

@@ -1,31 +1,19 @@
-import { StatusMap, t, type Static } from "elysia";
+import { createInsertSchema } from "drizzle-typebox";
+import { t, type Static } from "elysia";
+import { usersTable } from "../../db/schema";
+import { AddressBase } from "../../utils/globalSchema";
+
+const CreateUser = createInsertSchema(usersTable);
+type CreateUser = Static<typeof CreateUser>;
 
 export const AdminCreateUserBody = t.Object({
-  name: t.String(),
-  email: t.String(),
-  password: t.String(),
-  role: t.Optional(
-    t.Union([t.Literal("owner"), t.Literal("staff"), t.Literal("customer")]),
-  ),
-  language: t.Optional(t.Union([t.Literal("ar"), t.Literal("en")])),
-  phone: t.Optional(t.String()),
+  user: CreateUser,
+  address: t.Optional(AddressBase),
 });
 export type AdminCreateUserBody = Static<typeof AdminCreateUserBody>;
 
-export const AdminUpdateUserBody = t.Object({
-  name: t.Optional(t.String()),
-  email: t.Optional(t.String()),
-  language: t.Optional(t.Union([t.Literal("ar"), t.Literal("en")])),
-  role: t.Optional(
-    t.Union([t.Literal("owner"), t.Literal("staff"), t.Literal("customer")]),
-  ),
-  password: t.Optional(t.String()),
-  phone: t.Optional(t.String()),
-});
-export type AdminUpdateUserBody = Static<typeof AdminUpdateUserBody>;
-
 export const UpdateUserBody = t.Partial(
-  t.Omit(AdminUpdateUserBody, ["password", "role"]),
+  t.Omit(CreateUser, ["password", "role", "active"]),
 );
 export type UpdateUserBody = Static<typeof UpdateUserBody>;
 

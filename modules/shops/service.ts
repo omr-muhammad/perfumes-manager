@@ -1,16 +1,15 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { db } from "../../db/config";
 import { addressesTable, shopsTable, usersTable } from "../../db/schema";
 import type {
-  Address,
   NewShop,
   StaffBody,
-  UpdateAddressBody,
   UpdateShopBody,
   UpdateStaffBody,
 } from "./schema";
 import { shopsStaffTable } from "../../db/schema/index";
 import { assertOwnership, assertIsOwner } from "../../utils/assertOwnership";
+import type { Address, UpdateAddressBody } from "../../utils/globalSchema";
 
 export async function create(
   ownerId: number,
@@ -67,30 +66,26 @@ export async function update(
 }
 
 export async function upsertShopAddress(
-  shopId: number,
   ownerId: number,
-  newAddress: UpdateAddressBody,
+  shopId: number,
+  address: Address,
 ) {
   try {
     await assertOwnership(shopId, ownerId);
 
-    let [address] = await db
-      .update(addressesTable)
-      .set(newAddress)
-      .where(eq(addressesTable.shopId, shopId))
+    let [shopAddress] = await db
+      .insert(addressesTable)
+      .values(address)
+      .onConflictDoUpdate({
+        target: addressesTable.shopId,
+        set: {
+          ...address,
+          updatedAt: new Date(),
+        },
+      })
       .returning();
 
-    if (!address) {
-      if (!newAddress.country || !newAddress.city || !newAddress.street)
-        throw new Error("Missing country, city or street");
-
-      [address] = await db
-        .insert(addressesTable)
-        .values({ ...(newAddress as Address), shopId })
-        .returning();
-    }
-
-    return address;
+    return shopAddress;
   } catch (e: any) {
     console.log("Error: ", e.cause);
     throw e;
@@ -119,12 +114,20 @@ export async function query(ownerId?: number) {
 
     await assertIsOwner(ownerId);
 
-    const shops = await db
+    const result = await db
       .select()
       .from(shopsTable)
-      .where(eq(shopsTable.ownerId, ownerId));
+      .leftJoin(usersTable, eq(usersTable.id, ownerId))
+      .leftJoin(addressesTable, eq(addressesTable.shopId, shopsTable.id))
+      .where(
+        and(
+          eq(shopsTable.ownerId, ownerId),
+          eq(shopsTable.active, true),
+          eq(usersTable.active, true),
+        ),
+      );
 
-    return shops;
+    return result.map((item) => ({ ...item.shops, address: item.addresses }));
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
@@ -274,6 +277,46 @@ export async function updateShopStaff(
       .returning();
 
     return staff;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function handleActivation(shopId: number, active: boolean) {
+  try {
+    const [shop] = await db
+      .update(shopsTable)
+      .set({
+        active,
+        updatedAt: new Date(),
+      })
+      .where(eq(shopsTable.id, shopId))
+      .returning();
+
+    return shop;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function hide(ownerId: number, shopId: number, hidden: boolean) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const [shop] = await db
+      .update(shopsTable)
+      .set({
+        hidden,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(shopsTable.id, shopId), ne(shopsTable.hidden, hidden)))
+      .returning();
+
+    return shop;
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);

@@ -6,6 +6,19 @@ export const ID = t.Number({
   error: "Invalid id, expected a positive number",
 });
 
+export const AddressBase = t.Object({
+  country: t.String(),
+  city: t.String(),
+  district: t.Optional(t.String()),
+  street: t.String(),
+  buildingNumber: t.Optional(t.Number()),
+  notes: t.Optional(t.String()),
+});
+export type Address = Static<typeof AddressBase>;
+
+export const UpdateAddressBody = t.Partial(AddressBase);
+export type UpdateAddressBody = Static<typeof UpdateAddressBody>;
+
 export type CtxCookie = Record<string, Cookie<unknown>>;
 export type AuthJWT =
   (typeof authJWTPlugin)["~Singleton"]["decorator"]["authJWT"];
@@ -35,11 +48,17 @@ export type CtxWithoutPayload<TBody = unknown, TParams = unknown> = Omit<
   "authPayload"
 >;
 
-export const ShopParams = t.Object({ shopId: t.Number() });
+export const HandleActiveBody = t.Object({ active: t.Boolean() });
+export type HandleActiveBody = Static<typeof HandleActiveBody>;
+
+export const UserParams = t.Object({ userId: ID });
+export type UserParams = Static<typeof UserParams>;
+
+export const ShopParams = t.Object({ shopId: ID });
 export type ShopParams = Static<typeof ShopParams>;
 export const TStaffParams = t.Object({
-  shopId: t.Number(),
-  staffId: t.Number(),
+  shopId: ID,
+  staffId: ID,
 });
 export type TStaffParams = Static<typeof TStaffParams>;
 

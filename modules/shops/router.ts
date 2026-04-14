@@ -3,54 +3,59 @@ import * as handlers from "./handlers";
 import {
   CreateShopBody,
   StaffBody,
-  UpdateAddressBody,
   UpdateShopBody,
   UpdateStaffBody,
 } from "./schema";
-import { ShopParams, TStaffParams } from "../../utils/globalSchema";
-import { alcoholsRouter } from "../inventory/alcohols/router";
+import {
+  AddressBase,
+  ShopParams,
+  TStaffParams,
+} from "../../utils/globalSchema";
 import { protect, restrictTo } from "../../utils/auth";
+import { alcoholsRouter } from "../inventory/alcohols/router";
 import { bottlesRouter } from "../inventory/bottles/router";
 import { perfumesCompoundsRouter } from "../inventory/perfumeCompounds/router";
 
 export const shopsRouter = new Elysia({ prefix: "shops" })
   .use(protect)
-  .use(restrictTo("admin", "owner"))
+  .use(restrictTo("owner"))
   .post("/", handlers.createNewShop, {
     body: CreateShopBody,
   })
   .get("/", handlers.getShops)
   .group("/:shopId", (app) =>
     app
-      .get("/", handlers.getShopById, {
+      .get("", handlers.getShopById, {
         params: ShopParams,
       })
-      .delete("/", handlers.deleteShop, {
+      .delete("", handlers.deleteShop, {
         params: ShopParams,
       })
-      .use(restrictTo("owner"))
-      .patch("/", handlers.updateShop, {
+      .patch("", handlers.updateShop, {
         params: ShopParams,
         body: UpdateShopBody,
       })
-      .patch("/address", handlers.updateShopAddress, {
+      .put("/address", handlers.upsertShopAddress, {
         params: ShopParams,
-        body: UpdateAddressBody,
+        body: AddressBase,
       })
-      .post("/staff", handlers.addShopStaff, {
-        params: ShopParams,
-        body: StaffBody,
-      })
-      .delete("/staff/:staffId", handlers.removeShopStaff, {
-        params: TStaffParams,
-      })
-      .get("/staff", handlers.getShopStaff, {
-        params: ShopParams,
-      })
-      .patch("/staff/:staffId", handlers.updateShopStaff, {
-        params: TStaffParams,
-        body: UpdateStaffBody,
-      })
+      .group("/staff", (app) =>
+        app
+          .post("", handlers.addShopStaff, {
+            params: ShopParams,
+            body: StaffBody,
+          })
+          .delete("/:staffId", handlers.removeShopStaff, {
+            params: TStaffParams,
+          })
+          .get("", handlers.getShopStaff, {
+            params: ShopParams,
+          })
+          .patch(":staffId", handlers.updateShopStaff, {
+            params: TStaffParams,
+            body: UpdateStaffBody,
+          }),
+      )
       // url /api/shops/:shopId/inventory/
       .group("/inventory", (app) =>
         app.use(alcoholsRouter).use(bottlesRouter).use(perfumesCompoundsRouter),
