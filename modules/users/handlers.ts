@@ -86,9 +86,9 @@ export async function deleteUser(context: Ctx<unknown, UserParams>) {
 export async function signup(context: CtxWithoutPayload<SignupBody>) {
   const { body, authJWT, cookie } = context;
 
-  const user = await usersService.signup(body);
+  const user = await usersService.signup(body.user);
 
-  if (!user) return res.fail("Fail to Signup", { code: "FAIL_SIGNUP" });
+  if (!user) return res.fail("Failed to Signup", { code: "FAILED" });
 
   const { password, phone, role, ...safeInfo } = user;
 

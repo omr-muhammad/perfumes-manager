@@ -22,7 +22,8 @@ export const bottles = pgTable(
     type: bottleTypeEn("type").notNull(),
     size: smallint("size").notNull(),
     category: bottleCatgeroyEn("category").notNull(),
-    price: numeric("price", { precision: 5, scale: 2 }).notNull(),
+    buyPrice: numeric("buy_price", { precision: 5, scale: 2 }).notNull(),
+    sellPrice: numeric("price", { precision: 5, scale: 2 }).notNull(),
     img: text("img"),
     shopId: integer("shop_id")
       .references(() => shops.id, { onDelete: "cascade" })
@@ -43,10 +44,16 @@ export const bottles = pgTable(
     `,
     ),
     check(
-      "bottle_price_must_be_positive",
+      "bottle_prices_cannot_be_negative",
       sql`
-      ${bottle.price} > 0
+      ${bottle.sellPrice} >= 0 AND ${bottle.buyPrice} >= 0
     `,
+    ),
+    check(
+      "bottle_sell_price_must_be_above_buy_price_or_equal",
+      sql`
+        ${bottle.sellPrice} >= ${bottle.buyPrice}
+      `,
     ),
     check(
       "bottle_stock_must_be_positive",

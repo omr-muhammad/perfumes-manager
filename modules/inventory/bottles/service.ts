@@ -17,7 +17,8 @@ export async function create(
       .insert(bottlesTable)
       .values({
         ...bottle,
-        price: bottle.price.toFixed(2),
+        buyPrice: bottle.buyPrice.toFixed(2),
+        sellPrice: bottle.sellPrice.toFixed(2),
         shopId,
       })
       .returning();
@@ -46,7 +47,8 @@ export async function update(
         ...(updates.type && { type: updates.type }),
         ...(updates.category && { category: updates.category }),
         ...(updates.size && { size: updates.size }),
-        ...(updates.price && { price: updates.price.toFixed(2) }),
+        ...(updates.buyPrice && { buyPrice: updates.buyPrice.toFixed(2) }),
+        ...(updates.sellPrice && { sellPrice: updates.sellPrice.toFixed(2) }),
         ...(updates.img && { img: updates.img }),
         updatedAt: new Date(),
       })

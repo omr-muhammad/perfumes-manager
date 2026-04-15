@@ -6,6 +6,7 @@ import type {
   SignupBody,
   LoginBody,
   UpdateUserBody,
+  SignupUser,
 } from "./schema";
 import type { Address } from "../../utils/globalSchema";
 
@@ -97,7 +98,7 @@ export async function update(id: number, updates: UpdateUserBody) {
   try {
     const [user] = await db
       .update(usersTable)
-      .set(updates)
+      .set({ ...updates, updatedAt: new Date() })
       .where(eq(usersTable.id, id))
       .returning();
 
@@ -155,12 +156,12 @@ export async function ChangePassword(id: number, oldPw: string, newPw: string) {
   }
 }
 
-export async function signup(newUser: SignupBody) {
+export async function signup(signupUser: SignupUser) {
   try {
-    const hashedPassword = await Bun.password.hash(newUser.password);
-    newUser.password = hashedPassword;
+    const hashedPassword = await Bun.password.hash(signupUser.password);
+    signupUser.password = hashedPassword;
 
-    const [user] = await db.insert(usersTable).values(newUser).returning();
+    const [user] = await db.insert(usersTable).values(signupUser).returning();
 
     return user;
   } catch (e: any) {

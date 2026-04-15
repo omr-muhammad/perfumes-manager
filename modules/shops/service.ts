@@ -55,7 +55,7 @@ export async function update(
 
     const [shop] = await db
       .update(shopsTable)
-      .set(updates)
+      .set({ ...updates, updatedAt: new Date() })
       .where(and(eq(shopsTable.id, shopId), eq(shopsTable.ownerId, ownerId)))
       .returning();
 
@@ -320,7 +320,7 @@ export async function updateShopStaff(
 
     const [staff] = await db
       .update(shopsStaffTable)
-      .set(updates)
+      .set({ ...updates, updatedAt: new Date() })
       .where(
         and(
           eq(shopsStaffTable.shopId, shopId),

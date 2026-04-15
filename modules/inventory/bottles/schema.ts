@@ -5,7 +5,8 @@ import { ID } from "../../../utils/globalSchema";
 
 const BottlesSchema = createInsertSchema(bottlesTable, {
   size: t.Number({ minimum: 1 }),
-  price: t.Number({ minimum: 0 }),
+  sellPrice: t.Number({ minimum: 0 }),
+  buyPrice: t.Number({ minimum: 0 }),
 });
 
 export const CreateBottleBody = t.Omit(BottlesSchema, [

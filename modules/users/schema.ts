@@ -23,12 +23,18 @@ export const ChangePasswordBody = t.Object({
 });
 export type ChangePasswordBody = Static<typeof ChangePasswordBody>;
 
-export const SignupBody = t.Object({
+export const SignupUser = t.Object({
   name: t.String(),
   email: t.String(),
+  username: t.String(),
   password: t.String(),
   language: t.Optional(t.Union([t.Literal("ar"), t.Literal("en")])),
   phone: t.Optional(t.String()),
+});
+export type SignupUser = Static<typeof SignupUser>;
+
+export const SignupBody = t.Object({
+  user: SignupUser,
   keepLogin: t.Boolean({ default: false }),
 });
 export type SignupBody = Static<typeof SignupBody>;

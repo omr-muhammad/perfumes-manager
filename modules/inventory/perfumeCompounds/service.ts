@@ -440,7 +440,8 @@ export async function decreaseStock(
       const rows = (await tx.execute(sql`
         UPDATE perfumes_compounds AS pc
         SET  oil_amount_in_ml = oil_amount_in_ml - decs.oil,
-          spray_amount_in_ml = spray_amount_in_ml - decs.spray
+          spray_amount_in_ml = spray_amount_in_ml - decs.spray,
+          updated_at = NOW()
         FROM (VALUES ${decrements}) AS decs(comp_id, spray, oil)
         WHERE pc.id = decs.comp_id
           AND oil_amount_in_ml >= decs.oil
