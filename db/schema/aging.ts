@@ -15,6 +15,7 @@ export const aging = pgTable(
   {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     amount: integer("amount").notNull(),
+    concentration: integer("concentration").notNull(),
     startDate: timestamp("start_date").notNull(),
     endDate: timestamp("end_date").notNull(),
     compoundId: integer("compound_id")
@@ -36,6 +37,12 @@ export const aging = pgTable(
       "amount_must_be_positive",
       sql`
         ${table.amount} > 0
+      `,
+    ),
+    check(
+      "invalid_concnetration_range",
+      sql`
+        ${table.concentration} BETWEEN 1 AND 100
       `,
     ),
   ],

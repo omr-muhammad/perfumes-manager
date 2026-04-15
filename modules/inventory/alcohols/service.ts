@@ -152,6 +152,7 @@ export async function increaseStock(
       .update(alcoholsTable)
       .set({
         amountInMl: sql`${alcoholsTable.amountInMl} + ${Math.abs(amount)}`,
+        updatedAt: new Date(),
       })
       .where(eq(alcoholsTable.id, alcoholId))
       .returning();
@@ -186,14 +187,15 @@ export async function decreaseStock(
       const rows = await tx.execute(sql`
         UPDATE alcohols AS alco
         
-        SET amount_in_ml = amount_in_ml - decs.amount
+        SET amount_in_ml = amount_in_ml - decs.amount,
+          updated_at = NOW()
         
         FROM (VALUES ${decrementsTable} AS decs(alco_id, amount))
         
         WHERE alco.id = decs.alco_id
           AND alco.amount_in_ml >= decs.amount
         
-        RETURNING alco.id AS id, alco.amount_in_ml AS "amountInMl" 
+        RETURNING alco.id AS id, alco.amount_in_ml AS "amountInMl";
       `);
 
       if (rows.length !== amounts.length) tx.rollback();

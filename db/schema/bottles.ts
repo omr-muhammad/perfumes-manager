@@ -6,6 +6,7 @@ import {
   smallint,
   text,
   varchar,
+  unique,
 } from "drizzle-orm/pg-core";
 import { bottleCatgeroyEn, bottleTypeEn } from "./enums";
 import { shops } from "./shops";
@@ -16,9 +17,8 @@ export const bottles = pgTable(
   "bottles",
   {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar("name", { length: 50 })
-      .notNull()
-      .unique("name_must_be_unique"),
+    name: varchar("name", { length: 50 }),
+    sku: varchar("sku", { length: 50 }).notNull(),
     type: bottleTypeEn("type").notNull(),
     size: smallint("size").notNull(),
     category: bottleCatgeroyEn("category").notNull(),
@@ -31,6 +31,11 @@ export const bottles = pgTable(
     stock: integer("stock").notNull().default(0),
   },
   (bottle) => [
+    unique("bottle_must_have_unique_sku").on(
+      bottle.sku,
+      bottle.shopId,
+      bottle.size,
+    ),
     check(
       "bottle_size_must_be_positive",
       sql`

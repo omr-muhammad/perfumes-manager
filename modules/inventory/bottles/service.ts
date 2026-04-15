@@ -143,15 +143,16 @@ export async function increaseStock(
 ) {
   try {
     const _db = higherTx ?? db;
-    const [alcohol] = await _db
+    const [bottle] = await _db
       .update(bottlesTable)
       .set({
         stock: sql`${bottlesTable.stock} + ${Math.abs(quantity)}`,
+        updatedAt: new Date(),
       })
       .where(eq(bottlesTable.id, bottleId))
       .returning();
 
-    return alcohol;
+    return bottle;
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
@@ -177,7 +178,8 @@ export async function decreaseStock(
       const rows = await tx.execute(sql`
         UPDATE bottles AS b
         
-        SET stock = stock - decs.qty
+        SET stock = stock - decs.qty,
+          updated_at = NOW()
         
         FROM (VALUES ${decrementsTable} AS decs(b_id, qty))
         
