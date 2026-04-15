@@ -7,8 +7,10 @@ import {
   unique,
   varchar,
   text,
+  union,
 } from "drizzle-orm/pg-core";
 import { timestamps } from "../columns.helpers";
+import { companyTypeEn } from "./enums";
 
 export const companies = pgTable(
   "companies",
@@ -18,6 +20,7 @@ export const companies = pgTable(
     country: varchar("country", { length: 50 }),
     approved: boolean("approved").default(false),
     logo: text("logo").default(""),
+    type: companyTypeEn("type").default("global").notNull(),
     ...timestamps,
   },
   (table) => [

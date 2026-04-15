@@ -15,3 +15,4 @@ export const bottleCatgeroyEn = pgEnum("bottle_category", [
   "normal",
   "elegant",
 ]);
+export const companyTypeEn = pgEnum("type", ["global", "custom"]);

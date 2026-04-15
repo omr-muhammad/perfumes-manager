@@ -42,6 +42,7 @@ export type Ctx<TBody = unknown, TParams = unknown> = {
   cookie: CtxCookie;
   authPayload: UserPayload;
   status: typeof status;
+  request: Request;
 };
 
 export type CtxWithoutPayload<TBody = unknown, TParams = unknown> = Omit<

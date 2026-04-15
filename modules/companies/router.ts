@@ -1,20 +1,17 @@
 import Elysia, { t } from "elysia";
 import * as handlers from "./handlers";
 import {
-  AdminCreateCompanyBody,
+  CreateCompanyBody,
   ApproveCompnayBody,
   UpdateCompanyBody,
+  CParams,
 } from "./schema";
+import { protect } from "../../utils/auth";
 
 export const companiesRouter = new Elysia({ prefix: "/companies" })
+  .use(protect)
   .post("/", handlers.createCompany, {
-    body: t.Object({
-      name: t.String(),
-    }),
-  })
-  //
-  .post("/approved", handlers.adminCreate, {
-    body: AdminCreateCompanyBody,
+    body: CreateCompanyBody,
   })
   //
   .patch("/:id/approve", handlers.approveCompany, {
@@ -24,13 +21,17 @@ export const companiesRouter = new Elysia({ prefix: "/companies" })
   //
   .get("/", handlers.getAllCompanies)
   //
-  .get("/dashboard", handlers.getAllCompanies)
+  .get("/dashboard", handlers.getAllCompanies, {
+    beforeHandle({ authPayload, status }) {
+      if (!["admin", "owner"].includes(authPayload.role)) return status(403);
+    },
+  })
   //
-  .patch("/:id", handlers.updateCompany, {
-    params: t.Object({ id: t.Number() }),
+  .patch("/:companyId", handlers.updateCompany, {
+    params: CParams,
     body: UpdateCompanyBody,
   })
   //
-  .delete("/:id", handlers.deleteCompany, {
-    params: t.Object({ id: t.Number() }),
+  .delete("/:companyId", handlers.deleteCompany, {
+    params: CParams,
   });

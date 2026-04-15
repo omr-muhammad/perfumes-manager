@@ -1,18 +1,19 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../../db/config";
 import { companiesTable } from "../../db/schema";
 import type {
-  AdminCreateCompanyBody,
+  CreateCompanyBody,
   ApproveCompnayBody,
   UpdateCompanyBody,
 } from "./schema";
 
-export async function create(name: string) {
+export async function create(companyBody: CreateCompanyBody, approve: boolean) {
   try {
     const [company] = await db
       .insert(companiesTable)
       .values({
-        name,
+        ...companyBody,
+        ...(approve && { approved: true }),
       })
       .returning();
 
@@ -22,31 +23,24 @@ export async function create(name: string) {
   }
 }
 
-export async function adminCreate(newCompany: AdminCreateCompanyBody) {
-  try {
-    const [company] = await db
-      .insert(companiesTable)
-      .values({
-        ...newCompany,
-        approved: true,
-      })
-      .returning();
-
-    return company;
-  } catch (e) {
-    console.log("Error: ", e);
-  }
-}
-
-export async function approve(id: number, approvedComany: ApproveCompnayBody) {
+export async function approve(
+  companyId: number,
+  approvedComany: ApproveCompnayBody,
+) {
   try {
     const [company] = await db
       .update(companiesTable)
       .set({
         ...approvedComany,
         approved: true,
+        updatedAt: new Date(),
       })
-      .where(eq(companiesTable.id, id))
+      .where(
+        and(
+          eq(companiesTable.id, companyId),
+          eq(companiesTable.approved, false),
+        ),
+      )
       .returning();
 
     return company;
@@ -55,9 +49,9 @@ export async function approve(id: number, approvedComany: ApproveCompnayBody) {
   }
 }
 
-export async function queryAll(route?: "dashboard") {
+export async function queryAll(withApproved?: boolean) {
   try {
-    if (route === "dashboard") {
+    if (!withApproved) {
       return await db.select().from(companiesTable);
     }
 
@@ -76,7 +70,7 @@ export async function update(id: number, updates: UpdateCompanyBody) {
   try {
     const [company] = await db
       .update(companiesTable)
-      .set(updates)
+      .set({ ...updates, updatedAt: new Date() })
       .where(eq(companiesTable.id, id))
       .returning();
 

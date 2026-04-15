@@ -1,30 +1,25 @@
-import { response } from "../../utils/response";
+import type { Ctx } from "../../utils/globalSchema";
+import { response as res } from "../../utils/response";
 import type {
-  AdminCreateCompanyBody,
+  CreateCompanyBody,
   ApproveCompnayBody,
   UpdateCompanyBody,
+  CParams,
 } from "./schema";
 import * as companiesService from "./service";
 
-export async function createCompany(context: { body: { name: string } }) {
-  const { body } = context;
+export async function createCompany(context: Ctx<CreateCompanyBody>) {
+  const { body, authPayload } = context;
 
-  const company = await companiesService.create(body.name);
+  const approve = authPayload.role === "admin";
+  const company = await companiesService.create(body, approve);
 
-  return response.ok("Company created", {
-    id: company?.id,
-    name: company?.name,
-  });
-}
+  if (!company)
+    return res.fail("Failed to create company.", { code: "FAILED" });
 
-export async function adminCreate(context: { body: AdminCreateCompanyBody }) {
-  const { body } = context;
-
-  const company = await companiesService.adminCreate(body);
-
-  return response.ok("Company created", {
-    id: company?.id,
-    name: company?.name,
+  return res.ok("Company created", {
+    id: company.id,
+    name: company.name,
   });
 }
 
@@ -36,43 +31,41 @@ export async function approveCompany(context: {
 
   const company = await companiesService.approve(params.id, body);
 
-  return response.ok("Company approved", {
+  return res.ok("Company approved", {
     id: company?.id,
     name: company?.name,
   });
 }
 
-export async function getAllCompanies(context: { request: Request }) {
-  const url = new URL(context.request.url);
+export async function getAllCompanies(context: Ctx) {
+  const { request } = context;
+  const url = new URL(request.url);
 
-  let companies;
+  const withApproved = url.pathname === "companies/dashboard";
+  const companies = await companiesService.queryAll(withApproved);
 
-  if (url.pathname === "companies/dashboard")
-    companies = await companiesService.queryAll("dashboard");
-
-  companies = await companiesService.queryAll();
-
-  return response.ok("Companies fetched", companies);
+  return res.ok("Companies fetched", companies);
 }
 
-export async function updateCompany(context: {
-  params: { id: number };
-  body: UpdateCompanyBody;
-}) {
+export async function updateCompany(context: Ctx<UpdateCompanyBody, CParams>) {
   const { params, body } = context;
 
-  const company = await companiesService.update(params.id, body);
+  const company = await companiesService.update(params.compnayId, body);
 
-  return response.ok("Company updated", {
-    id: company?.id,
-    name: company?.name,
-  });
+  if (!company) return res.fail("Failed to update company", { code: "FAILED" });
+
+  return res.ok("Company updated", { company });
 }
 
-export async function deleteCompany(context: { params: { id: number } }) {
+export async function deleteCompany(context: Ctx<unknown, CParams>) {
   const { params } = context;
 
-  const company = await companiesService.remove(params.id);
+  const company = await companiesService.remove(params.compnayId);
 
-  return response.ok("Company deleted", { name: company?.name });
+  if (!company)
+    return res.fail(`Compnay with id: ${params.compnayId} not found.`, {
+      code: "NOT_FOUND",
+    });
+
+  return res.ok("Company deleted", { id: company.id, name: company.name });
 }
