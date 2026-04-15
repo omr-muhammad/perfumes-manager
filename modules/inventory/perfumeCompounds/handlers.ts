@@ -4,9 +4,10 @@ import { response as res } from "../../../utils/response";
 import type {
   AgingParams,
   CompParams,
-  CreateAging,
+  CreateAgingBody,
   CreateCompBody,
-  UpdateAging,
+  RemoveAgingBody,
+  UpdateAgingBody,
   UpdateCompoundBody,
 } from "./schema";
 import * as compService from "./service";
@@ -87,7 +88,9 @@ export async function getBtlById(context: Ctx<unknown, CompParams>) {
 }
 
 // AGING
-export async function addAgingToComp(context: Ctx<CreateAging, CompParams>) {
+export async function addAgingToComp(
+  context: Ctx<CreateAgingBody, CompParams>,
+) {
   const { params, body, authPayload } = context;
 
   const aging = await compService.addAging(
@@ -106,7 +109,9 @@ export async function addAgingToComp(context: Ctx<CreateAging, CompParams>) {
   return res.ok("Aging Added to perfume compound.", { aging });
 }
 
-export async function updateCompAging(context: Ctx<UpdateAging, AgingParams>) {
+export async function updateCompAging(
+  context: Ctx<UpdateAgingBody, AgingParams>,
+) {
   const { authPayload, body, params } = context;
 
   const aging = await compService.updateAging(
@@ -125,14 +130,17 @@ export async function updateCompAging(context: Ctx<UpdateAging, AgingParams>) {
   return res.ok("Perfume Compound Aging updated.", { aging });
 }
 
-export async function deleteCompAging(context: Ctx<unknown, AgingParams>) {
-  const { params, authPayload } = context;
+export async function deleteCompAging(
+  context: Ctx<RemoveAgingBody, AgingParams>,
+) {
+  const { params, authPayload, body } = context;
 
   const aging = await compService.deleteAging(
     authPayload.userId,
     params.shopId,
     params.compId,
     params.agingId,
+    body.retrieveAcohol,
   );
 
   if (!aging)

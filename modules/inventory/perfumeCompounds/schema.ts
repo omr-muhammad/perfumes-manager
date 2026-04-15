@@ -28,14 +28,29 @@ export const CreateAging = t.Omit(AgingSchema, [
 ]);
 export type CreateAging = Static<typeof CreateAging>;
 
-export const UpdateAging = t.Partial(
-  t.Omit(AgingSchema, ["updatedAt", "createdAt", "compoundId"]),
-);
-export type UpdateAging = Static<typeof UpdateAging>;
+export const CreateAgingBody = t.Object({
+  newAging: CreateAging,
+  useAlcohol: t.Boolean({ default: false }),
+});
+export type CreateAgingBody = Static<typeof CreateAgingBody>;
+
+export const UpdateAgingBody = t.Object({
+  updates: t.Partial(
+    t.Omit(AgingSchema, ["updatedAt", "createdAt", "compoundId"]),
+  ),
+  retrieveAcohol: t.Boolean({ default: false }),
+});
+export type UpdateAgingBody = Static<typeof UpdateAgingBody>;
+
+export const RemoveAgingBody = t.Object({
+  retrieveAcohol: t.Boolean({ default: false }),
+});
+export type RemoveAgingBody = Static<typeof RemoveAgingBody>;
 
 export const CreateCompBody = t.Object({
   compound: CreateCompound,
   aging: t.Optional(CreateAging),
+  useAlcohol: t.Boolean({ default: false }),
 });
 export type CreateCompBody = Static<typeof CreateCompBody>;
 

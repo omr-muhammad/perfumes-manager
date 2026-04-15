@@ -5,10 +5,11 @@ import { ShopParams } from "../../../utils/globalSchema";
 import {
   AgingParams,
   CompParams,
-  CreateAging,
+  CreateAgingBody,
   CreateCompBody,
   CreateCompound,
-  UpdateAging,
+  RemoveAgingBody,
+  UpdateAgingBody,
   UpdateCompoundBody,
 } from "./schema";
 
@@ -18,6 +19,24 @@ export const perfumesCompoundsRouter = new Elysia({ prefix: "/compounds" })
   .group("/", (app) =>
     app
       .post("", handlers.createComp, {
+        beforeHandle: ({ body, status }) => {
+          const { compound } = body;
+
+          if (compound.sprayAmountInMl! > 0) {
+            const con = compound.concentration;
+            if (!con || !(con < 1 || con > 100)) {
+              status(422);
+              throw new Error("Concnetration is required, between 1 and 100");
+            }
+
+            if (!compound.alcoholId || compound.alcoholId <= 0) {
+              status(422);
+              throw new Error(
+                "Alcohol id is required, expected positive integer",
+              );
+            }
+          }
+        },
         params: ShopParams,
         body: CreateCompBody,
       })
@@ -46,15 +65,16 @@ export const perfumesCompoundsRouter = new Elysia({ prefix: "/compounds" })
             params: AgingParams,
           })
           .post("", handlers.addAgingToComp, {
-            body: CreateAging,
+            body: CreateAgingBody,
             params: CompParams,
           })
           .patch("/:agingId", handlers.updateCompAging, {
             params: AgingParams,
-            body: UpdateAging,
+            body: UpdateAgingBody,
           })
           .delete("/:agingId", handlers.deleteCompAging, {
             params: AgingParams,
+            body: RemoveAgingBody,
           }),
       ),
   );

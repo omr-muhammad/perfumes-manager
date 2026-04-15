@@ -94,21 +94,21 @@ export async function getShopById(context: Ctx<unknown, ShopParams>) {
   return res.ok("Shop fetched.", { shop });
 }
 
-export async function addShopStaff(context: Ctx<StaffBody, ShopParams>) {
+export async function createShopStaff(context: Ctx<StaffBody, TStaffParams>) {
   const { params, body, authPayload } = context;
 
-  const staff = await shopsService.addStaff(
+  const result = await shopsService.addStaff(
     authPayload.userId,
     params.shopId,
     body,
   );
 
   return res.ok("Staff added.", {
-    shopName: staff.shop.name,
-    staffEmail: staff.user.email,
-    staffName: staff.user.name,
-    shopRole: staff.staffRole,
-    appRole: staff.user.role,
+    shopName: result.shop.name,
+    staffEmail: result.user.email,
+    staffName: result.user.name,
+    shopRole: result.staffRole,
+    appRole: result.user.role,
   });
 }
 
@@ -126,9 +126,9 @@ export async function removeShopStaff(context: Ctx<unknown, TStaffParams>) {
       code: "FAILED",
     });
 
-  return res.ok("Staff deleted.", {
-    staffId: staff.userId,
-    shopRole: staff.role,
+  return res.ok("Staff removed.", {
+    id: staff.id,
+    role: staff.role,
   });
 }
 

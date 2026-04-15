@@ -9,7 +9,7 @@ import type {
 } from "./schema";
 import { shopsStaffTable } from "../../db/schema/index";
 import { assertOwnership, assertIsOwner } from "../../utils/assertOwnership";
-import type { Address, UpdateAddressBody } from "../../utils/globalSchema";
+import type { Address } from "../../utils/globalSchema";
 
 export async function create(
   ownerId: number,
@@ -27,9 +27,10 @@ export async function create(
       })
       .returning();
 
-    if (!address || !shop) return shop;
+    if (!shop) return null;
+    if (!address) return shop;
 
-    const [add] = await db
+    const [shopAddress] = await db
       .insert(addressesTable)
       .values({
         ...address,
@@ -37,7 +38,7 @@ export async function create(
       })
       .returning();
 
-    return { ...shop, address: add };
+    return { ...shop, address: shopAddress };
   } catch (e: any) {
     console.log("Error: ", e.cause);
     throw e;
@@ -165,37 +166,87 @@ export async function queryById(shopId: number, ownerId?: number) {
   }
 }
 
+export async function handleActivation(shopId: number, active: boolean) {
+  try {
+    const [shop] = await db
+      .update(shopsTable)
+      .set({
+        active,
+        updatedAt: new Date(),
+      })
+      .where(eq(shopsTable.id, shopId))
+      .returning();
+
+    return shop;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function hide(ownerId: number, shopId: number, hidden: boolean) {
+  try {
+    await assertOwnership(shopId, ownerId);
+
+    const [shop] = await db
+      .update(shopsTable)
+      .set({
+        hidden,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(shopsTable.id, shopId), ne(shopsTable.hidden, hidden)))
+      .returning();
+
+    return shop;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+// -------------- Shop Staff --------------
 export async function addStaff(
   ownerId: number,
   shopId: number,
-  staff: StaffBody,
+  staffBody: StaffBody,
 ) {
   try {
     const shop = await assertOwnership(shopId, ownerId);
 
-    const [user] = await db
-      .update(usersTable)
-      .set({ role: "staff" })
-      .where(eq(usersTable.email, staff.email))
-      .returning();
+    const { userStaff, shopStaff } = await db.transaction(async (tx) => {
+      const hashed = await Bun.password.hash(staffBody.password);
 
-    if (!user) throw new Error(`User with email: ${staff.email} not found`);
+      const [userStaff] = await tx
+        .insert(usersTable)
+        .values({
+          ...staffBody,
+          role: "staff",
+          password: hashed,
+        })
+        .returning();
 
-    const [shopStaff] = await db
-      .insert(shopsStaffTable)
-      .values({
-        shopId,
-        userId: user.id,
-        role: staff.role,
-      })
-      .returning();
+      if (!userStaff) tx.rollback();
 
-    if (!shopStaff) throw new Error("Cannot create shop staff.");
+      const [shopStaff] = await db
+        .insert(shopsStaffTable)
+        .values({
+          shopId,
+          userId: userStaff!.id,
+          role: staffBody.role,
+        })
+        .returning();
+
+      if (!shopStaff) tx.rollback();
+
+      return { userStaff, shopStaff };
+    });
 
     return {
       shop,
-      user,
-      staffRole: shopStaff.role,
+      user: userStaff!,
+      staffRole: shopStaff!.role,
     };
   } catch (e: any) {
     console.log("Error: ", e);
@@ -210,27 +261,29 @@ export async function removeStaff(
   staffId: number,
 ) {
   try {
-    const shop = await assertOwnership(shopId, ownerId);
+    await assertOwnership(shopId, ownerId);
+    const user = await db.transaction(async (tx) => {
+      const [user] = await tx
+        .update(usersTable)
+        .set({ role: "customer" })
+        .where(eq(usersTable.id, staffId))
+        .returning();
 
-    const [user] = await db
-      .update(usersTable)
-      .set({ role: "customer" })
-      .where(eq(usersTable.id, staffId))
-      .returning();
+      if (!user) tx.rollback();
 
-    if (!user) throw new Error(`User with id: ${staffId} not found`);
+      await tx
+        .delete(shopsStaffTable)
+        .where(
+          and(
+            eq(shopsStaffTable.shopId, shopId),
+            eq(shopsStaffTable.userId, staffId),
+          ),
+        );
 
-    const [shopStaff] = await db
-      .delete(shopsStaffTable)
-      .where(
-        and(
-          eq(shopsStaffTable.userId, staffId),
-          eq(shopsStaffTable.shopId, shopId),
-        ),
-      )
-      .returning();
+      return user;
+    });
 
-    return shopStaff;
+    return user;
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
@@ -272,51 +325,12 @@ export async function updateShopStaff(
         and(
           eq(shopsStaffTable.shopId, shopId),
           eq(shopsStaffTable.userId, staffId),
+          ne(shopsStaffTable.role, updates.role),
         ),
       )
       .returning();
 
     return staff;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
-}
-
-export async function handleActivation(shopId: number, active: boolean) {
-  try {
-    const [shop] = await db
-      .update(shopsTable)
-      .set({
-        active,
-        updatedAt: new Date(),
-      })
-      .where(eq(shopsTable.id, shopId))
-      .returning();
-
-    return shop;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
-}
-
-export async function hide(ownerId: number, shopId: number, hidden: boolean) {
-  try {
-    await assertOwnership(shopId, ownerId);
-
-    const [shop] = await db
-      .update(shopsTable)
-      .set({
-        hidden,
-        updatedAt: new Date(),
-      })
-      .where(and(eq(shopsTable.id, shopId), ne(shopsTable.hidden, hidden)))
-      .returning();
-
-    return shop;
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);

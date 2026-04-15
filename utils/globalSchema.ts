@@ -1,5 +1,6 @@
 import { Cookie, status, t, type Static } from "elysia";
 import { authJWTPlugin } from "./jwtPlugin";
+import type { db } from "../db/config";
 
 export const ID = t.Number({
   minimum: 1,
@@ -67,3 +68,6 @@ export const AlcoInvParams = t.Object({
   alcoholId: ID,
 });
 export type AlcoInvParams = Static<typeof AlcoInvParams>;
+
+let _tx: Parameters<Parameters<typeof db.transaction>[0]>[0];
+export type DbTx = typeof _tx;

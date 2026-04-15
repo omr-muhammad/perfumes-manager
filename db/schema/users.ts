@@ -5,6 +5,9 @@ import { langEn, roleEn } from "./enums";
 export const users = pgTable("users", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   name: varchar("name", { length: 50 }).notNull(),
+  username: varchar("username", { length: 50 })
+    .notNull()
+    .unique("username_must_be_unique"),
   email: varchar("email", { length: 100 }).notNull().unique(),
   password: varchar("password", { length: 200 }).notNull(),
   role: roleEn("role").notNull().default("customer"),

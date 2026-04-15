@@ -1,8 +1,9 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql, TransactionRollbackError } from "drizzle-orm";
 import { db } from "../../../db/config";
-import { bottlesTable, shopsTable } from "../../../db/schema";
+import { bottlesTable } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
 import type { CreateBottleBody, UpdateBottleBody } from "./schema";
+import type { DbTx } from "../../../utils/globalSchema";
 
 export async function create(
   ownerId: number,
@@ -131,6 +132,77 @@ export async function queryById(
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function increaseStock(
+  bottleId: number,
+  quantity: number,
+  higherTx?: DbTx,
+) {
+  try {
+    const _db = higherTx ?? db;
+    const [bottle] = await _db
+      .update(bottlesTable)
+      .set({
+        stock: sql`${bottlesTable.stock} + ${Math.abs(quantity)}`,
+        updatedAt: new Date(),
+      })
+      .where(eq(bottlesTable.id, bottleId))
+      .returning();
+
+    return bottle;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    // if (e instanceof TransactionRollbackError) {
+    //   throw e;
+    // }
+    throw e;
+  }
+}
+
+export async function decreaseStock(
+  quantities: { bottleId: number; qty: number }[],
+  higherTx?: DbTx,
+) {
+  try {
+    const _db = higherTx ?? db;
+    const result = (await _db.transaction(async (tx) => {
+      const decrementsTable = sql.join(
+        quantities.map((obj) => sql`(${obj.bottleId}, ${Math.abs(obj.qty)})`),
+        sql`, `,
+      );
+
+      const rows = await tx.execute(sql`
+        UPDATE bottles AS b
+        
+        SET stock = stock - decs.qty,
+          updated_at = NOW()
+        
+        FROM (VALUES ${decrementsTable} AS decs(b_id, qty))
+        
+        WHERE b.id = decs.b_id
+          AND b.stock >= decs.qty
+        
+        RETURNING b.id AS id, b.stock AS stock 
+      `);
+
+      if (rows.length !== quantities.length) tx.rollback();
+
+      return result;
+    })) as { id: number; stock: number }[];
+
+    return result;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+
+    if (higherTx && e instanceof TransactionRollbackError) {
+      throw e; // re-throw → bubbles up → outer rolls back
+    }
+
     throw e;
   }
 }

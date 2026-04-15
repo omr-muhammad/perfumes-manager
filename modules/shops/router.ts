@@ -41,8 +41,8 @@ export const shopsRouter = new Elysia({ prefix: "shops" })
       })
       .group("/staff", (app) =>
         app
-          .post("", handlers.addShopStaff, {
-            params: ShopParams,
+          .post("", handlers.createShopStaff, {
+            params: TStaffParams,
             body: StaffBody,
           })
           .delete("/:staffId", handlers.removeShopStaff, {

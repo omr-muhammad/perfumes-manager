@@ -2,7 +2,11 @@ import { t, type Static } from "elysia";
 import { shopStaff } from "../../db/schema/shopStaff";
 import { createInsertSchema } from "drizzle-typebox";
 import { AddressBase } from "../../utils/globalSchema";
+import { usersTable } from "../../db/schema";
 
+const userSchema = createInsertSchema(usersTable, {
+  role: t.Union([t.Literal("manager"), t.Literal("cashier")]),
+});
 export const ShopStaffSchema = createInsertSchema(shopStaff);
 
 export const CreateShopBody = t.Object({
@@ -22,10 +26,11 @@ export type UpdateShopBody = Static<typeof UpdateShopBody>;
 export const StaffRole = t.Pick(ShopStaffSchema, ["role"]);
 export type StaffRole = Static<typeof StaffRole>;
 
-export const StaffBody = t.Object({
-  email: t.String(),
-  role: StaffRole.properties.role,
-});
+export const StaffBody = t.Omit(userSchema, [
+  "active",
+  "createdAt",
+  "updatedAt",
+]);
 export type StaffBody = Static<typeof StaffBody>;
 
 export const UpdateStaffBody = t.Object({
