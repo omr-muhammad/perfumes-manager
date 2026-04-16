@@ -5,6 +5,7 @@ import {
   ApproveCompnayBody,
   UpdateCompanyBody,
   CParams,
+  CompaniesQueryFilters,
 } from "./schema";
 import { protect } from "../../utils/auth";
 
@@ -19,12 +20,8 @@ export const companiesRouter = new Elysia({ prefix: "/companies" })
     body: ApproveCompnayBody,
   })
   //
-  .get("/", handlers.getAllCompanies)
-  //
-  .get("/dashboard", handlers.getAllCompanies, {
-    beforeHandle({ authPayload, status }) {
-      if (!["admin", "owner"].includes(authPayload.role)) return status(403);
-    },
+  .get("/", handlers.getAllCompanies, {
+    query: CompaniesQueryFilters,
   })
   //
   .patch("/:companyId", handlers.updateCompany, {

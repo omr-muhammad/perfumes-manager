@@ -38,11 +38,9 @@ export async function approveCompany(context: {
 }
 
 export async function getAllCompanies(context: Ctx) {
-  const { request } = context;
-  const url = new URL(request.url);
+  const { query } = context;
 
-  const withApproved = url.pathname === "companies/dashboard";
-  const companies = await companiesService.queryAll(withApproved);
+  const companies = await companiesService.queryAll(query);
 
   return res.ok("Companies fetched", companies);
 }
