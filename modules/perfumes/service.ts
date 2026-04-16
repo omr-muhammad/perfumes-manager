@@ -1,9 +1,12 @@
-import { and, eq } from "drizzle-orm";
+import { and, arrayContains, eq, ilike } from "drizzle-orm";
 import { db } from "../../db/config";
 import { perfumesTable } from "../../db/schema/index";
 import type {
+  DashboardQueryFilters,
   ApprovedPerfumeBody,
   CreateAdminPerfumeBody,
+  PublicQueryFilters,
+  Season,
   UpdatePerfumeBody,
 } from "./schema";
 
@@ -18,22 +21,29 @@ export async function create(name: string) {
       .returning();
 
     return perfume;
-  } catch (e) {
-    // Handle errors;
-    // code === 23505 => duplicate
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
 export async function adminCreate(approvedPerfume: CreateAdminPerfumeBody) {
-  const [perfume] = await db
-    .insert(perfumesTable)
-    .values({
-      ...approvedPerfume,
-      approved: true,
-    })
-    .returning();
+  try {
+    const [perfume] = await db
+      .insert(perfumesTable)
+      .values({
+        ...approvedPerfume,
+        approved: true,
+      })
+      .returning();
 
-  return perfume;
+    return perfume;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
 }
 
 export async function adminApprove(id: number, perfume: ApprovedPerfumeBody) {
@@ -49,22 +59,52 @@ export async function adminApprove(id: number, perfume: ApprovedPerfumeBody) {
       .returning();
 
     return approvedPerfume;
-  } catch (e) {
-    // Handle errors;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
-export async function queryAll(route?: "dashboard") {
-  // 1) Admin and shops
-  if (route === "dashboard") return await db.select().from(perfumesTable);
+export async function publicQuery(filters: PublicQueryFilters) {
+  try {
+    const conditions = prepareFilters(filters);
+    const { page = 1, limit = 10 } = filters;
 
-  // 2) Customers
-  const perfumes = await db
-    .select()
-    .from(perfumesTable)
-    .where(eq(perfumesTable.approved, true));
+    const perfumes = await db
+      .select()
+      .from(perfumesTable)
+      // .innerJoin()
+      .where(and(...conditions, eq(perfumesTable.approved, true)))
+      .offset((page - 1) * limit)
+      .limit(limit);
 
-  return perfumes;
+    return perfumes;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
+}
+
+export async function dashboardQuery(filters: DashboardQueryFilters) {
+  try {
+    const { page = 1, limit = 20 } = filters;
+    const conditions = prepareFilters(filters);
+
+    const perfumes = await db
+      .select()
+      .from(perfumesTable)
+      .where(and(...conditions))
+      .offset((page - 1) * limit)
+      .limit(limit);
+
+    return perfumes;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
+  }
 }
 
 export async function update(id: number, updates: UpdatePerfumeBody) {
@@ -84,8 +124,10 @@ export async function update(id: number, updates: UpdatePerfumeBody) {
       .returning();
 
     return perfume;
-  } catch (e) {
-    // Handler errors;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
 }
 
@@ -97,7 +139,34 @@ export async function remove(id: number) {
       .returning();
 
     return perfume || null;
-  } catch (e) {
-    // Handle errors;
+  } catch (e: any) {
+    console.log("Error: ", e);
+    console.log("Error Cause: ", e.cause);
+    throw e;
   }
+}
+
+// HELPERS
+function prepareFilters(filters: DashboardQueryFilters | PublicQueryFilters) {
+  const {
+    search,
+    sex,
+    seasons, // still separated comma string => winter,fall
+  } = filters;
+
+  const seasonsArray = seasons
+    ? (seasons.split(",").map((s) => s.trim()) as Season[])
+    : undefined;
+
+  const conditions = [];
+
+  if (sex) conditions.push(eq(perfumesTable.sex, sex));
+  if (search) conditions.push(ilike(perfumesTable.name, `%${search}%`));
+  if (seasonsArray?.length)
+    conditions.push(arrayContains(perfumesTable.seasons, seasonsArray));
+
+  if ("approved" in filters && filters.approved !== undefined)
+    conditions.push(eq(perfumesTable.approved, filters.approved));
+
+  return conditions;
 }
