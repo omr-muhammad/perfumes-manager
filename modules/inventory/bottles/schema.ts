@@ -1,7 +1,7 @@
 import { createInsertSchema } from "drizzle-typebox";
 import { bottlesTable } from "../../../db/schema";
 import { t, type Static } from "elysia";
-import { ID } from "../../../utils/globalSchema";
+import { ID, QueriesMeta } from "../../../utils/globalSchema";
 
 const BottlesSchema = createInsertSchema(bottlesTable, {
   size: t.Number({ minimum: 1 }),
@@ -24,3 +24,19 @@ export const BtlInvParams = t.Object({
   btlId: ID,
 });
 export type BtlInvParams = Static<typeof BtlInvParams>;
+
+// ------------- Query -------------
+export const BottlesQueryFilters = t.Partial(
+  t.Object({
+    search: t.String(),
+    sku: t.String(),
+    type: t.Union([t.Literal("oil"), t.Literal("spray"), t.Literal("test")]),
+    catg: t.Union([t.Literal("normal"), t.Literal("elegent")]),
+    minStock: t.Number({ minimum: 0, default: 0 }),
+    maxStock: t.Number({ minimum: 1 }),
+    minPrice: t.Number({ minimum: 0 }),
+    maxPrice: t.Number({ minimum: 0 }),
+    ...QueriesMeta,
+  }),
+);
+export type BottlesQueryFilters = Static<typeof BottlesQueryFilters>;

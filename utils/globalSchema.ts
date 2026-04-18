@@ -79,3 +79,9 @@ export type DbTx = typeof _tx;
 //
 export type AppRole = InferSelectModel<typeof usersTable>["role"];
 export type ShopRole = InferSelectModel<typeof shopsStaffTable>["role"];
+
+//
+export const QueriesMeta = {
+  page: t.Number({ minimum: 1, default: 1 }),
+  limit: t.Number({ minimum: 10, default: 20, maximum: 100 }),
+};

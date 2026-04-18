@@ -2,7 +2,12 @@ import Elysia from "elysia";
 import { protect, restrictTo } from "../../../utils/auth";
 import * as handlers from "./handlers";
 import { ShopParams } from "../../../utils/globalSchema";
-import { BtlInvParams, CreateBottleBody, UpdateBottleBody } from "./schema";
+import {
+  BottlesQueryFilters,
+  BtlInvParams,
+  CreateBottleBody,
+  UpdateBottleBody,
+} from "./schema";
 
 export const bottlesRouter = new Elysia({ prefix: "/bottles" })
   .use(protect)
@@ -11,6 +16,7 @@ export const bottlesRouter = new Elysia({ prefix: "/bottles" })
     app
       .get("/", handlers.getShopBottles, {
         params: ShopParams,
+        query: BottlesQueryFilters,
       })
       .post("/", handlers.createBtl, {
         params: ShopParams,

@@ -56,9 +56,13 @@ export async function deleteBtl(context: Ctx<unknown, BtlInvParams>) {
 }
 
 export async function getShopBottles(context: Ctx<unknown, ShopParams>) {
-  const { params, authPayload } = context;
+  const { params, authPayload, query } = context;
 
-  const bottles = await btlService.queryAll(authPayload.userId, params.shopId);
+  const bottles = await btlService.queryAll(
+    authPayload.userId,
+    params.shopId,
+    query,
+  );
 
   return bottles;
 }
