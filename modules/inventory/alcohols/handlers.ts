@@ -52,11 +52,12 @@ export async function deleteAlco(context: Ctx<unknown, AlcoInvParams>) {
 }
 
 export async function getAllAlcoInv(context: Ctx<unknown, ShopParams>) {
-  const { authPayload, params } = context;
+  const { authPayload, params, query } = context;
 
   const alcohols = await alcoService.queryAll(
     authPayload.userId,
     params.shopId,
+    query,
   );
 
   return res.ok("Alcohols fetched.", {
