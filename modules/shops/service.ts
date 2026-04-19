@@ -1,8 +1,9 @@
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, ilike, ne } from "drizzle-orm";
 import { db } from "../../db/config";
 import { addressesTable, shopsTable, usersTable } from "../../db/schema";
 import type {
   NewShop,
+  ShopsQueryFilters,
   StaffBody,
   UpdateShopBody,
   UpdateStaffBody,
@@ -109,9 +110,19 @@ export async function remove(shopId: number, ownerId: number) {
   }
 }
 
-export async function query(ownerId?: number) {
+export async function query(filters: ShopsQueryFilters, ownerId?: number) {
   try {
-    if (!ownerId) return await db.select().from(shopsTable);
+    const conditions = prepareShopsQuery(filters);
+    const { page = 1, limit = 20 } = filters;
+
+    if (!ownerId)
+      return await db
+        .select()
+        .from(shopsTable)
+        .leftJoin(addressesTable, eq(addressesTable.shopId, shopsTable.id))
+        .where(and(...conditions))
+        .offset((page - 1) * limit)
+        .limit(limit);
 
     await assertIsOwner(ownerId);
 
@@ -125,8 +136,11 @@ export async function query(ownerId?: number) {
           eq(shopsTable.ownerId, ownerId),
           eq(shopsTable.active, true),
           eq(usersTable.active, true),
+          ...conditions,
         ),
-      );
+      )
+      .offset((page - 1) * limit)
+      .limit(limit);
 
     return result.map((item) => ({ ...item.shops, address: item.addresses }));
   } catch (e: any) {
@@ -336,4 +350,19 @@ export async function updateShopStaff(
     console.log("Error Cause: ", e.cause);
     throw e;
   }
+}
+
+// -------------- Helpers --------------
+function prepareShopsQuery(filters: ShopsQueryFilters) {
+  const { search, country, city, district } = filters;
+
+  const conditions = [];
+
+  if (search) conditions.push(ilike(shopsTable.name, `%${search}%`));
+  if (country) conditions.push(ilike(addressesTable.country, `%${country}%`));
+  if (city) conditions.push(ilike(addressesTable.city, `%${city}%`));
+  if (district)
+    conditions.push(ilike(addressesTable.district, `%${district}%`));
+
+  return conditions;
 }

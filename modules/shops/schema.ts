@@ -1,7 +1,7 @@
 import { t, type Static } from "elysia";
 import { shopStaff } from "../../db/schema/shopStaff";
 import { createInsertSchema } from "drizzle-typebox";
-import { AddressBase } from "../../utils/globalSchema";
+import { AddressBase, QueriesMeta } from "../../utils/globalSchema";
 import { usersTable } from "../../db/schema";
 
 const userSchema = createInsertSchema(usersTable, {
@@ -40,3 +40,15 @@ export type UpdateStaffBody = Static<typeof UpdateStaffBody>;
 
 export const HideShopBody = t.Object({ hidden: t.Boolean() });
 export type HideShopBody = Static<typeof HideShopBody>;
+
+// -------------- Query --------------
+export const ShopsQueryFilters = t.Optional(
+  t.Object({
+    search: t.String(),
+    country: t.String(),
+    city: t.String(),
+    district: t.String(),
+    ...QueriesMeta,
+  }),
+);
+export type ShopsQueryFilters = Static<typeof ShopsQueryFilters>;

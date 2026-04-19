@@ -8,6 +8,7 @@ import type {
 import { response as res } from "../../utils/response";
 import {
   HideShopBody,
+  ShopsQueryFilters,
   StaffBody,
   type CreateShopBody,
   type UpdateShopBody,
@@ -69,13 +70,13 @@ export async function deleteShop(context: Ctx<unknown, ShopParams>) {
 }
 
 export async function getShops(context: Ctx) {
-  const { authPayload } = context;
+  const { authPayload, query } = context;
 
   const service = shopsService.query;
 
   const shops = await (authPayload.role === "admin"
-    ? service()
-    : service(authPayload.userId));
+    ? service(query as ShopsQueryFilters)
+    : service(query as ShopsQueryFilters, authPayload.userId));
 
   return res.ok("Shops fetched.", { shops });
 }

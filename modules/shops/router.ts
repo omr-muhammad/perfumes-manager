@@ -2,6 +2,7 @@ import Elysia from "elysia";
 import * as handlers from "./handlers";
 import {
   CreateShopBody,
+  ShopsQueryFilters,
   StaffBody,
   UpdateShopBody,
   UpdateStaffBody,
@@ -22,7 +23,9 @@ export const shopsRouter = new Elysia({ prefix: "shops" })
   .post("/", handlers.createNewShop, {
     body: CreateShopBody,
   })
-  .get("/", handlers.getShops)
+  .get("/", handlers.getShops, {
+    query: ShopsQueryFilters,
+  })
   .group("/:shopId", (app) =>
     app
       .get("", handlers.getShopById, {
