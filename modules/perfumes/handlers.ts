@@ -3,46 +3,44 @@ import type {
   ApprovedPerfumeBody,
   CreateAdminPerfumeBody,
   CreatePerfumeBody,
+  PfParams,
   UpdatePerfumeBody,
 } from "./schema";
 import { response } from "../../utils/response";
 import type { Ctx, CtxWithoutPayload } from "../../utils/globalSchema";
 
-export async function createPerfume(context: { body: CreatePerfumeBody }) {
+export async function createPerfume(context: Ctx<CreatePerfumeBody>) {
   const { body } = context;
 
   const perfume = await perfumeService.create(body.name);
 
   return response.ok("Perfume Created", {
-    id: perfume?.id,
-    name: perfume?.name,
+    id: perfume.id,
+    name: perfume.name,
   });
 }
 
-export async function createAdminPerfume(context: {
-  body: CreateAdminPerfumeBody;
-}) {
+export async function createAdminPerfume(context: Ctx<CreateAdminPerfumeBody>) {
   const { body } = context;
 
   const perfume = await perfumeService.adminCreate(body);
 
   return response.ok("Approved Perfume Created", {
-    id: perfume?.id,
-    name: perfume?.name,
+    id: perfume.id,
+    name: perfume.name,
   });
 }
 
-export async function approvePerfume(context: {
-  params: { id: number };
-  body: ApprovedPerfumeBody;
-}) {
+export async function approvePerfume(
+  context: Ctx<ApprovedPerfumeBody, PfParams>,
+) {
   const { body, params } = context;
 
-  const perfume = await perfumeService.adminApprove(params.id, body);
+  const perfume = await perfumeService.adminApprove(params.perfumeId, body);
 
   return response.ok("Perfume Approved", {
-    id: perfume?.id,
-    name: perfume?.name,
+    id: perfume.id,
+    name: perfume.name,
   });
 }
 
@@ -62,24 +60,21 @@ export async function getDashboardPerfumes(context: Ctx) {
   return response.ok("Perfumes fetched", perfumes);
 }
 
-export async function updatePerfume(context: {
-  params: { id: number };
-  body: UpdatePerfumeBody;
-}) {
+export async function updatePerfume(context: Ctx<UpdatePerfumeBody, PfParams>) {
   const { body, params } = context;
 
-  const perfume = await perfumeService.update(params.id, body);
+  const perfume = await perfumeService.update(params.perfumeId, body);
 
   return response.ok("Perfume updated", {
-    id: perfume?.id,
-    name: perfume?.name,
+    id: perfume.id,
+    name: perfume.name,
   });
 }
 
-export async function deletePerfume(context: { params: { id: number } }) {
+export async function deletePerfume(context: Ctx<unknown, PfParams>) {
   const { params } = context;
 
-  const perfume = await perfumeService.remove(params.id);
+  const perfume = await perfumeService.remove(params.perfumeId);
 
-  return response.ok("Perfume deleted", { name: perfume?.name });
+  return response.ok("Perfume deleted", { name: perfume.name });
 }

@@ -1,5 +1,9 @@
 import { t, type Static } from "elysia";
 import { sexValues } from "../../utils/contants";
+import { ID } from "../../utils/globalSchema";
+
+export const PfParams = t.Object({ perfumeId: ID });
+export type PfParams = Static<typeof PfParams>;
 
 // ---------------- Create ----------------
 // - staff
