@@ -21,8 +21,8 @@ export async function createComp(context: Ctx<CreateCompBody, ShopParams>) {
     body,
   );
 
-  if (!compound)
-    return res.fail("Failed to create new compound", { code: "FAILED" });
+  if (body.aging && !compound.aging)
+    return res.ok("Compound created but failed to add aging.", { compound });
 
   return res.ok("Compound create.", { compound });
 }
@@ -37,8 +37,6 @@ export async function updateComp(context: Ctx<UpdateCompoundBody, CompParams>) {
     body,
   );
 
-  if (!compound) return res.fail("Faied to update.", { code: "FAILED" });
-
   return res.ok("Perfume Compound updated.", { compound });
 }
 
@@ -50,11 +48,6 @@ export async function deleteComp(context: Ctx<unknown, CompParams>) {
     params.shopId,
     params.compId,
   );
-
-  if (!compound)
-    return res.fail("Failed to delete, compound may not exist.", {
-      code: "NOT_FOUND",
-    });
 
   return res.ok("Perfume Compound deleted.", { id: compound.id });
 }
@@ -80,11 +73,6 @@ export async function getBtlById(context: Ctx<unknown, CompParams>) {
     params.compId,
   );
 
-  if (!compound)
-    return res.fail(`Compound with id ${params.compId} does not exist.`, {
-      code: "NOT_FOUND",
-    });
-
   return res.ok("Compound fetched.", { compound });
 }
 
@@ -100,12 +88,6 @@ export async function addAgingToComp(
     params.compId,
     body,
   );
-
-  if (!aging)
-    return res.fail(
-      `Failed to add aging to prefume compound with id ${params.compId}`,
-      { code: "FAILED" },
-    );
 
   return res.ok("Aging Added to perfume compound.", { aging });
 }
@@ -123,11 +105,6 @@ export async function updateCompAging(
     body,
   );
 
-  if (!aging)
-    return res.fail("Failed to update current compound aging", {
-      code: "FAILED",
-    });
-
   return res.ok("Perfume Compound Aging updated.", { aging });
 }
 
@@ -143,11 +120,6 @@ export async function deleteCompAging(
     params.agingId,
     body.retrieveAcohol,
   );
-
-  if (!aging)
-    return res.fail("Aging not found.", {
-      code: "FAILED",
-    });
 
   return res.ok("Aging deleted.", { id: aging.id, compoundId: params.compId });
 }
@@ -172,12 +144,6 @@ export async function getCompAgingById(context: Ctx<unknown, AgingParams>) {
     params.shopId,
     params.agingId,
   );
-
-  if (!compAging)
-    return res.fail(
-      `Perfume Compound Aging with id: ${params.agingId} not found`,
-      { code: "NOT_FOUND" },
-    );
 
   return res.ok("Perfume Compound Agings fetched.", { agings: compAging });
 }
