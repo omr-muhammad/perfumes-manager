@@ -1,8 +1,21 @@
-import { and, eq, sql, TransactionRollbackError } from "drizzle-orm";
+import {
+  and,
+  eq,
+  gte,
+  ilike,
+  lte,
+  max,
+  sql,
+  TransactionRollbackError,
+} from "drizzle-orm";
 import { db } from "../../../db/config";
 import { bottlesTable } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
-import type { CreateBottleBody, UpdateBottleBody } from "./schema";
+import type {
+  BottlesQueryFilters,
+  CreateBottleBody,
+  UpdateBottleBody,
+} from "./schema";
 import type { DbTx } from "../../../utils/globalSchema";
 
 export async function create(
@@ -88,14 +101,24 @@ export async function remove(
   }
 }
 
-export async function queryAll(ownerId: number, shopId: number) {
+export async function queryAll(
+  ownerId: number,
+  shopId: number,
+  filters: BottlesQueryFilters,
+) {
   try {
     const shop = await assertOwnership(shopId, ownerId);
+
+    const conditions = prepareBottlesFilters(filters);
+    const { page = 1, limit = 20 } = filters;
 
     const bottles = await db
       .select()
       .from(bottlesTable)
-      .where(eq(bottlesTable.shopId, shopId));
+      .where(and(eq(bottlesTable.shopId, shopId), ...conditions))
+      .offset((page - 1) * limit)
+      .limit(limit)
+      .orderBy(bottlesTable.createdAt);
 
     if (bottles.length === 0) return [];
 
@@ -207,4 +230,28 @@ export async function decreaseStock(
 
     throw e;
   }
+}
+
+// ----------- Helpers -----------
+function prepareBottlesFilters(filters: BottlesQueryFilters) {
+  const { catg, type, search, sku, minPrice, minStock, maxPrice, maxStock } =
+    filters;
+
+  const conditions = [];
+
+  type Type = "spray" | "oil" | "tester";
+  type Catg = "normal" | "elegant";
+
+  if (search) conditions.push(ilike(bottlesTable.name, `%${search}%`));
+  if (type) conditions.push(eq(bottlesTable.type, type as Type));
+  if (catg) conditions.push(eq(bottlesTable.category, catg as Catg));
+  if (sku) conditions.push(ilike(bottlesTable.sku, `%${sku}%`));
+  if (minPrice)
+    conditions.push(gte(bottlesTable.sellPrice, minPrice.toFixed(2)));
+  if (maxPrice)
+    conditions.push(lte(bottlesTable.sellPrice, maxPrice.toFixed(2)));
+  if (minStock) conditions.push(gte(bottlesTable.stock, minStock));
+  if (maxStock) conditions.push(lte(bottlesTable.stock, maxStock));
+
+  return conditions;
 }

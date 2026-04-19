@@ -6,6 +6,7 @@ import type {
   UpdatePerfumeBody,
 } from "./schema";
 import { response } from "../../utils/response";
+import type { Ctx, CtxWithoutPayload } from "../../utils/globalSchema";
 
 export async function createPerfume(context: { body: CreatePerfumeBody }) {
   const { body } = context;
@@ -45,14 +46,18 @@ export async function approvePerfume(context: {
   });
 }
 
-export async function getPerfumesDashboard() {
-  const perfumes = await perfumeService.queryAll("dashboard");
+export async function getPublicPerfumes(context: CtxWithoutPayload) {
+  const { query } = context;
+
+  const perfumes = await perfumeService.dashboardQuery(query);
 
   return response.ok("Perfumes fetched", perfumes);
 }
 
-export async function getPerfumesPublic() {
-  const perfumes = await perfumeService.queryAll();
+export async function getDashboardPerfumes(context: Ctx) {
+  const { query } = context;
+
+  const perfumes = await perfumeService.publicQuery(query);
 
   return response.ok("Perfumes fetched", perfumes);
 }

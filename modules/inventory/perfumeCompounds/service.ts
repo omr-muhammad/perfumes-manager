@@ -1,8 +1,14 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, gte, ilike, lte, max, sql } from "drizzle-orm";
 import { db } from "../../../db/config";
-import { agingTable, perfumesCompoundsTable } from "../../../db/schema";
+import {
+  agingTable,
+  companiesTable,
+  perfumesCompoundsTable,
+  perfumesTable,
+} from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
 import type {
+  CompoundsQueryFilters,
   CreateAging,
   CreateAgingBody,
   CreateCompBody,
@@ -150,14 +156,22 @@ export async function remove(ownerId: number, shopId: number, compId: number) {
   }
 }
 
-export async function queryAll(ownerId: number, shopId: number) {
+export async function queryAll(
+  ownerId: number,
+  shopId: number,
+  filters: CompoundsQueryFilters,
+) {
   try {
     const shop = await assertOwnership(shopId, ownerId);
+    const conditions = prepareCompFilters(filters);
+    const { page = 1, limit = 20 } = filters;
 
     const compounds = await db
       .select()
       .from(perfumesCompoundsTable)
-      .where(eq(perfumesCompoundsTable.shopId, shopId));
+      .where(and(eq(perfumesCompoundsTable.shopId, shopId), ...conditions))
+      .offset((page - 1) * limit)
+      .limit(limit);
 
     if (compounds.length === 0) return [];
 
@@ -460,4 +474,65 @@ export async function decreaseStock(
     console.log("Error Cause: ", e.cause);
     throw e;
   }
+}
+
+// ------------ Helpers ------------
+function prepareCompFilters(filters: CompoundsQueryFilters) {
+  const {
+    search,
+    companyName,
+    code,
+    minOilAmount,
+    maxOilAmount,
+    minSprayAmount,
+    maxSprayAmount,
+    minOilSellPrice,
+    maxOilSellPrice,
+    minSpraySellPrice,
+    maxSpraySellPrice,
+    minConcentration,
+    maxConcentration,
+    agingEndsBefore,
+  } = filters;
+
+  const conditions = [];
+
+  if (search) conditions.push(ilike(perfumesTable.name, `%${search}%`));
+  if (companyName)
+    conditions.push(ilike(companiesTable.name, `%${companyName}%`));
+  if (code) conditions.push(ilike(perfumesCompoundsTable.code, `%${code}%`));
+  if (minOilAmount !== undefined)
+    conditions.push(gte(perfumesCompoundsTable.oilAmountInMl, minOilAmount));
+  if (maxOilAmount !== undefined)
+    conditions.push(lte(perfumesCompoundsTable.oilAmountInMl, maxOilAmount));
+  if (minSprayAmount !== undefined)
+    conditions.push(
+      gte(perfumesCompoundsTable.sprayAmountInMl, minSprayAmount),
+    );
+  if (maxSprayAmount !== undefined)
+    conditions.push(
+      lte(perfumesCompoundsTable.sprayAmountInMl, maxSprayAmount),
+    );
+  if (minOilSellPrice !== undefined)
+    conditions.push(
+      gte(perfumesCompoundsTable.mlPrice, minOilSellPrice.toFixed(4)),
+    );
+  if (maxOilSellPrice !== undefined)
+    conditions.push(
+      lte(perfumesCompoundsTable.mlPrice, maxOilSellPrice.toFixed(4)),
+    );
+  // if (minSpraySellPrice !== undefined) conditions.push(gte(perfumesCompoundsTable.oilAmountInMl, minOilAmount));
+  // if (maxSpraySellPrice !== undefined) conditions.push(lte(perfumesCompoundsTable.oilAmountInMl, minOilAmount));
+  if (minConcentration !== undefined)
+    conditions.push(
+      gte(perfumesCompoundsTable.concentration, minConcentration),
+    );
+  if (maxConcentration !== undefined)
+    conditions.push(
+      lte(perfumesCompoundsTable.concentration, maxConcentration),
+    );
+  if (agingEndsBefore)
+    conditions.push(lte(agingTable.endDate, new Date(agingEndsBefore)));
+
+  return conditions;
 }

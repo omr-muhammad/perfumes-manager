@@ -1,8 +1,20 @@
-import { and, eq, sql, TransactionRollbackError } from "drizzle-orm";
+import {
+  and,
+  eq,
+  gte,
+  ilike,
+  lte,
+  sql,
+  TransactionRollbackError,
+} from "drizzle-orm";
 import { db } from "../../../db/config";
 import { alcoholsTable, shopsTable } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
-import type { CreateAlcoBody, UpdateAlcoBody } from "./schema";
+import type {
+  AlcoholQueryFilters,
+  CreateAlcoBody,
+  UpdateAlcoBody,
+} from "./schema";
 import type { DbTx } from "../../../utils/globalSchema";
 
 export async function create(
@@ -101,15 +113,24 @@ export async function remove(
   }
 }
 
-export async function queryAll(ownerId: number, shopId: number) {
+export async function queryAll(
+  ownerId: number,
+  shopId: number,
+  filters: AlcoholQueryFilters,
+) {
   try {
     await assertOwnership(shopId, ownerId);
+
+    const conditions = prepareAlcoFilters(filters);
+    const { page = 1, limit = 20 } = filters;
 
     const alcohols = await db
       .select()
       .from(alcoholsTable)
       .innerJoin(shopsTable, eq(shopsTable.id, alcoholsTable.shopId))
-      .where(eq(alcoholsTable.shopId, shopId));
+      .where(and(eq(alcoholsTable.shopId, shopId), ...conditions))
+      .offset((page - 1) * limit)
+      .limit(limit);
 
     return alcohols;
   } catch (e: any) {
@@ -214,4 +235,46 @@ export async function decreaseStock(
 
     throw e;
   }
+}
+
+// ---------- Helpers ----------
+function prepareAlcoFilters(filters: AlcoholQueryFilters) {
+  const {
+    search,
+    type,
+    minAmount,
+    maxAmount,
+    amountUnit,
+    minLtPrice,
+    maxLtPrice,
+    minConcentration,
+    maxConcentration,
+    expiresBefore,
+    expiresAfter,
+  } = filters;
+
+  const conditions = [];
+  let minInMl, maxInMl;
+
+  if (minAmount) minInMl = amountUnit === "l" ? minAmount * 1000 : minAmount;
+  if (maxAmount) maxInMl = amountUnit === "l" ? maxAmount * 1000 : maxAmount;
+
+  if (search) conditions.push(ilike(alcoholsTable.name, `%${search}%`));
+  if (type) conditions.push(ilike(alcoholsTable.type, `%${type}%`));
+  if (minInMl) conditions.push(gte(alcoholsTable.amountInMl, minInMl));
+  if (maxInMl) conditions.push(lte(alcoholsTable.amountInMl, maxInMl));
+  if (minLtPrice)
+    conditions.push(gte(alcoholsTable.ltSellPrice, minLtPrice.toFixed(2)));
+  if (maxLtPrice)
+    conditions.push(lte(alcoholsTable.ltSellPrice, maxLtPrice.toFixed(2)));
+  if (minConcentration)
+    conditions.push(gte(alcoholsTable.concentration, minConcentration));
+  if (maxConcentration)
+    conditions.push(lte(alcoholsTable.concentration, maxConcentration));
+  if (expiresBefore)
+    conditions.push(lte(alcoholsTable.expiryDate, new Date(expiresBefore)));
+  if (expiresAfter)
+    conditions.push(gte(alcoholsTable.expiryDate, new Date(expiresAfter)));
+
+  return conditions;
 }

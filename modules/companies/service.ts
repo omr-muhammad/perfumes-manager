@@ -1,10 +1,11 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, ilike } from "drizzle-orm";
 import { db } from "../../db/config";
 import { companiesTable } from "../../db/schema";
 import type {
   CreateCompanyBody,
   ApproveCompnayBody,
   UpdateCompanyBody,
+  CompaniesQueryFilters,
 } from "./schema";
 
 export async function create(companyBody: CreateCompanyBody, approve: boolean) {
@@ -49,16 +50,17 @@ export async function approve(
   }
 }
 
-export async function queryAll(withApproved?: boolean) {
+export async function queryAll(filters: CompaniesQueryFilters) {
   try {
-    if (!withApproved) {
-      return await db.select().from(companiesTable);
-    }
+    const { page = 1, limit = 20 } = filters;
+    const conditions = prepareFilters(filters);
 
     const companies = await db
       .select()
       .from(companiesTable)
-      .where(eq(companiesTable.approved, true));
+      .where(and(...conditions))
+      .offset((page - 1) * limit)
+      .limit(limit);
 
     return companies;
   } catch (e: any) {
@@ -91,4 +93,19 @@ export async function remove(id: number) {
   } catch (e: any) {
     console.log("Error: ", e.cause);
   }
+}
+
+// Helpers
+function prepareFilters(filters: CompaniesQueryFilters) {
+  const { name, country, type, approved } = filters;
+
+  const conditions = [];
+
+  if (name) conditions.push(ilike(companiesTable.name, `%${name}%`));
+  if (country) conditions.push(ilike(companiesTable.country, `%${country}%`));
+  if (type) conditions.push(eq(companiesTable.type, type));
+  if (approved !== undefined)
+    conditions.push(eq(companiesTable.approved, approved));
+
+  return conditions;
 }

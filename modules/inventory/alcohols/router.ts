@@ -1,7 +1,7 @@
 import Elysia from "elysia";
 import * as handlers from "./handlers";
 import { AlcoInvParams, ShopParams } from "../../../utils/globalSchema";
-import { CreateAlcoBody, UpdateAlcoBody } from "./schema";
+import { AlcoholsQueryFilters, CreateAlcoBody, UpdateAlcoBody } from "./schema";
 import { protect, restrictTo } from "../../../utils/auth";
 
 export const alcoholsRouter = new Elysia({ prefix: "/alcohols" })
@@ -13,6 +13,7 @@ export const alcoholsRouter = new Elysia({ prefix: "/alcohols" })
   })
   .get("/", handlers.getAllAlcoInv, {
     params: ShopParams,
+    query: AlcoholsQueryFilters,
   })
   .group("/:alcoholId", (app) =>
     app

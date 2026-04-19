@@ -4,12 +4,22 @@ import {
   ApprovedPerfumeBody,
   CreateAdminPerfumeBody,
   CreatePerfumeBody,
+  PublicQueryFilters,
+  DashboardQueryFilters,
   UpdatePerfumeBody,
 } from "./schema";
+import { protect } from "../../utils/auth";
+import { authPlugin } from "../../utils/jwtPlugin";
 
 export const perfumesRouter = new Elysia({ prefix: "/perfumes" })
-  .get("/", handlers.getPerfumesPublic)
-  .get("/dashboard", handlers.getPerfumesDashboard)
+  .use(authPlugin)
+  .get("/", handlers.getPublicPerfumes, {
+    query: PublicQueryFilters,
+  })
+  .use(protect)
+  .get("/dashboard", handlers.getDashboardPerfumes, {
+    query: DashboardQueryFilters,
+  })
   .post("/", handlers.createPerfume, {
     body: CreatePerfumeBody,
   })
