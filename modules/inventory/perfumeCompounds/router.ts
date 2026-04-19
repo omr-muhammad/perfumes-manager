@@ -4,6 +4,7 @@ import * as handlers from "./handlers";
 import { ShopParams } from "../../../utils/globalSchema";
 import {
   AgingParams,
+  CompoundsQueryFilters,
   CompParams,
   CreateAgingBody,
   CreateCompBody,
@@ -42,6 +43,7 @@ export const perfumesCompoundsRouter = new Elysia({ prefix: "/compounds" })
       })
       .get("", handlers.getShopCompounds, {
         params: ShopParams,
+        query: CompoundsQueryFilters,
       }),
   )
   .group("/:compId", (app) =>

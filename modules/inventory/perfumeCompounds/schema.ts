@@ -1,7 +1,7 @@
 import { createInsertSchema } from "drizzle-typebox";
 import { agingTable, perfumesCompoundsTable } from "../../../db/schema";
 import { t, type Static } from "elysia";
-import { ID } from "../../../utils/globalSchema";
+import { ID, QueriesMeta } from "../../../utils/globalSchema";
 
 const PerfumeCompoundSchema = createInsertSchema(perfumesCompoundsTable, {
   kiloBuyPrice: t.Number({ minimum: 0 }),
@@ -69,3 +69,26 @@ export const AgingParams = t.Object({
   agingId: ID,
 });
 export type AgingParams = Static<typeof AgingParams>;
+
+// ------------- Query -------------
+export const CompoundsQueryFilters = t.Partial(
+  t.Object({
+    search: t.String(),
+    companyName: t.String(),
+    code: t.String(),
+    minOilAmount: t.Number({ minimum: 0 }),
+    maxOilAmount: t.Number({ minimum: 0 }),
+    minSprayAmount: t.Number({ minimum: 0 }),
+    maxSprayAmount: t.Number({ minimum: 0 }),
+    minOilSellPrice: t.Number({ minimum: 0 }),
+    maxOilSellPrice: t.Number({ minimum: 0 }),
+    minSpraySellPrice: t.Number({ minimum: 0 }),
+    maxSpraySellPrice: t.Number({ minimum: 0 }),
+    minConcentration: t.Number({ minimum: 0 }),
+    maxConcentration: t.Number({ minimum: 0 }),
+    agingEndsBefore: t.String({ pattern: "^\d+[dmy]$" }),
+    ...QueriesMeta,
+  }),
+);
+
+export type CompoundsQueryFilters = Static<typeof CompoundsQueryFilters>;

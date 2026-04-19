@@ -60,11 +60,12 @@ export async function deleteComp(context: Ctx<unknown, CompParams>) {
 }
 
 export async function getShopCompounds(context: Ctx<unknown, ShopParams>) {
-  const { params, authPayload } = context;
+  const { params, authPayload, query } = context;
 
   const compounds = await compService.queryAll(
     authPayload.userId,
     params.shopId,
+    query,
   );
 
   return res.ok("Perfumes Compounds fetched.", { compounds });
