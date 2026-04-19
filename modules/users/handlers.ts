@@ -12,7 +12,6 @@ import type {
   Ctx,
   CtxWithoutPayload,
   HandleActiveBody,
-  UpdateAddressBody,
   UserParams,
 } from "../../utils/globalSchema";
 import { setCookie, signToken } from "../../utils/token";
@@ -94,7 +93,7 @@ export async function signup(context: CtxWithoutPayload<SignupBody>) {
 
   const token = await signToken(
     authJWT,
-    { userId: user.id, role: user.role },
+    { userId: user.id, role: user.role, tokenV: user.tokenVersion },
     body.keepLogin,
   );
 
@@ -118,7 +117,7 @@ export async function login(context: CtxWithoutPayload<LoginBody>) {
 
   const token = await signToken(
     authJWT,
-    { userId: user.id, role: user.role },
+    { userId: user.id, role: user.role, tokenV: user.tokenVersion },
     body.keepLogin,
   );
 
@@ -130,7 +129,7 @@ export async function login(context: CtxWithoutPayload<LoginBody>) {
 
 // Logged Users
 export async function changePassword(context: Ctx<ChangePasswordBody>) {
-  const { body, authPayload } = context;
+  const { body, authPayload, authJWT, cookie } = context;
 
   const user = await usersService.ChangePassword(
     authPayload.userId,
@@ -143,7 +142,16 @@ export async function changePassword(context: Ctx<ChangePasswordBody>) {
       code: "NOT_FOUND",
     });
 
-  const { password, role, phone, ...safeInfo } = user;
+  const { password, role, phone, tokenVersion, ...safeInfo } = user;
+
+  const token = await signToken(
+    authJWT,
+    { userId: user.id, role: user.role, tokenV: user.tokenVersion },
+    true,
+  );
+
+  const maxAge = 30 * 24 * 60 * 60;
+  setCookie(cookie, "authToken", token, maxAge);
   return res.ok("User Password updated.", { user: safeInfo });
 }
 

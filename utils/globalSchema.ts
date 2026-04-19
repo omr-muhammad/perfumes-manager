@@ -34,6 +34,7 @@ export const UserPayload = t.Object({
     t.Literal("staff"),
     t.Literal("customer"),
   ]),
+  tokenV: t.Number(),
 });
 export type UserPayload = Static<typeof UserPayload>;
 

@@ -9,6 +9,7 @@ const JWTSchema = t.Object({
     t.Literal("staff"),
     t.Literal("customer"),
   ]),
+  tokenV: t.Number(),
 });
 
 // 1. The Provider: Gives you access to authJWT.sign() and .verify()

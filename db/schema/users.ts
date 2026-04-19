@@ -14,5 +14,6 @@ export const users = pgTable("users", {
   language: langEn("language").default("ar"),
   phone: varchar("phone", { length: 50 }).unique(),
   active: boolean().notNull().default(true),
+  tokenVersion: integer("token_version").notNull().default(0),
   ...timestamps,
 });

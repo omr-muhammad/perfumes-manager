@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "../../db/config";
 import { addressesTable, usersTable } from "../../db/schema";
 import type {
@@ -145,7 +145,11 @@ export async function ChangePassword(id: number, oldPw: string, newPw: string) {
     const newHashed = await Bun.password.hash(newPw);
     const [updated] = await db
       .update(usersTable)
-      .set({ password: newHashed, updatedAt: new Date() })
+      .set({
+        password: newHashed,
+        tokenVersion: sql`${usersTable.tokenVersion} + 1`,
+        updatedAt: new Date(),
+      })
       .returning();
 
     return updated;
