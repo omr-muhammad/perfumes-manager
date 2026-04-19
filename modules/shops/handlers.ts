@@ -17,16 +17,14 @@ import {
 import * as shopsService from "./service";
 
 export async function createNewShop(context: Ctx<CreateShopBody>) {
-  const { authPayload, body, status } = context;
+  const { body } = context;
 
-  let ownerId: number;
-  if (authPayload.role === "admin") {
-    if (body.ownerId === undefined) return status(422);
+  const shop = await shopsService.create(body.ownerId!, body, body.address);
 
-    ownerId = body.ownerId;
-  } else ownerId = authPayload.userId;
-
-  const shop = await shopsService.create(ownerId, body, body.address);
+  if (body.address && !("address" in shop!))
+    return res.ok("Shop created successfully but failed to add address", {
+      shop,
+    });
 
   return res.ok("Shop created", { shop });
 }
@@ -40,8 +38,6 @@ export async function updateShop(context: Ctx<UpdateShopBody, ShopParams>) {
     body,
   );
 
-  if (!shop) return res.fail("Failed to update shop.", { code: "FAIL" });
-
   return res.ok("Shop updated.", { shop });
 }
 
@@ -54,8 +50,6 @@ export async function upsertShopAddress(context: Ctx<Address, ShopParams>) {
     body,
   );
 
-  if (!address) return res.fail("Failed to update address.", { code: "FAIL" });
-
   return res.ok("Address updated.", { address });
 }
 
@@ -63,8 +57,6 @@ export async function deleteShop(context: Ctx<unknown, ShopParams>) {
   const { params, authPayload } = context;
 
   const shop = await shopsService.remove(params.shopId, authPayload.userId);
-
-  if (!shop) return res.fail("Failed to delete", { code: "FAIL" });
 
   return res.ok("Shop deleted.", { id: shop.id });
 }
@@ -89,8 +81,6 @@ export async function getShopById(context: Ctx<unknown, ShopParams>) {
   const shop = await (authPayload.role === "admin"
     ? service(params.shopId)
     : service(params.shopId, authPayload.userId));
-
-  if (!shop) return res.fail("Shop not found", { code: "NOT_FOUND" });
 
   return res.ok("Shop fetched.", { shop });
 }
@@ -121,11 +111,6 @@ export async function removeShopStaff(context: Ctx<unknown, TStaffParams>) {
     params.shopId,
     params.staffId,
   );
-
-  if (!staff)
-    return res.fail("Failed to delete, may user not belong to this shop", {
-      code: "FAILED",
-    });
 
   return res.ok("Staff removed.", {
     id: staff.id,
@@ -164,8 +149,6 @@ export async function updateShopStaff(
     body,
   );
 
-  if (!staff) return res.fail("Failed to update staff", { code: "FAILED" });
-
   return res.ok("Staff updated.", {
     staffId: staff.userId,
     shopId: staff.shopId,
@@ -180,8 +163,6 @@ export async function handleShopActivation(
 
   const shop = await shopsService.handleActivation(params.shopId, body.active);
 
-  if (!shop) return res.fail("Shop not found.", { code: "NOT_FOUND" });
-
   return res.ok("Shop updated.", { shop });
 }
 
@@ -194,13 +175,7 @@ export async function hideShop(context: Ctx<HideShopBody, ShopParams>) {
     body.hidden,
   );
 
-  const action = body.hidden ? "hide" : "show";
   const shouldBe = body.hidden ? "hidden" : "shown";
-  if (!shop)
-    return res.fail(
-      `Failed to ${action} shop, shop may not exist or already ${shouldBe}`,
-      { code: "FAILED" },
-    );
 
   return res.ok(`Shop ${shouldBe} success`, { shop });
 }

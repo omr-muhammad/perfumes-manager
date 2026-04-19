@@ -21,6 +21,10 @@ export const shopsRouter = new Elysia({ prefix: "shops" })
   .use(protect)
   .use(restrictTo("owner"))
   .post("/", handlers.createNewShop, {
+    beforeHandle({ authPayload, body, status }) {
+      if (authPayload.role === "admin")
+        if (body.ownerId === undefined) return status(422);
+    },
     body: CreateShopBody,
   })
   .get("/", handlers.getShops, {
