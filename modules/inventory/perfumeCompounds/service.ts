@@ -126,7 +126,6 @@ export async function update(
         ...(isNum(kiloSellPrice) && {
           mlPrice: (kiloSellPrice! / 1000).toFixed(4),
         }),
-        updatedAt: new Date(),
       })
       .where(eq(perfumesCompoundsTable.id, compId))
       .returning();
@@ -290,7 +289,6 @@ export async function updateAging(
           }),
           ...(updates.endDate && { endDate: new Date(updates.endDate) }),
           ...(updates.alcoholId && { alcoholId: updates.alcoholId }),
-          updatedAt: new Date(),
         })
         .where(
           and(eq(agingTable.id, agingId), eq(agingTable.compoundId, compId)),
@@ -419,7 +417,6 @@ export async function increaseStock(
       .set({
         sprayAmountInMl: sql`${perfumesCompoundsTable.sprayAmountInMl} + ${Math.abs(decrement.spray || 0)}`,
         oilAmountInMl: sql`${perfumesCompoundsTable.oilAmountInMl} + ${Math.abs(decrement.oil || 0)}`,
-        updatedAt: new Date(),
       })
       .where(eq(perfumesCompoundsTable.id, decrement.compId))
       .returning();

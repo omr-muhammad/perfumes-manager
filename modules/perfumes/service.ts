@@ -53,7 +53,6 @@ export async function adminApprove(id: number, perfume: ApprovedPerfumeBody) {
       .set({
         ...perfume,
         approved: true,
-        updatedAt: new Date(),
       })
       .where(and(eq(perfumesTable.id, id), eq(perfumesTable.approved, false)))
       .returning();
@@ -68,7 +67,7 @@ export async function adminApprove(id: number, perfume: ApprovedPerfumeBody) {
 
 export async function publicQuery(filters: PublicQueryFilters) {
   try {
-    const conditions = prepareFilters(filters);
+    const conditions = preparePerfumesFilters(filters);
     const { page = 1, limit = 10 } = filters;
 
     const perfumes = await db
@@ -90,7 +89,7 @@ export async function publicQuery(filters: PublicQueryFilters) {
 export async function dashboardQuery(filters: DashboardQueryFilters) {
   try {
     const { page = 1, limit = 20 } = filters;
-    const conditions = prepareFilters(filters);
+    const conditions = preparePerfumesFilters(filters);
 
     const perfumes = await db
       .select()
@@ -118,7 +117,6 @@ export async function update(id: number, updates: UpdatePerfumeBody) {
         ...(sex !== undefined && { sex }),
         ...(description !== undefined && description !== "" && { description }),
         ...(seasons !== undefined && seasons.length >= 1 && { seasons }),
-        updatedAt: new Date(),
       })
       .where(eq(perfumesTable.id, id))
       .returning();
@@ -147,7 +145,9 @@ export async function remove(id: number) {
 }
 
 // HELPERS
-function prepareFilters(filters: DashboardQueryFilters | PublicQueryFilters) {
+function preparePerfumesFilters(
+  filters: DashboardQueryFilters | PublicQueryFilters,
+) {
   const {
     search,
     sex,

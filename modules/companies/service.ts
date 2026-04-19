@@ -34,7 +34,6 @@ export async function approve(
       .set({
         ...approvedComany,
         approved: true,
-        updatedAt: new Date(),
       })
       .where(
         and(
@@ -53,7 +52,7 @@ export async function approve(
 export async function queryAll(filters: CompaniesQueryFilters) {
   try {
     const { page = 1, limit = 20 } = filters;
-    const conditions = prepareFilters(filters);
+    const conditions = prepareCoFilters(filters);
 
     const companies = await db
       .select()
@@ -72,7 +71,7 @@ export async function update(id: number, updates: UpdateCompanyBody) {
   try {
     const [company] = await db
       .update(companiesTable)
-      .set({ ...updates, updatedAt: new Date() })
+      .set(updates)
       .where(eq(companiesTable.id, id))
       .returning();
 
@@ -96,7 +95,7 @@ export async function remove(id: number) {
 }
 
 // Helpers
-function prepareFilters(filters: CompaniesQueryFilters) {
+function prepareCoFilters(filters: CompaniesQueryFilters) {
   const { name, country, type, approved } = filters;
 
   const conditions = [];

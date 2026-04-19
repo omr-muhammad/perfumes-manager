@@ -75,7 +75,6 @@ export async function update(
         }),
         ...(updates.amountInMl && { amountInMl: updates.amountInMl }),
         ...(updates.expiryDate && { expiryDate: new Date(updates.expiryDate) }),
-        updatedAt: new Date(),
       })
       .where(
         and(eq(alcoholsTable.shopId, shopId), eq(alcoholsTable.id, alcoholId)),
@@ -173,7 +172,6 @@ export async function increaseStock(
       .update(alcoholsTable)
       .set({
         amountInMl: sql`${alcoholsTable.amountInMl} + ${Math.abs(amount)}`,
-        updatedAt: new Date(),
       })
       .where(eq(alcoholsTable.id, alcoholId))
       .returning();

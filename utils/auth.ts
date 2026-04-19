@@ -1,5 +1,8 @@
 import Elysia from "elysia";
 import { authPlugin } from "./jwtPlugin";
+import { db } from "../db/config";
+import { usersTable } from "../db/schema";
+import { eq } from "drizzle-orm";
 
 export const protect = new Elysia({ name: "protect" })
   .use(authPlugin)
@@ -14,6 +17,14 @@ export const protect = new Elysia({ name: "protect" })
     if (!payload) {
       throw new Error("Unauthorized: Invalid or expired token");
     }
+
+    const [user] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.id, payload.userId));
+
+    if (!user || user.tokenVersion !== payload.tokenV)
+      throw new Error("Unautorized: token is invalid or expired.");
 
     return { authPayload: payload };
   });

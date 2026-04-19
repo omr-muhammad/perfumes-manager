@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "../../db/config";
 import { addressesTable, usersTable } from "../../db/schema";
 import type {
@@ -98,7 +98,7 @@ export async function update(id: number, updates: UpdateUserBody) {
   try {
     const [user] = await db
       .update(usersTable)
-      .set({ ...updates, updatedAt: new Date() })
+      .set(updates)
       .where(eq(usersTable.id, id))
       .returning();
 
@@ -145,7 +145,10 @@ export async function ChangePassword(id: number, oldPw: string, newPw: string) {
     const newHashed = await Bun.password.hash(newPw);
     const [updated] = await db
       .update(usersTable)
-      .set({ password: newHashed, updatedAt: new Date() })
+      .set({
+        password: newHashed,
+        tokenVersion: sql`${usersTable.tokenVersion} + 1`,
+      })
       .returning();
 
     return updated;
