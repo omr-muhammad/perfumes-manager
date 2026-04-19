@@ -29,8 +29,6 @@ export async function updateAlco(context: Ctx<UpdateAlcoBody, AlcoInvParams>) {
     body,
   );
 
-  if (!alcohol) return res.fail("Failed to update.", { code: "FAILED" });
-
   return res.ok("Alcohol Inventory Updates.", { alcohol });
 }
 
@@ -42,11 +40,6 @@ export async function deleteAlco(context: Ctx<unknown, AlcoInvParams>) {
     params.shopId,
     params.alcoholId,
   );
-
-  if (!alcohol)
-    return res.fail("Failed to delete, alcohol may not exist.", {
-      code: "FAILED",
-    });
 
   return res.ok("Alcohol inventory deleted.", { id: alcohol.id });
 }
@@ -77,8 +70,6 @@ export async function getAlcoById(context: Ctx<unknown, AlcoInvParams>) {
     params.shopId,
     params.alcoholId,
   );
-
-  if (!alcohol) return res.fail("alcohol not found.", { code: "NOT_FOUND" });
 
   const {
     alcohols,

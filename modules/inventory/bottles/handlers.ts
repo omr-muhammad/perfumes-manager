@@ -7,7 +7,6 @@ import type {
   UpdateBottleBody,
 } from "./schema";
 import * as btlService from "./service";
-import { bottles } from "../../../db/schema/bottles";
 
 export async function createBtl(context: Ctx<CreateBottleBody, ShopParams>) {
   const { body, params, authPayload } = context;
@@ -17,8 +16,6 @@ export async function createBtl(context: Ctx<CreateBottleBody, ShopParams>) {
     params.shopId,
     body,
   );
-
-  if (!bottle) return res.fail("Failed to create bottle.", { code: "FAILED" });
 
   return res.ok("Bottle created.", { bottle });
 }
@@ -33,8 +30,6 @@ export async function updateBtl(context: Ctx<UpdateBottleBody, BtlInvParams>) {
     body,
   );
 
-  if (!bottle) return res.fail("Failed to update.", { code: "FAILED" });
-
   return res.ok("Bottle updated.", { bottle });
 }
 
@@ -46,11 +41,6 @@ export async function deleteBtl(context: Ctx<unknown, BtlInvParams>) {
     params.shopId,
     params.btlId,
   );
-
-  if (!bottle)
-    return res.fail("Failed to delete, bottle may not exist", {
-      code: "FAILED",
-    });
 
   return res.ok("Bottle deleted.", { bottle });
 }
@@ -75,11 +65,6 @@ export async function getBtlById(context: Ctx<unknown, BtlInvParams>) {
     params.shopId,
     params.btlId,
   );
-
-  if (bottle)
-    return res.fail(`Bottle with id ${params.btlId} does not exist.`, {
-      code: "NOT_FOUND",
-    });
 
   return res.ok("Bottle fetched.", {
     bottle,
