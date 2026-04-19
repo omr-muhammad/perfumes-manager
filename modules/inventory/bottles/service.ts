@@ -63,7 +63,6 @@ export async function update(
         ...(updates.buyPrice && { buyPrice: updates.buyPrice.toFixed(2) }),
         ...(updates.sellPrice && { sellPrice: updates.sellPrice.toFixed(2) }),
         ...(updates.img && { img: updates.img }),
-        updatedAt: new Date(),
       })
       .where(
         and(eq(bottlesTable.id, bottleId), eq(bottlesTable.shopId, shopId)),
@@ -172,7 +171,6 @@ export async function increaseStock(
       .update(bottlesTable)
       .set({
         stock: sql`${bottlesTable.stock} + ${Math.abs(quantity)}`,
-        updatedAt: new Date(),
       })
       .where(eq(bottlesTable.id, bottleId))
       .returning();

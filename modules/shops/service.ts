@@ -56,7 +56,7 @@ export async function update(
 
     const [shop] = await db
       .update(shopsTable)
-      .set({ ...updates, updatedAt: new Date() })
+      .set(updates)
       .where(and(eq(shopsTable.id, shopId), eq(shopsTable.ownerId, ownerId)))
       .returning();
 
@@ -186,7 +186,6 @@ export async function handleActivation(shopId: number, active: boolean) {
       .update(shopsTable)
       .set({
         active,
-        updatedAt: new Date(),
       })
       .where(eq(shopsTable.id, shopId))
       .returning();
@@ -207,7 +206,6 @@ export async function hide(ownerId: number, shopId: number, hidden: boolean) {
       .update(shopsTable)
       .set({
         hidden,
-        updatedAt: new Date(),
       })
       .where(and(eq(shopsTable.id, shopId), ne(shopsTable.hidden, hidden)))
       .returning();
@@ -334,7 +332,7 @@ export async function updateShopStaff(
 
     const [staff] = await db
       .update(shopsStaffTable)
-      .set({ ...updates, updatedAt: new Date() })
+      .set(updates)
       .where(
         and(
           eq(shopsStaffTable.shopId, shopId),

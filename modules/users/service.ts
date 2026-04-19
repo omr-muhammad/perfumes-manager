@@ -98,7 +98,7 @@ export async function update(id: number, updates: UpdateUserBody) {
   try {
     const [user] = await db
       .update(usersTable)
-      .set({ ...updates, updatedAt: new Date() })
+      .set(updates)
       .where(eq(usersTable.id, id))
       .returning();
 
@@ -148,7 +148,6 @@ export async function ChangePassword(id: number, oldPw: string, newPw: string) {
       .set({
         password: newHashed,
         tokenVersion: sql`${usersTable.tokenVersion} + 1`,
-        updatedAt: new Date(),
       })
       .returning();
 
