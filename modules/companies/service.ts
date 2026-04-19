@@ -73,7 +73,7 @@ export async function update(companyId: number, updates: UpdateCompanyBody) {
     .returning();
 
   if (!company)
-    throw new AppError(400, `Company with id: ${companyId} does not exist.`);
+    throw new AppError(404, `Company with id: ${companyId} does not exist.`);
 
   return company;
 }
@@ -85,7 +85,7 @@ export async function remove(companyId: number) {
     .returning();
 
   if (!company)
-    throw new AppError(400, `Company with id: ${companyId} does not exist.`);
+    throw new AppError(404, `Company with id: ${companyId} does not exist.`);
 
   return company;
 }
