@@ -14,9 +14,6 @@ export async function createCompany(context: Ctx<CreateCompanyBody>) {
   const approve = authPayload.role === "admin";
   const company = await companiesService.create(body, approve);
 
-  if (!company)
-    return res.fail("Failed to create company.", { code: "FAILED" });
-
   return res.ok("Company created", {
     id: company.id,
     name: company.name,
@@ -24,16 +21,16 @@ export async function createCompany(context: Ctx<CreateCompanyBody>) {
 }
 
 export async function approveCompany(context: {
-  params: { id: number };
+  params: CParams;
   body: ApproveCompnayBody;
 }) {
   const { params, body } = context;
 
-  const company = await companiesService.approve(params.id, body);
+  const company = await companiesService.approve(params.compnayId, body);
 
   return res.ok("Company approved", {
-    id: company?.id,
-    name: company?.name,
+    id: company.id,
+    name: company.name,
   });
 }
 
@@ -50,8 +47,6 @@ export async function updateCompany(context: Ctx<UpdateCompanyBody, CParams>) {
 
   const company = await companiesService.update(params.compnayId, body);
 
-  if (!company) return res.fail("Failed to update company", { code: "FAILED" });
-
   return res.ok("Company updated", { company });
 }
 
@@ -59,11 +54,6 @@ export async function deleteCompany(context: Ctx<unknown, CParams>) {
   const { params } = context;
 
   const company = await companiesService.remove(params.compnayId);
-
-  if (!company)
-    return res.fail(`Compnay with id: ${params.compnayId} not found.`, {
-      code: "NOT_FOUND",
-    });
 
   return res.ok("Company deleted", { id: company.id, name: company.name });
 }

@@ -15,8 +15,8 @@ export const companiesRouter = new Elysia({ prefix: "/companies" })
     body: CreateCompanyBody,
   })
   //
-  .patch("/:id/approve", handlers.approveCompany, {
-    params: t.Object({ id: t.Number() }),
+  .patch("/:companyId/approve", handlers.approveCompany, {
+    params: CParams,
     body: ApproveCompnayBody,
   })
   //
