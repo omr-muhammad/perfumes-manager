@@ -128,6 +128,14 @@ export async function login(context: CtxWithoutPayload<LoginBody>) {
 }
 
 // Logged Users
+export async function logout(context: Ctx) {
+  const { cookie } = context;
+
+  cookie.authToken?.remove();
+  // delete cookie.authToken;
+  return res.ok("User logged out.");
+}
+
 export async function changePassword(context: Ctx<ChangePasswordBody>) {
   const { body, authPayload, authJWT, cookie } = context;
 

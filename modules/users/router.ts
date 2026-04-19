@@ -23,6 +23,8 @@ export const usersRouter = new Elysia({ prefix: "/users" })
     app
       .get("", handlers.getMe)
       //
+      .post("/logout", handlers.logout)
+      //
       .patch("", handlers.updateMe, {
         body: UpdateUserBody,
       })
