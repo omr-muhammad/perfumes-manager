@@ -3,7 +3,6 @@ import { db } from "../../db/config";
 import { companiesTable } from "../../db/schema";
 import type {
   CreateCompanyBody,
-  ApproveCompnayBody,
   UpdateCompanyBody,
   CompaniesQueryFilters,
 } from "./schema";
@@ -25,7 +24,7 @@ export async function create(companyBody: CreateCompanyBody, approve: boolean) {
 
 export async function approve(
   companyId: number,
-  approvedComany: ApproveCompnayBody,
+  approvedComany: UpdateCompanyBody,
 ) {
   const [company] = await db
     .update(companiesTable)
@@ -90,13 +89,13 @@ export async function remove(companyId: number) {
   return company;
 }
 
-// Helpers
+// ------------- Helpers -------------
 function prepareCoFilters(filters: CompaniesQueryFilters) {
-  const { name, country, type, approved } = filters;
+  const { search, country, type, approved } = filters;
 
   const conditions = [];
 
-  if (name) conditions.push(ilike(companiesTable.name, `%${name}%`));
+  if (search) conditions.push(ilike(companiesTable.name, `%${search}%`));
   if (country) conditions.push(ilike(companiesTable.country, `%${country}%`));
   if (type) conditions.push(eq(companiesTable.type, type));
   if (approved !== undefined)
