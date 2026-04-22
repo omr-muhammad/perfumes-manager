@@ -1,40 +1,39 @@
 import Elysia from "elysia";
 import { authPlugin } from "./jwtPlugin";
-import { db } from "../db/config";
-import { usersTable } from "../db/schema";
-import { eq } from "drizzle-orm";
+import * as userService from "../modules/users/service";
+import { AppError } from "./AppError";
 
 export const protect = new Elysia({ name: "protect" })
   .use(authPlugin)
   .resolve({ as: "scoped" }, async ({ cookie: { authToken }, authJWT }) => {
-    if (!authToken || typeof authToken.value !== "string") {
-      throw new Error("Unauthorized: No token provided");
-    }
+    if (!authToken || typeof authToken.value !== "string")
+      throw new AppError(401, "Unauthorized: No token provided, please login.");
 
     const token = authToken.value;
     const payload = await authJWT.verify(token);
 
-    if (!payload) {
-      throw new Error("Unauthorized: Invalid or expired token");
-    }
+    if (!payload)
+      throw new AppError(
+        401,
+        "Unauthorized: Invalid or expired token, please login.",
+      );
 
-    const [user] = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.id, payload.userId));
+    const user = await userService.getById(payload.userId);
 
-    if (!user || user.tokenVersion !== payload.tokenV)
-      throw new Error("Unautorized: token is invalid or expired.");
+    if (user.tokenVersion !== payload.tokenV)
+      throw new AppError(
+        401,
+        "Unautorized: token is invalid or expired, please login.",
+      );
 
     return { authPayload: payload };
   });
 
 export function restrictTo(...roles: string[]) {
   return new Elysia({ name: `restrict-${roles.join("-")}` })
-    .use(protect) // Inherit the payload resolution
+    .use(protect)
     .onBeforeHandle(({ authPayload }) => {
-      if (!roles.includes(authPayload.role)) {
-        throw new Error("Forbidden: Insufficient permissions");
-      }
+      if (!roles.includes(authPayload.role))
+        throw new AppError(403, "Forbidden: Insufficient permissions");
     });
 }
