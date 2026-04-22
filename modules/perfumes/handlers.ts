@@ -1,18 +1,12 @@
 import * as perfumeService from "./service";
-import type {
-  ApprovedPerfumeBody,
-  CreateAdminPerfumeBody,
-  CreatePerfumeBody,
-  PfParams,
-  UpdatePerfumeBody,
-} from "./schema";
+import { type PerfumesCTXs as CTXs } from "./schema";
 import { response } from "../../utils/response";
-import type { Ctx, CtxWithoutPayload } from "../../utils/globalSchema";
 
-export async function createPerfume(context: Ctx<CreatePerfumeBody>) {
-  const { body } = context;
+export async function createPerfume(context: CTXs["CreatePfCtx"]) {
+  const { body, authPayload } = context;
 
-  const perfume = await perfumeService.create(body.name);
+  const approved = authPayload.role === "admin";
+  const perfume = await perfumeService.create(body, approved);
 
   return response.ok("Perfume Created", {
     id: perfume.id,
@@ -20,20 +14,7 @@ export async function createPerfume(context: Ctx<CreatePerfumeBody>) {
   });
 }
 
-export async function createAdminPerfume(context: Ctx<CreateAdminPerfumeBody>) {
-  const { body } = context;
-
-  const perfume = await perfumeService.adminCreate(body);
-
-  return response.ok("Approved Perfume Created", {
-    id: perfume.id,
-    name: perfume.name,
-  });
-}
-
-export async function approvePerfume(
-  context: Ctx<ApprovedPerfumeBody, PfParams>,
-) {
+export async function approvePerfume(context: CTXs["UpdatePfCtx"]) {
   const { body, params } = context;
 
   const perfume = await perfumeService.adminApprove(params.perfumeId, body);
@@ -44,23 +25,15 @@ export async function approvePerfume(
   });
 }
 
-export async function getPublicPerfumes(context: CtxWithoutPayload) {
+export async function getPerfumes(context: CTXs["QueryPfCtx"]) {
   const { query } = context;
 
-  const perfumes = await perfumeService.dashboardQuery(query);
+  const perfumes = await perfumeService.query(query);
 
   return response.ok("Perfumes fetched", perfumes);
 }
 
-export async function getDashboardPerfumes(context: Ctx) {
-  const { query } = context;
-
-  const perfumes = await perfumeService.publicQuery(query);
-
-  return response.ok("Perfumes fetched", perfumes);
-}
-
-export async function updatePerfume(context: Ctx<UpdatePerfumeBody, PfParams>) {
+export async function updatePerfume(context: CTXs["UpdatePfCtx"]) {
   const { body, params } = context;
 
   const perfume = await perfumeService.update(params.perfumeId, body);
@@ -71,7 +44,7 @@ export async function updatePerfume(context: Ctx<UpdatePerfumeBody, PfParams>) {
   });
 }
 
-export async function deletePerfume(context: Ctx<unknown, PfParams>) {
+export async function deletePerfume(context: CTXs["DelPfCtx"]) {
   const { params } = context;
 
   const perfume = await perfumeService.remove(params.perfumeId);

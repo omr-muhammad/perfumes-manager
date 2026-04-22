@@ -1,16 +1,16 @@
 import Elysia from "elysia";
-import { protect } from "../../utils/auth";
+import { protect, restrictTo } from "../../utils/auth";
 import { userAdminRouter } from "../users/userAdminRouter";
 import { shopsAdminRouter } from "../shops/shopsAdminRouter";
 import { companiesAdminRouter } from "../companies/companiesAdminRouter";
+import { perfumesAdminRouter } from "../perfumes/perfumeAdminRouter";
 
 export const adminRouter = new Elysia({ prefix: "/admin" })
   .use(protect)
-  .onBeforeHandle(({ authPayload, status }) => {
-    if (authPayload.role !== "admin") return status(403);
-  })
+  .use(restrictTo("admin"))
   // done
   .group("/companies", (app) => app.use(companiesAdminRouter))
+  .group("/perfumes", (app) => app.use(perfumesAdminRouter))
   // progress...
   .group("/users", (app) => app.use(userAdminRouter))
   .group("/shops", (app) => app.use(shopsAdminRouter));

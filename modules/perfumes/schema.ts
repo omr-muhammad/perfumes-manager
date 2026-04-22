@@ -1,65 +1,57 @@
 import { t, type Static } from "elysia";
-import { sexValues } from "../../utils/contants";
-import { ID } from "../../utils/globalSchema";
+import { ID, QueriesMeta, type Ctx } from "../../utils/globalSchema";
+import { createInsertSchema } from "drizzle-typebox";
+import { perfumesTable } from "../../db/schema";
 
-export const PfParams = t.Object({ perfumeId: ID });
-export type PfParams = Static<typeof PfParams>;
+// ---------------- Globals ----------------
+const PerfumeSchema = createInsertSchema(perfumesTable);
+const PerfumeSex = t.Union(
+  [t.Literal("men"), t.Literal("women"), t.Literal("unisex")],
+  { error: "Perfume sex must be one of (men | women | unisex)." },
+);
+export type Season = "winter" | "summer" | "fall" | "spring";
 
 // ---------------- Create ----------------
-// - staff
-export const CreatePerfumeBody = t.Object({
-  name: t.String(),
-});
+export const CreatePerfumeBody = t.Omit(PerfumeSchema, [
+  "approved",
+  "createdAt",
+  "updatedAt",
+]);
 export type CreatePerfumeBody = Static<typeof CreatePerfumeBody>;
 
-// - admin
-export const CreateAdminPerfumeBody = t.Object({
-  name: t.String(),
-  seasons: t.Array(
-    t.Union([
-      t.Literal("spring"),
-      t.Literal("summer"),
-      t.Literal("fall"),
-      t.Literal("winter"),
-    ]),
-  ),
-  sex: t.Union([t.Literal("men"), t.Literal("women"), t.Literal("unisex")]),
-  description: t.String(),
-});
-export type CreateAdminPerfumeBody = Static<typeof CreateAdminPerfumeBody>;
-
-// ---------------- Approve (admin) ----------------
-export const ApprovedPerfumeBody = t.Object({
-  name: t.Optional(t.String()),
-  seasons: t.Array(
-    t.Union([
-      t.Literal("spring"),
-      t.Literal("summer"),
-      t.Literal("fall"),
-      t.Literal("winter"),
-    ]),
-  ),
-  sex: t.Union([t.Literal("men"), t.Literal("women"), t.Literal("unisex")]),
-  description: t.String(),
-});
-export type ApprovedPerfumeBody = Static<typeof ApprovedPerfumeBody>;
-
 // ---------------- Update (admin) ----------------
-export const UpdatePerfumeBody = t.Partial(CreateAdminPerfumeBody);
+export const UpdatePerfumeBody = t.Partial(CreatePerfumeBody);
 export type UpdatePerfumeBody = Static<typeof UpdatePerfumeBody>;
 
 // ---------------- Query ----------------
-export const DashboardQueryFilters = t.Object({
-  sex: t.Optional(t.Union(sexValues.map((s) => t.Literal(s)))),
-  seasons: t.Optional(t.String()),
-  approved: t.Optional(t.BooleanString()),
-  search: t.Optional(t.String({ minLength: 1 })),
-  page: t.Optional(t.Numeric({ minimum: 1, default: 1 })),
-  limit: t.Optional(t.Numeric({ minimum: 1, maximum: 100, default: 20 })),
-});
-export const PublicQueryFilters = t.Omit(DashboardQueryFilters, ["approved"]);
+export const QueryPerfumesFilters = t.Partial(
+  t.Object({
+    search: t.String({ minLength: 1 }),
+    sex: PerfumeSex,
+    seasons: t.String(),
+    approved: t.BooleanString(),
+    ...QueriesMeta,
+  }),
+);
+export type QueryPerfumesFilters = Static<typeof QueryPerfumesFilters>;
 
-export type DashboardQueryFilters = Static<typeof DashboardQueryFilters>;
-export type PublicQueryFilters = Omit<DashboardQueryFilters, "approved">;
+// ---------------- URL Params ----------------
+export const PfParams = t.Object({ perfumeId: ID });
+export type PfParams = Static<typeof PfParams>;
 
-export type Season = "winter" | "summer" | "fall" | "spring";
+// ---------------- Contexts Types ----------------
+export interface PerfumesCTXs {
+  CreatePfCtx: Ctx<CreatePerfumeBody>;
+  QueryPfCtx: Ctx<unknown, unknown, QueryPerfumesFilters>;
+  ApprovePfCtx: Ctx<UpdatePerfumeBody, PfParams>;
+  UpdatePfCtx: Ctx<UpdatePerfumeBody, PfParams>;
+  DelPfCtx: Ctx<unknown, PfParams>;
+}
+// ---------------- Contexts Schema ----------------
+export const ContextSchema = {
+  QueryPf: { query: QueryPerfumesFilters },
+  CreatePf: { body: CreatePerfumeBody },
+  ApprovePf: { params: PfParams, body: UpdatePerfumeBody },
+  UpdatePf: { params: PfParams, body: UpdatePerfumeBody },
+  DelPf: { params: PfParams },
+};
