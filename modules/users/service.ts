@@ -3,7 +3,6 @@ import { db } from "../../db/config";
 import { addressesTable, usersTable } from "../../db/schema";
 import type {
   AdminCreateUserBody,
-  SignupBody,
   LoginBody,
   UpdateUserBody,
   SignupUser,

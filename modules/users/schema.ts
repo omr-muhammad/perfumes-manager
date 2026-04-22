@@ -1,47 +1,97 @@
-import { createInsertSchema } from "drizzle-typebox";
 import { t, type Static } from "elysia";
-import { usersTable } from "../../db/schema";
-import { AddressBase } from "../../utils/globalSchema";
+import {
+  AddressBase,
+  Email,
+  HandleActivationBody,
+  ID,
+  User,
+  type Address,
+  type Ctx,
+  type CtxWithoutPayload,
+} from "../../utils/globalSchema";
 
-const CreateUser = createInsertSchema(usersTable);
-type CreateUser = Static<typeof CreateUser>;
+// ------------------ Create ------------------
+const CreateUser = t.Omit(User, [
+  "updatedAt",
+  "createdAt",
+  "active",
+  "tokenVersion",
+]);
 
-export const AdminCreateUserBody = t.Object({
+const AdminCreateUserBody = t.Object({
   user: CreateUser,
   address: t.Optional(AddressBase),
 });
-export type AdminCreateUserBody = Static<typeof AdminCreateUserBody>;
+type AdminCreateUserBody = Static<typeof AdminCreateUserBody>;
 
-export const UpdateUserBody = t.Partial(
+// ------------------ Update ------------------
+const UpdateUserBody = t.Partial(
   t.Omit(CreateUser, ["password", "role", "active"]),
 );
-export type UpdateUserBody = Static<typeof UpdateUserBody>;
+type UpdateUserBody = Static<typeof UpdateUserBody>;
 
-export const ChangePasswordBody = t.Object({
+const ChangePasswordBody = t.Object({
   oldPw: t.String(),
   newPw: t.String(),
 });
-export type ChangePasswordBody = Static<typeof ChangePasswordBody>;
+type ChangePasswordBody = Static<typeof ChangePasswordBody>;
 
-export const SignupUser = t.Object({
-  name: t.String(),
-  email: t.String(),
-  username: t.String(),
-  password: t.String(),
-  language: t.Optional(t.Union([t.Literal("ar"), t.Literal("en")])),
-  phone: t.Optional(t.String()),
-});
-export type SignupUser = Static<typeof SignupUser>;
+const DelMeBody = t.Object({ password: t.String() });
+type DelMeBody = Static<typeof DelMeBody>;
 
-export const SignupBody = t.Object({
+// ------------------ Signup ------------------
+const SignupUser = t.Omit(CreateUser, ["role"]);
+type SignupUser = Static<typeof SignupUser>;
+
+const SignupBody = t.Object({
   user: SignupUser,
   keepLogin: t.Boolean({ default: false }),
 });
-export type SignupBody = Static<typeof SignupBody>;
+type SignupBody = Static<typeof SignupBody>;
 
-export const LoginBody = t.Object({
-  email: t.String(),
+// ------------------ Login ------------------
+const LoginBody = t.Object({
+  email: Email,
   password: t.String(),
   keepLogin: t.Boolean({ default: false }),
 });
-export type LoginBody = Static<typeof LoginBody>;
+type LoginBody = Static<typeof LoginBody>;
+
+// ------------------ URL Params ------------------
+const UserParams = t.Object({ userId: ID });
+type UserParams = Static<typeof UserParams>;
+
+// ------------------ CTXs ------------------
+export interface UserCTXs {
+  AdminCreate: Ctx<AdminCreateUserBody>;
+  AdminDel: Ctx<unknown, UserParams>;
+  AdminGetUser: Ctx<unknown, UserParams>;
+  Activation: Ctx<HandleActivationBody, UserParams>;
+  Signup: CtxWithoutPayload<SignupBody>;
+  Login: CtxWithoutPayload<LoginBody>;
+  Logout: Ctx;
+  ChangePW: Ctx<ChangePasswordBody>;
+  UpdateMe: Ctx<UpdateUserBody>;
+  UpsertAddress: Ctx<Address>;
+  GetMe: Ctx;
+  DelMe: Ctx<DelMeBody>;
+}
+
+// ------------------ CTXs Schema ------------------
+export const UserSchema = {
+  // Admin
+  AdminGetUser: { params: UserParams },
+  AdminCreate: { body: AdminCreateUserBody },
+  Activation: { params: UserParams, body: HandleActivationBody },
+  AdminDelUser: { params: UserParams },
+
+  // Logged User
+  UpdateMe: { body: UpdateUserBody },
+  ChangePW: { body: ChangePasswordBody },
+  UpsertAddress: { body: AddressBase },
+  DelMe: { body: DelMeBody },
+
+  // Non Logged User
+  Signup: { body: SignupBody },
+  Login: { body: LoginBody },
+};

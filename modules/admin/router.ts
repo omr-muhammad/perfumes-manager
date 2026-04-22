@@ -11,6 +11,6 @@ export const adminRouter = new Elysia({ prefix: "/admin" })
   // done
   .group("/companies", (app) => app.use(companiesAdminRouter))
   .group("/perfumes", (app) => app.use(perfumesAdminRouter))
-  // progress...
-  .group("/users", (app) => app.use(userAdminRouter))
-  .group("/shops", (app) => app.use(shopsAdminRouter));
+  .group("/shops", (app) => app.use(shopsAdminRouter))
+  .group("/users", (app) => app.use(userAdminRouter));
+// progress...
