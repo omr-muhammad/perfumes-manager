@@ -41,15 +41,19 @@ const CParams = t.Object({ compnayId: ID });
 type CParams = Static<typeof CParams>;
 
 // ------------ Contexts Types ------------
-export type CreateCoCtx = Ctx<CreateCompanyBody>;
-export type ApproveCoCtx = Ctx<UpdateCompanyBody, CParams>;
-export type QueryCoCtx = Ctx<unknown, unknown, CompaniesQueryFilters>;
-export type UpdateCoCtx = Ctx<UpdateCompanyBody, CParams>;
-export type DelCoCtx = Ctx<unknown, CParams>;
+export interface CoCTXs {
+  CreateCoCtx: Ctx<CreateCompanyBody>;
+  ApproveCoCtx: Ctx<UpdateCompanyBody, CParams>;
+  QueryCoCtx: Ctx<unknown, unknown, CompaniesQueryFilters>;
+  UpdateCoCtx: Ctx<UpdateCompanyBody, CParams>;
+  DelCoCtx: Ctx<unknown, CParams>;
+}
 
 // ------------ Contexts Validators ------------
-export const CreateCoValidators = { body: CreateCompanyBody };
-export const ApproveCoValidators = { params: CParams, body: UpdateCompanyBody };
-export const UpdateCoValidators = { params: CParams, body: UpdateCompanyBody };
-export const DelCoValidators = { params: CParams };
-export const QueryCoValidators = { query: CompaniesQueryFilters };
+export const CoSchema = {
+  CreateCoValidators: { body: CreateCompanyBody },
+  ApproveCoValidators: { params: CParams, body: UpdateCompanyBody },
+  UpdateCoValidators: { params: CParams, body: UpdateCompanyBody },
+  DelCoValidators: { params: CParams },
+  QueryCoValidators: { query: CompaniesQueryFilters },
+};

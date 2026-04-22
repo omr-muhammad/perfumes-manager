@@ -1,14 +1,8 @@
 import { response as res } from "../../utils/response";
-import type {
-  CreateCoCtx,
-  ApproveCoCtx,
-  QueryCoCtx,
-  UpdateCoCtx,
-  DelCoCtx,
-} from "./schema";
+import type { CoCTXs } from "./schema";
 import * as companiesService from "./service";
 
-export async function createCompany(context: CreateCoCtx) {
+export async function createCompany(context: CoCTXs["CreateCoCtx"]) {
   const { body, authPayload } = context;
 
   const approve = authPayload.role === "admin";
@@ -20,7 +14,7 @@ export async function createCompany(context: CreateCoCtx) {
   });
 }
 
-export async function approveCompany(context: ApproveCoCtx) {
+export async function approveCompany(context: CoCTXs["ApproveCoCtx"]) {
   const { params, body } = context;
 
   const company = await companiesService.approve(params.compnayId, body);
@@ -31,7 +25,7 @@ export async function approveCompany(context: ApproveCoCtx) {
   });
 }
 
-export async function getAllCompanies(context: QueryCoCtx) {
+export async function getAllCompanies(context: CoCTXs["QueryCoCtx"]) {
   const { query } = context;
 
   const companies = await companiesService.queryAll(query);
@@ -39,7 +33,7 @@ export async function getAllCompanies(context: QueryCoCtx) {
   return res.ok("Companies fetched", companies);
 }
 
-export async function updateCompany(context: UpdateCoCtx) {
+export async function updateCompany(context: CoCTXs["UpdateCoCtx"]) {
   const { params, body } = context;
 
   const company = await companiesService.update(params.compnayId, body);
@@ -47,7 +41,7 @@ export async function updateCompany(context: UpdateCoCtx) {
   return res.ok("Company updated", { company });
 }
 
-export async function deleteCompany(context: DelCoCtx) {
+export async function deleteCompany(context: CoCTXs["DelCoCtx"]) {
   const { params } = context;
 
   const company = await companiesService.remove(params.compnayId);

@@ -1,9 +1,9 @@
 import Elysia from "elysia";
 import { protect } from "../../utils/auth";
 import * as handlers from "./handlers";
-import { CreateCoValidators, QueryCoValidators } from "./schema";
+import { CoSchema } from "./schema";
 
 export const companiesRouter = new Elysia({ prefix: "/companies" })
   .use(protect)
-  .post("", handlers.createCompany, CreateCoValidators)
-  .get("", handlers.getAllCompanies, QueryCoValidators);
+  .post("", handlers.createCompany, CoSchema.CreateCoValidators)
+  .get("", handlers.getAllCompanies, CoSchema.QueryCoValidators);
