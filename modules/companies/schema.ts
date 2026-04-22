@@ -15,7 +15,7 @@ const insertSchema = createInsertSchema(companiesTable, {
 });
 
 // ------------ Create ------------
-export const CreateCompanyBody = t.Omit(insertSchema, [
+const CreateCompanyBody = t.Omit(insertSchema, [
   "createdAt",
   "updatedAt",
   "approved",
@@ -23,11 +23,11 @@ export const CreateCompanyBody = t.Omit(insertSchema, [
 export type CreateCompanyBody = Static<typeof CreateCompanyBody>;
 
 // ------------ Udate ------------
-export const UpdateCompanyBody = t.Partial(CreateCompanyBody);
+const UpdateCompanyBody = t.Partial(CreateCompanyBody);
 export type UpdateCompanyBody = Static<typeof UpdateCompanyBody>;
 
 // ------------ Query ------------
-export const CompaniesQueryFilters = t.Object({
+const CompaniesQueryFilters = t.Object({
   search: t.Optional(t.String()),
   country: t.Optional(t.String()),
   type: t.Optional(CoClass),

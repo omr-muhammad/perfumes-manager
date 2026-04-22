@@ -17,7 +17,7 @@ import { shopsTable } from "../../db/schema";
 const DerivedShopSchema = createInsertSchema(shopsTable);
 
 // -------------- Create Shop --------------
-export const CreateShop = t.Omit(DerivedShopSchema, [
+const CreateShop = t.Omit(DerivedShopSchema, [
   "ownerId",
   "createdAt",
   "updatedAt",
@@ -25,7 +25,7 @@ export const CreateShop = t.Omit(DerivedShopSchema, [
 ]);
 export type CreateShop = Static<typeof CreateShop>;
 
-export const CreateShopBody = t.Object({
+const CreateShopBody = t.Object({
   ownerId: t.Optional(ID),
   name: t.String({ error: "Shop name must be a string." }),
   logo: t.Optional(Url),
@@ -34,14 +34,14 @@ export const CreateShopBody = t.Object({
 export type CreateShopBody = Static<typeof CreateShopBody>;
 
 // -------------- Update Shop --------------
-export const UpdateShopBody = t.Partial(CreateShop);
+const UpdateShopBody = t.Partial(CreateShop);
 export type UpdateShopBody = Static<typeof UpdateShopBody>;
 
-export const HideShopBody = t.Object({ hidden: t.Boolean() });
+const HideShopBody = t.Object({ hidden: t.Boolean() });
 export type HideShopBody = Static<typeof HideShopBody>;
 
 // -------------- Create Shop Staff --------------
-export const StaffBody = t.Omit(UserStaff, [
+const StaffBody = t.Omit(UserStaff, [
   "active",
   "createdAt",
   "updatedAt",
@@ -50,13 +50,13 @@ export const StaffBody = t.Omit(UserStaff, [
 export type StaffBody = Static<typeof StaffBody>;
 
 // -------------- Update Shop Staff --------------
-export const UpdateStaffBody = t.Object({
+const UpdateStaffBody = t.Object({
   role: ShopRole,
 });
 export type UpdateStaffBody = Static<typeof UpdateStaffBody>;
 
 // -------------- Query Shop --------------
-export const ShopsQueryFilters = t.Partial(
+const ShopsQueryFilters = t.Partial(
   t.Object({
     search: t.String(),
     country: t.String(),
@@ -68,11 +68,11 @@ export const ShopsQueryFilters = t.Partial(
 export type ShopsQueryFilters = Static<typeof ShopsQueryFilters>;
 
 // -------------- URL Params --------------
-export const TStaffParams = t.Object({
+const TStaffParams = t.Object({
   shopId: ID,
   staffId: ID,
 });
-export type TStaffParams = Static<typeof TStaffParams>;
+type TStaffParams = Static<typeof TStaffParams>;
 
 // ------------- Contexts -------------
 export interface ShopsCTXs {

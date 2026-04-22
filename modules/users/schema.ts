@@ -22,32 +22,32 @@ const AdminCreateUserBody = t.Object({
   user: CreateUser,
   address: t.Optional(AddressBase),
 });
-type AdminCreateUserBody = Static<typeof AdminCreateUserBody>;
+export type AdminCreateUserBody = Static<typeof AdminCreateUserBody>;
 
 // ------------------ Update ------------------
 const UpdateUserBody = t.Partial(
   t.Omit(CreateUser, ["password", "role", "active"]),
 );
-type UpdateUserBody = Static<typeof UpdateUserBody>;
+export type UpdateUserBody = Static<typeof UpdateUserBody>;
 
 const ChangePasswordBody = t.Object({
   oldPw: t.String(),
   newPw: t.String(),
 });
-type ChangePasswordBody = Static<typeof ChangePasswordBody>;
+export type ChangePasswordBody = Static<typeof ChangePasswordBody>;
 
 const DelMeBody = t.Object({ password: t.String() });
-type DelMeBody = Static<typeof DelMeBody>;
+export type DelMeBody = Static<typeof DelMeBody>;
 
 // ------------------ Signup ------------------
 const SignupUser = t.Omit(CreateUser, ["role"]);
-type SignupUser = Static<typeof SignupUser>;
+export type SignupUser = Static<typeof SignupUser>;
 
 const SignupBody = t.Object({
   user: SignupUser,
   keepLogin: t.Boolean({ default: false }),
 });
-type SignupBody = Static<typeof SignupBody>;
+export type SignupBody = Static<typeof SignupBody>;
 
 // ------------------ Login ------------------
 const LoginBody = t.Object({
@@ -55,7 +55,7 @@ const LoginBody = t.Object({
   password: t.String(),
   keepLogin: t.Boolean({ default: false }),
 });
-type LoginBody = Static<typeof LoginBody>;
+export type LoginBody = Static<typeof LoginBody>;
 
 // ------------------ URL Params ------------------
 const UserParams = t.Object({ userId: ID });

@@ -1,11 +1,11 @@
 import { and, arrayContains, eq, ilike } from "drizzle-orm";
 import { db } from "../../db/config";
 import { perfumesTable } from "../../db/schema/index";
-import {
+import type {
   CreatePerfumeBody,
   QueryPerfumesFilters,
-  type Season,
-  type UpdatePerfumeBody,
+  Season,
+  UpdatePerfumeBody,
 } from "./schema";
 import { AppError } from "../../utils/AppError";
 

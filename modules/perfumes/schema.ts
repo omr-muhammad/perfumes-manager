@@ -12,7 +12,7 @@ const PerfumeSex = t.Union(
 export type Season = "winter" | "summer" | "fall" | "spring";
 
 // ---------------- Create ----------------
-export const CreatePerfumeBody = t.Omit(PerfumeSchema, [
+const CreatePerfumeBody = t.Omit(PerfumeSchema, [
   "approved",
   "createdAt",
   "updatedAt",
@@ -20,11 +20,11 @@ export const CreatePerfumeBody = t.Omit(PerfumeSchema, [
 export type CreatePerfumeBody = Static<typeof CreatePerfumeBody>;
 
 // ---------------- Update (admin) ----------------
-export const UpdatePerfumeBody = t.Partial(CreatePerfumeBody);
+const UpdatePerfumeBody = t.Partial(CreatePerfumeBody);
 export type UpdatePerfumeBody = Static<typeof UpdatePerfumeBody>;
 
 // ---------------- Query ----------------
-export const QueryPerfumesFilters = t.Partial(
+const QueryPerfumesFilters = t.Partial(
   t.Object({
     search: t.String({ minLength: 1 }),
     sex: PerfumeSex,
