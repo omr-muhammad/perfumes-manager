@@ -36,8 +36,8 @@ export const QueryPerfumesFilters = t.Partial(
 export type QueryPerfumesFilters = Static<typeof QueryPerfumesFilters>;
 
 // ---------------- URL Params ----------------
-export const PfParams = t.Object({ perfumeId: ID });
-export type PfParams = Static<typeof PfParams>;
+const PfParams = t.Object({ perfumeId: ID });
+type PfParams = Static<typeof PfParams>;
 
 // ---------------- Contexts Types ----------------
 export interface PerfumesCTXs {

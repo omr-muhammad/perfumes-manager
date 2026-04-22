@@ -1,26 +1,11 @@
 import Elysia from "elysia";
 import { protect } from "../../utils/auth";
 import * as handlers from "./handlers";
-import { CreateShopBody, HideShopBody } from "./schema";
-import { HandleActiveBody, ShopParams } from "../../utils/globalSchema";
+import { ShopSchema } from "./schema";
 
 export const shopsAdminRouter = new Elysia()
   .use(protect)
-  .post("/", handlers.createNewShop, {
-    body: CreateShopBody,
-  })
-  .get("/", handlers.getShops)
-  .get("/:shopId", handlers.getShopById, {
-    params: ShopParams,
-  })
-  .delete("/:shopId", handlers.deleteShop, {
-    params: ShopParams,
-  })
-  .patch("/:shopId", handlers.handleShopActivation, {
-    params: ShopParams,
-    body: HandleActiveBody,
-  })
-  .patch("/:shopId", handlers.hideShop, {
-    params: ShopParams,
-    body: HideShopBody,
-  });
+  .get("", handlers.getShops)
+  .get("/:shopId", handlers.getShopById, ShopSchema.QueryById)
+  .delete("/:shopId", handlers.deleteShopById, ShopSchema.DelShop)
+  .patch("/:shopId", handlers.handleShopActivation, ShopSchema.Activation);

@@ -1,22 +1,9 @@
-import type {
-  Address,
-  Ctx,
-  HandleActiveBody,
-  ShopParams,
-  TStaffParams,
-} from "../../utils/globalSchema";
 import { response as res } from "../../utils/response";
-import {
-  HideShopBody,
-  ShopsQueryFilters,
-  StaffBody,
-  type CreateShopBody,
-  type UpdateShopBody,
-  type UpdateStaffBody,
-} from "./schema";
+import { type ShopsCTXs, type ShopStaffCTXs } from "./schema";
 import * as shopsService from "./service";
 
-export async function createNewShop(context: Ctx<CreateShopBody>) {
+// ----------------- Admin & Owner -----------------
+export async function createNewShop(context: ShopsCTXs["CreateShop"]) {
   const { body } = context;
 
   const shop = await shopsService.create(body.ownerId!, body, body.address);
@@ -29,51 +16,19 @@ export async function createNewShop(context: Ctx<CreateShopBody>) {
   return res.ok("Shop created", { shop });
 }
 
-export async function updateShop(context: Ctx<UpdateShopBody, ShopParams>) {
-  const { body, authPayload, params } = context;
-
-  const shop = await shopsService.update(
-    params.shopId,
-    authPayload.userId,
-    body,
-  );
-
-  return res.ok("Shop updated.", { shop });
-}
-
-export async function upsertShopAddress(context: Ctx<Address, ShopParams>) {
-  const { body, params, authPayload } = context;
-
-  const address = await shopsService.upsertShopAddress(
-    authPayload.userId,
-    params.shopId,
-    body,
-  );
-
-  return res.ok("Address updated.", { address });
-}
-
-export async function deleteShop(context: Ctx<unknown, ShopParams>) {
-  const { params, authPayload } = context;
-
-  const shop = await shopsService.remove(params.shopId, authPayload.userId);
-
-  return res.ok("Shop deleted.", { id: shop.id });
-}
-
-export async function getShops(context: Ctx) {
+export async function getShops(context: ShopsCTXs["QueryShops"]) {
   const { authPayload, query } = context;
 
   const service = shopsService.query;
 
   const shops = await (authPayload.role === "admin"
-    ? service(query as ShopsQueryFilters)
-    : service(query as ShopsQueryFilters, authPayload.userId));
+    ? service(query)
+    : service(query, authPayload.userId));
 
   return res.ok("Shops fetched.", { shops });
 }
 
-export async function getShopById(context: Ctx<unknown, ShopParams>) {
+export async function getShopById(context: ShopsCTXs["QueryShopById"]) {
   const { authPayload, params } = context;
 
   const service = shopsService.queryById;
@@ -85,7 +40,69 @@ export async function getShopById(context: Ctx<unknown, ShopParams>) {
   return res.ok("Shop fetched.", { shop });
 }
 
-export async function createShopStaff(context: Ctx<StaffBody, TStaffParams>) {
+export async function deleteShopById(context: ShopsCTXs["DelShop"]) {
+  const { params, authPayload } = context;
+
+  const isAdmin = authPayload.role === "admin";
+  const shop = await (isAdmin
+    ? shopsService.remove(params.shopId)
+    : shopsService.remove(params.shopId, authPayload.userId));
+
+  return res.ok("Shop deleted.", { id: shop.id });
+}
+
+// ----------------- Admin -----------------
+export async function handleShopActivation(context: ShopsCTXs["Activation"]) {
+  const { params, body } = context;
+
+  const shop = await shopsService.handleActivation(params.shopId, body.active);
+
+  return res.ok("Shop updated.", { shop });
+}
+
+// ----------------- Owner -----------------
+export async function updateMyShop(context: ShopsCTXs["UpdateShop"]) {
+  const { body, authPayload, params } = context;
+
+  const shop = await shopsService.update(
+    params.shopId,
+    authPayload.userId,
+    body,
+  );
+
+  return res.ok("Shop updated.", { shop });
+}
+
+export async function upsertShopAddress(
+  context: ShopsCTXs["UpsertShopAddress"],
+) {
+  const { body, params, authPayload } = context;
+
+  const address = await shopsService.upsertShopAddress(
+    authPayload.userId,
+    params.shopId,
+    body,
+  );
+
+  return res.ok("Address updated.", { address });
+}
+
+export async function hideShop(context: ShopsCTXs["HideShop"]) {
+  const { body, params, authPayload } = context;
+
+  const shop = await shopsService.hide(
+    authPayload.userId,
+    params.shopId,
+    body.hidden,
+  );
+
+  const shouldBe = body.hidden ? "hidden" : "shown";
+
+  return res.ok(`Shop ${shouldBe} success`, { shop });
+}
+
+// ----------------------- STAFF -----------------------
+export async function createShopStaff(context: ShopStaffCTXs["CreateStaff"]) {
   const { params, body, authPayload } = context;
 
   const result = await shopsService.addStaff(
@@ -103,7 +120,7 @@ export async function createShopStaff(context: Ctx<StaffBody, TStaffParams>) {
   });
 }
 
-export async function removeShopStaff(context: Ctx<unknown, TStaffParams>) {
+export async function removeShopStaff(context: ShopStaffCTXs["RmStaff"]) {
   const { params, authPayload } = context;
 
   const staff = await shopsService.removeStaff(
@@ -118,7 +135,7 @@ export async function removeShopStaff(context: Ctx<unknown, TStaffParams>) {
   });
 }
 
-export async function getShopStaff(context: Ctx<unknown, ShopParams>) {
+export async function getShopStaff(context: ShopStaffCTXs["QueryShopStaff"]) {
   const { params, authPayload } = context;
 
   const staff = await shopsService.getShopStaff(
@@ -137,9 +154,7 @@ export async function getShopStaff(context: Ctx<unknown, ShopParams>) {
   });
 }
 
-export async function updateShopStaff(
-  context: Ctx<UpdateStaffBody, TStaffParams>,
-) {
+export async function updateShopStaff(context: ShopStaffCTXs["UpdateStaff"]) {
   const { params, authPayload, body } = context;
 
   const staff = await shopsService.updateShopStaff(
@@ -154,28 +169,4 @@ export async function updateShopStaff(
     shopId: staff.shopId,
     shopRole: staff.role,
   });
-}
-
-export async function handleShopActivation(
-  context: Ctx<HandleActiveBody, ShopParams>,
-) {
-  const { params, body } = context;
-
-  const shop = await shopsService.handleActivation(params.shopId, body.active);
-
-  return res.ok("Shop updated.", { shop });
-}
-
-export async function hideShop(context: Ctx<HideShopBody, ShopParams>) {
-  const { body, params, authPayload } = context;
-
-  const shop = await shopsService.hide(
-    authPayload.userId,
-    params.shopId,
-    body.hidden,
-  );
-
-  const shouldBe = body.hidden ? "hidden" : "shown";
-
-  return res.ok(`Shop ${shouldBe} success`, { shop });
 }

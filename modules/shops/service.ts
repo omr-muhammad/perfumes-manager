@@ -2,7 +2,7 @@ import { and, eq, ilike, ne } from "drizzle-orm";
 import { db } from "../../db/config";
 import { addressesTable, shopsTable, usersTable } from "../../db/schema";
 import type {
-  NewShop,
+  CreateShop,
   ShopsQueryFilters,
   StaffBody,
   UpdateShopBody,
@@ -15,7 +15,7 @@ import { AppError } from "../../utils/AppError";
 
 export async function create(
   ownerId: number,
-  newShop: NewShop,
+  newShop: CreateShop,
   address?: Address,
 ) {
   await assertIsOwner(ownerId);
@@ -86,8 +86,8 @@ export async function upsertShopAddress(
   return shopAddress;
 }
 
-export async function remove(shopId: number, ownerId: number) {
-  await assertOwnership(shopId, ownerId);
+export async function remove(shopId: number, ownerId?: number) {
+  if (ownerId) await assertOwnership(shopId, ownerId);
 
   const [shop] = await db
     .delete(shopsTable)

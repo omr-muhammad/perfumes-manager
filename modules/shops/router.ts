@@ -1,67 +1,40 @@
 import Elysia from "elysia";
 import * as handlers from "./handlers";
-import {
-  CreateShopBody,
-  ShopsQueryFilters,
-  StaffBody,
-  UpdateShopBody,
-  UpdateStaffBody,
-} from "./schema";
-import {
-  AddressBase,
-  ShopParams,
-  TStaffParams,
-} from "../../utils/globalSchema";
+import { ShopSchema } from "./schema";
+
 import { protect, restrictTo } from "../../utils/auth";
+import { AppError } from "../../utils/AppError";
+
 import { alcoholsRouter } from "../inventory/alcohols/router";
 import { bottlesRouter } from "../inventory/bottles/router";
 import { perfumesCompoundsRouter } from "../inventory/perfumeCompounds/router";
 
-export const shopsRouter = new Elysia({ prefix: "shops" })
+export const shopsRouter = new Elysia({ prefix: "/shops" })
   .use(protect)
   .use(restrictTo("owner"))
-  .post("/", handlers.createNewShop, {
-    beforeHandle({ authPayload, body, status }) {
-      if (authPayload.role === "admin")
-        if (body.ownerId === undefined) return status(422);
+  .post("", handlers.createNewShop, {
+    beforeHandle({ authPayload, body }) {
+      if (authPayload.role === "admin" && !body.ownerId)
+        throw new AppError(422, "shop id is required to create a shop");
     },
-    body: CreateShopBody,
+    ...ShopSchema.CreateShop,
   })
-  .get("/", handlers.getShops, {
-    query: ShopsQueryFilters,
-  })
+  .get("", handlers.getShops, ShopSchema.Query)
   .group("/:shopId", (app) =>
     app
-      .get("", handlers.getShopById, {
-        params: ShopParams,
-      })
-      .delete("", handlers.deleteShop, {
-        params: ShopParams,
-      })
-      .patch("", handlers.updateShop, {
-        params: ShopParams,
-        body: UpdateShopBody,
-      })
-      .put("/address", handlers.upsertShopAddress, {
-        params: ShopParams,
-        body: AddressBase,
-      })
+      .get("", handlers.getShopById, ShopSchema.QueryById)
+      .delete("", handlers.deleteShopById, ShopSchema.DelShop)
+      .patch("", handlers.updateMyShop, ShopSchema.UpdateShop)
+      .put("/address", handlers.upsertShopAddress, ShopSchema.UpsertShopAddress)
+      .patch("/:shopId/visible", handlers.hideShop, ShopSchema.Visibility)
+
+      // Shop Staff
       .group("/staff", (app) =>
         app
-          .post("", handlers.createShopStaff, {
-            params: TStaffParams,
-            body: StaffBody,
-          })
-          .delete("/:staffId", handlers.removeShopStaff, {
-            params: TStaffParams,
-          })
-          .get("", handlers.getShopStaff, {
-            params: ShopParams,
-          })
-          .patch(":staffId", handlers.updateShopStaff, {
-            params: TStaffParams,
-            body: UpdateStaffBody,
-          }),
+          .post("", handlers.createShopStaff, ShopSchema.CreateStaff)
+          .delete("/:staffId", handlers.removeShopStaff, ShopSchema.DelStaff)
+          .get("", handlers.getShopStaff, ShopSchema.QueryShopStaff)
+          .patch(":staffId", handlers.updateShopStaff, ShopSchema.UpdateStaff),
       )
       // url /api/shops/:shopId/inventory/
       .group("/inventory", (app) =>
