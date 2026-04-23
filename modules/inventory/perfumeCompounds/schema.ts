@@ -1,7 +1,12 @@
 import { createInsertSchema } from "drizzle-typebox";
 import { agingTable, perfumesCompoundsTable } from "../../../db/schema";
 import { t, type Static } from "elysia";
-import { ID, QueriesMeta } from "../../../utils/globalSchema";
+import {
+  ID,
+  QueriesMeta,
+  ShopParams,
+  type Ctx,
+} from "../../../utils/globalSchema";
 
 const PerfumeCompoundSchema = createInsertSchema(perfumesCompoundsTable, {
   kiloBuyPrice: t.Number({ minimum: 0 }),
@@ -13,14 +18,7 @@ const AgingSchema = createInsertSchema(agingTable, {
   endDate: t.String(),
 });
 
-export const CreateCompound = t.Omit(PerfumeCompoundSchema, [
-  "shopId",
-  "mlPrice",
-  "createdAt",
-  "updatedAt",
-]);
-export type CreateCompound = Static<typeof CreateCompound>;
-
+// ---------------- Create Aging ----------------
 export const CreateAging = t.Omit(AgingSchema, [
   "updatedAt",
   "createdAt",
@@ -34,6 +32,7 @@ export const CreateAgingBody = t.Object({
 });
 export type CreateAgingBody = Static<typeof CreateAgingBody>;
 
+// ---------------- Update Aging ----------------
 export const UpdateAgingBody = t.Object({
   updates: t.Partial(
     t.Omit(AgingSchema, ["updatedAt", "createdAt", "compoundId"]),
@@ -42,11 +41,20 @@ export const UpdateAgingBody = t.Object({
 });
 export type UpdateAgingBody = Static<typeof UpdateAgingBody>;
 
+// ---------------- Delete Aging ----------------
 export const RemoveAgingBody = t.Object({
   retrieveAcohol: t.Boolean({ default: false }),
 });
 export type RemoveAgingBody = Static<typeof RemoveAgingBody>;
 
+// ---------------- Create Compound ----------------
+export const CreateCompound = t.Omit(PerfumeCompoundSchema, [
+  "shopId",
+  "mlPrice",
+  "createdAt",
+  "updatedAt",
+]);
+export type CreateCompound = Static<typeof CreateCompound>;
 export const CreateCompBody = t.Object({
   compound: CreateCompound,
   aging: t.Optional(CreateAging),
@@ -54,21 +62,9 @@ export const CreateCompBody = t.Object({
 });
 export type CreateCompBody = Static<typeof CreateCompBody>;
 
+// ---------------- Update Compound ----------------
 export const UpdateCompoundBody = t.Partial(CreateCompound);
 export type UpdateCompoundBody = Static<typeof UpdateCompoundBody>;
-
-export const CompParams = t.Object({
-  shopId: ID,
-  compId: ID,
-});
-export type CompParams = Static<typeof CompParams>;
-
-export const AgingParams = t.Object({
-  shopId: ID,
-  compId: ID,
-  agingId: ID,
-});
-export type AgingParams = Static<typeof AgingParams>;
 
 // ------------- Query -------------
 export const CompoundsQueryFilters = t.Partial(
@@ -92,3 +88,45 @@ export const CompoundsQueryFilters = t.Partial(
 );
 
 export type CompoundsQueryFilters = Static<typeof CompoundsQueryFilters>;
+
+// ---------------- URL Params ----------------
+const CompoundParams = {
+  shopId: ID,
+  compId: ID,
+};
+export const CompParams = t.Object(CompoundParams);
+export type CompParams = Static<typeof CompParams>;
+
+export const AgingParams = t.Object({
+  ...CompoundParams,
+  agingId: ID,
+});
+export type AgingParams = Static<typeof AgingParams>;
+
+// ---------------- Compounds CTXs ----------------
+export interface CompCTXs {
+  create: Ctx<CreateCompBody, ShopParams>;
+  update: Ctx<UpdateCompoundBody, CompParams>;
+  del: Ctx<unknown, CompParams>;
+  queryAll: Ctx<unknown, ShopParams>;
+  queryOne: Ctx<unknown, CompParams>;
+  addAging: Ctx<CreateAgingBody, CompParams>;
+  updateAging: Ctx<UpdateAgingBody, AgingParams>;
+  delAging: Ctx<RemoveAgingBody, AgingParams>;
+  queryCompAgings: Ctx<unknown, CompParams>;
+  queryOneAging: Ctx<unknown, AgingParams>;
+}
+
+// ---------------- Compounds Schema ----------------
+export const CompSchema = {
+  create: { params: ShopParams, body: CreateCompBody },
+  queryAll: { params: ShopParams, query: CompoundsQueryFilters },
+  queryOne: { params: CompParams },
+  update: { params: CompParams, body: UpdateCompoundBody },
+  del: { params: CompParams },
+  queryCompAgings: { params: CompParams },
+  queryOneAging: { params: AgingParams },
+  addAging: { body: CreateAgingBody, params: CompParams },
+  updateAging: { params: AgingParams, body: UpdateAgingBody },
+  delAging: { params: AgingParams, body: RemoveAgingBody },
+};
