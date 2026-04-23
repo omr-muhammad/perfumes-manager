@@ -1,7 +1,12 @@
 import { createInsertSchema } from "drizzle-typebox";
 import { alcoholsTable } from "../../../db/schema";
 import { t, type Static } from "elysia";
-import { QueriesMeta } from "../../../utils/globalSchema";
+import {
+  ID,
+  QueriesMeta,
+  ShopParams,
+  type Ctx,
+} from "../../../utils/globalSchema";
 
 const AlcoholDrivedSchema = createInsertSchema(alcoholsTable, {
   ltBuyPrice: t.Number({ minimum: 0 }),
@@ -11,17 +16,16 @@ const AlcoholDrivedSchema = createInsertSchema(alcoholsTable, {
   expiryDate: t.String(),
 });
 
-export const CreateAlcoBody = t.Omit(AlcoholDrivedSchema, [
-  "shopId",
-  "unitSellPrice",
-]);
+// -------------- Create --------------
+const CreateAlcoBody = t.Omit(AlcoholDrivedSchema, ["shopId", "unitSellPrice"]);
 export type CreateAlcoBody = Static<typeof CreateAlcoBody>;
 
-export const UpdateAlcoBody = t.Partial(CreateAlcoBody);
+// -------------- Update --------------
+const UpdateAlcoBody = t.Partial(CreateAlcoBody);
 export type UpdateAlcoBody = Static<typeof UpdateAlcoBody>;
 
 // -------------- Query --------------
-export const AlcoholsQueryFilters = t.Partial(
+const AlcoholsQueryFilters = t.Partial(
   t.Object({
     search: t.String(),
     type: t.String(),
@@ -38,3 +42,28 @@ export const AlcoholsQueryFilters = t.Partial(
   }),
 );
 export type AlcoholQueryFilters = Static<typeof AlcoholsQueryFilters>;
+
+// -------------- URL Params --------------
+const AlcoInvParams = t.Object({
+  shopId: ID,
+  alcoholId: ID,
+});
+type AlcoInvParams = Static<typeof AlcoInvParams>;
+
+// -------------- Alco Ctxs --------------
+export interface AlcoCTXs {
+  createAlco: Ctx<CreateAlcoBody, ShopParams>;
+  updateAlco: Ctx<UpdateAlcoBody, AlcoInvParams>;
+  delAlco: Ctx<unknown, AlcoInvParams>;
+  queryAll: Ctx<unknown, ShopParams>;
+  queryOne: Ctx<unknown, AlcoInvParams>;
+}
+
+// -------------- Alco Schema --------------
+export const AlcoSchema = {
+  create: { params: ShopParams, body: CreateAlcoBody },
+  queryAll: { params: ShopParams, query: AlcoholsQueryFilters },
+  update: { params: AlcoInvParams, body: UpdateAlcoBody },
+  del: { params: AlcoInvParams },
+  queryOne: { params: AlcoInvParams },
+};
