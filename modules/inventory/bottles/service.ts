@@ -1,13 +1,4 @@
-import {
-  and,
-  eq,
-  gte,
-  ilike,
-  lte,
-  max,
-  sql,
-  TransactionRollbackError,
-} from "drizzle-orm";
+import { and, eq, gte, ilike, lte, sql } from "drizzle-orm";
 import { db } from "../../../db/config";
 import { bottlesTable } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
