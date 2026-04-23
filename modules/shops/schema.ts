@@ -1,48 +1,62 @@
 import { t, type Static } from "elysia";
-import { shopStaff } from "../../db/schema/shopStaff";
 import { createInsertSchema } from "drizzle-typebox";
-import { AddressBase, QueriesMeta } from "../../utils/globalSchema";
-import { usersTable } from "../../db/schema";
+import {
+  AddressBase,
+  HandleActivationBody,
+  ID,
+  QueriesMeta,
+  ShopParams,
+  ShopRole,
+  Url,
+  UserStaff,
+  type Address,
+  type Ctx,
+} from "../../utils/globalSchema";
+import { shopsTable } from "../../db/schema";
 
-const userSchema = createInsertSchema(usersTable, {
-  role: t.Union([t.Literal("manager"), t.Literal("cashier")]),
-});
-export const ShopStaffSchema = createInsertSchema(shopStaff);
+const DerivedShopSchema = createInsertSchema(shopsTable);
 
-export const CreateShopBody = t.Object({
-  ownerId: t.Optional(t.Number()),
-  name: t.String(),
-  logo: t.Optional(t.String()),
+// -------------- Create Shop --------------
+const CreateShop = t.Omit(DerivedShopSchema, [
+  "ownerId",
+  "createdAt",
+  "updatedAt",
+  "active",
+]);
+export type CreateShop = Static<typeof CreateShop>;
+
+const CreateShopBody = t.Object({
+  ownerId: t.Optional(ID),
+  name: t.String({ error: "Shop name must be a string." }),
+  logo: t.Optional(Url),
   address: t.Optional(AddressBase),
 });
 export type CreateShopBody = Static<typeof CreateShopBody>;
-export type NewShop = Omit<CreateShopBody, "address" | "ownerId">;
 
-export const UpdateShopBody = t.Partial(
-  t.Omit(CreateShopBody, ["ownerId", "address"]),
-);
+// -------------- Update Shop --------------
+const UpdateShopBody = t.Partial(CreateShop);
 export type UpdateShopBody = Static<typeof UpdateShopBody>;
 
-export const StaffRole = t.Pick(ShopStaffSchema, ["role"]);
-export type StaffRole = Static<typeof StaffRole>;
+const HideShopBody = t.Object({ hidden: t.Boolean() });
+export type HideShopBody = Static<typeof HideShopBody>;
 
-export const StaffBody = t.Omit(userSchema, [
+// -------------- Create Shop Staff --------------
+const StaffBody = t.Omit(UserStaff, [
   "active",
   "createdAt",
   "updatedAt",
+  "tokenVersion",
 ]);
 export type StaffBody = Static<typeof StaffBody>;
 
-export const UpdateStaffBody = t.Object({
-  role: StaffRole.properties.role,
+// -------------- Update Shop Staff --------------
+const UpdateStaffBody = t.Object({
+  role: ShopRole,
 });
 export type UpdateStaffBody = Static<typeof UpdateStaffBody>;
 
-export const HideShopBody = t.Object({ hidden: t.Boolean() });
-export type HideShopBody = Static<typeof HideShopBody>;
-
-// -------------- Query --------------
-export const ShopsQueryFilters = t.Optional(
+// -------------- Query Shop --------------
+const ShopsQueryFilters = t.Partial(
   t.Object({
     search: t.String(),
     country: t.String(),
@@ -52,3 +66,46 @@ export const ShopsQueryFilters = t.Optional(
   }),
 );
 export type ShopsQueryFilters = Static<typeof ShopsQueryFilters>;
+
+// -------------- URL Params --------------
+const TStaffParams = t.Object({
+  shopId: ID,
+  staffId: ID,
+});
+type TStaffParams = Static<typeof TStaffParams>;
+
+// ------------- Contexts -------------
+export interface ShopsCTXs {
+  CreateShop: Ctx<CreateShopBody>;
+  UpdateShop: Ctx<UpdateShopBody, ShopParams>;
+  UpsertShopAddress: Ctx<Address, ShopParams>;
+  DelShop: Ctx<unknown, ShopParams>;
+  QueryShops: Ctx<unknown, unknown, ShopsQueryFilters>;
+  QueryShopById: Ctx<unknown, ShopParams>;
+  Activation: Ctx<HandleActivationBody, ShopParams>;
+  HideShop: Ctx<HideShopBody, ShopParams>;
+}
+
+export interface ShopStaffCTXs {
+  CreateStaff: Ctx<StaffBody, TStaffParams>;
+  RmStaff: Ctx<unknown, TStaffParams>;
+  QueryShopStaff: Ctx<unknown, ShopParams>;
+  UpdateStaff: Ctx<UpdateStaffBody, TStaffParams>;
+}
+
+// ------------- Contexts Schema -------------
+export const ShopSchema = {
+  CreateShop: { body: CreateShopBody },
+  Query: { query: ShopsQueryFilters },
+  QueryById: { params: ShopParams },
+  DelShop: { params: ShopParams },
+  UpdateShop: { params: ShopParams, body: UpdateShopBody },
+  Activation: { params: ShopParams, body: HandleActivationBody },
+  Visibility: { params: ShopParams, body: HideShopBody },
+  UpsertShopAddress: { params: ShopParams, body: AddressBase },
+  // Shop Staff
+  CreateStaff: { params: TStaffParams, body: StaffBody },
+  UpdateStaff: { params: TStaffParams, body: UpdateStaffBody },
+  DelStaff: { params: TStaffParams },
+  QueryShopStaff: { params: ShopParams },
+};

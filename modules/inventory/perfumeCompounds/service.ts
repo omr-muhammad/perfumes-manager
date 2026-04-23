@@ -17,69 +17,64 @@ import type {
 } from "./schema";
 import * as alcoholService from "../alcohols/service";
 import type { DbTx } from "../../../utils/globalSchema";
+import { AppError } from "../../../utils/AppError";
 
 export async function create(
   ownerId: number,
   shopId: number,
   compData: CreateCompBody,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    const { compound: newComp, aging: newAging, useAlcohol } = compData;
-    const mlPrice = newComp.kiloSellPrice / 1000;
+  const { compound: newComp, aging: newAging, useAlcohol } = compData;
+  const mlPrice = newComp.kiloSellPrice / 1000;
 
-    const result = await db.transaction(async (tx) => {
-      const [compound] = await tx
-        .insert(perfumesCompoundsTable)
-        .values({
-          ...newComp,
-          kiloBuyPrice: newComp.kiloBuyPrice.toFixed(4),
-          kiloSellPrice: newComp.kiloSellPrice.toFixed(4),
-          mlPrice: mlPrice.toFixed(4),
-          shopId,
-        })
-        .returning();
+  const result = await db.transaction(async (tx) => {
+    const [compound] = await tx
+      .insert(perfumesCompoundsTable)
+      .values({
+        ...newComp,
+        kiloBuyPrice: newComp.kiloBuyPrice.toFixed(4),
+        kiloSellPrice: newComp.kiloSellPrice.toFixed(4),
+        mlPrice: mlPrice.toFixed(4),
+        shopId,
+      })
+      .returning();
 
-      if (!compound) tx.rollback();
+    if (!compound) tx.rollback();
 
-      if (useAlcohol && compound!.sprayAmountInMl! > 0) {
-        const oilAmount =
-          compound!.sprayAmountInMl * (compound!.concentration! / 100);
-        const alcoAmount = compound!.sprayAmountInMl - oilAmount;
+    if (useAlcohol && compound!.sprayAmountInMl! > 0) {
+      const oilAmount =
+        compound!.sprayAmountInMl * (compound!.concentration! / 100);
+      const alcoAmount = compound!.sprayAmountInMl - oilAmount;
 
-        const [alcohol] = await alcoholService.decreaseStock(
-          [{ alcoholId: compound!.alcoholId!, amountInMl: alcoAmount }],
-          tx,
-        );
+      const [alcohol] = await alcoholService.decreaseStock(
+        [{ alcoholId: compound!.alcoholId!, amountInMl: alcoAmount }],
+        tx,
+      );
 
-        if (!alcohol) tx.rollback();
-      }
+      if (!alcohol) tx.rollback();
+    }
 
-      if (!newAging) return { compound: compound!, aging: undefined };
+    if (!newAging) return { compound: compound!, aging: undefined };
 
-      const [aging] = await db
-        .insert(agingTable)
-        .values({
-          ...newAging,
-          startDate:
-            newAging.startDate === "now"
-              ? new Date()
-              : new Date(newAging.startDate),
-          endDate: new Date(newAging.endDate),
-          compoundId: compound!.id,
-        })
-        .returning();
+    const [aging] = await db
+      .insert(agingTable)
+      .values({
+        ...newAging,
+        startDate:
+          newAging.startDate === "now"
+            ? new Date()
+            : new Date(newAging.startDate),
+        endDate: new Date(newAging.endDate),
+        compoundId: compound!.id,
+      })
+      .returning();
 
-      return { compound: compound!, aging };
-    });
+    return { compound: compound!, aging };
+  });
 
-    return { ...result.compound, aging: result.aging };
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  return { ...result.compound, aging: result.aging };
 }
 
 export async function update(
@@ -88,71 +83,63 @@ export async function update(
   compId: number,
   updates: UpdateCompoundBody,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    const {
-      code,
-      kiloSellPrice,
-      kiloBuyPrice,
-      oilAmountInMl,
-      sprayAmountInMl,
-      companyId,
-      companyName,
-      perfumeId,
-      perfumeName,
-      concentration,
-    } = updates;
-    const isNum = (val: any) => Number.isFinite(val);
+  const {
+    code,
+    kiloSellPrice,
+    kiloBuyPrice,
+    oilAmountInMl,
+    sprayAmountInMl,
+    companyId,
+    companyName,
+    perfumeId,
+    perfumeName,
+    concentration,
+  } = updates;
+  const isNum = (val: any) => Number.isFinite(val);
 
-    console.log("oil amount", oilAmountInMl);
+  const [compound] = await db
+    .update(perfumesCompoundsTable)
+    .set({
+      ...(perfumeId && { perfumeId }),
+      ...(perfumeName && { perfumeName }),
+      ...(companyId && { companyId }),
+      ...(companyName && { companyName }),
+      ...(isNum(oilAmountInMl) && { oilAmountInMl }),
+      ...(isNum(sprayAmountInMl) && { sprayAmountInMl }),
+      ...(concentration && { concentration }),
+      ...(code && { code }),
+      ...(perfumeId && { perfumeId }),
+      ...(isNum(kiloBuyPrice) && { kiloBuyPrice: kiloBuyPrice!.toFixed(4) }),
+      ...(isNum(kiloSellPrice) && {
+        kiloSellPrice: kiloSellPrice!.toFixed(4),
+      }),
+      ...(isNum(kiloSellPrice) && {
+        mlPrice: (kiloSellPrice! / 1000).toFixed(4),
+      }),
+    })
+    .where(eq(perfumesCompoundsTable.id, compId))
+    .returning();
 
-    const [compound] = await db
-      .update(perfumesCompoundsTable)
-      .set({
-        ...(perfumeId && { perfumeId }),
-        ...(perfumeName && { perfumeName }),
-        ...(companyId && { companyId }),
-        ...(companyName && { companyName }),
-        ...(isNum(oilAmountInMl) && { oilAmountInMl }),
-        ...(isNum(sprayAmountInMl) && { sprayAmountInMl }),
-        ...(concentration && { concentration }),
-        ...(code && { code }),
-        ...(perfumeId && { perfumeId }),
-        ...(isNum(kiloBuyPrice) && { kiloBuyPrice: kiloBuyPrice!.toFixed(4) }),
-        ...(isNum(kiloSellPrice) && {
-          kiloSellPrice: kiloSellPrice!.toFixed(4),
-        }),
-        ...(isNum(kiloSellPrice) && {
-          mlPrice: (kiloSellPrice! / 1000).toFixed(4),
-        }),
-      })
-      .where(eq(perfumesCompoundsTable.id, compId))
-      .returning();
+  if (!compound)
+    throw new AppError(404, `Perfume Compound with id: ${compId} not found`);
 
-    return compound;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  return compound;
 }
 
 export async function remove(ownerId: number, shopId: number, compId: number) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    const [compound] = await db
-      .delete(perfumesCompoundsTable)
-      .where(eq(perfumesCompoundsTable.id, compId))
-      .returning();
+  const [compound] = await db
+    .delete(perfumesCompoundsTable)
+    .where(eq(perfumesCompoundsTable.id, compId))
+    .returning();
 
-    return compound;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  if (!compound)
+    throw new AppError(404, `Perfume Compound with id: ${compId} not found`);
+
+  return compound;
 }
 
 export async function queryAll(
@@ -191,27 +178,22 @@ export async function queryById(
   shopId: number,
   compId: number,
 ) {
-  try {
-    const shop = await assertOwnership(shopId, ownerId);
+  const shop = await assertOwnership(shopId, ownerId);
 
-    const [compound] = await db
-      .select()
-      .from(perfumesCompoundsTable)
-      .where(eq(perfumesCompoundsTable.id, compId));
+  const [compound] = await db
+    .select()
+    .from(perfumesCompoundsTable)
+    .where(eq(perfumesCompoundsTable.id, compId));
 
-    if (!compound) return null;
+  if (!compound)
+    throw new AppError(404, `Perfume Compound with id: ${compId} not found`);
 
-    const { updatedAt, ...comp } = compound;
-    return {
-      ...comp,
-      shopName: shop.name,
-      ...(shop.logo && { shopLogo: shop.logo }),
-    };
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  const { updatedAt, ...comp } = compound;
+  return {
+    ...comp,
+    shopName: shop.name,
+    ...(shop.logo && { shopLogo: shop.logo }),
+  };
 }
 
 // AGING
@@ -221,47 +203,41 @@ export async function addAging(
   compId: number,
   agingBody: CreateAgingBody,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    const { newAging, useAlcohol } = agingBody;
+  const { newAging, useAlcohol } = agingBody;
 
-    const result = await db.transaction(async (tx) => {
-      const [aging] = await tx
-        .insert(agingTable)
-        .values({
-          ...newAging,
-          startDate:
-            newAging.startDate === "now"
-              ? new Date()
-              : new Date(newAging.startDate),
-          endDate: new Date(newAging.endDate),
-          compoundId: compId,
-        })
-        .returning();
+  const result = await db.transaction(async (tx) => {
+    const [aging] = await tx
+      .insert(agingTable)
+      .values({
+        ...newAging,
+        startDate:
+          newAging.startDate === "now"
+            ? new Date()
+            : new Date(newAging.startDate),
+        endDate: new Date(newAging.endDate),
+        compoundId: compId,
+      })
+      .returning();
 
-      if (!aging) tx.rollback();
-      if (!useAlcohol) return aging;
+    if (!aging) tx.rollback();
+    if (!useAlcohol) return aging;
 
-      const oilAmount = newAging.amount * (newAging.concentration / 100);
-      const alcoAmount = newAging.amount - oilAmount;
+    const oilAmount = newAging.amount * (newAging.concentration / 100);
+    const alcoAmount = newAging.amount - oilAmount;
 
-      const [alcohol] = await alcoholService.decreaseStock(
-        [{ alcoholId: aging!.alcoholId, amountInMl: alcoAmount }],
-        tx,
-      );
+    const [alcohol] = await alcoholService.decreaseStock(
+      [{ alcoholId: aging!.alcoholId, amountInMl: alcoAmount }],
+      tx,
+    );
 
-      if (!alcohol) tx.rollback();
+    if (!alcohol) tx.rollback();
 
-      return aging;
-    });
+    return aging;
+  });
 
-    return result;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  return result!;
 }
 
 export async function updateAging(
@@ -271,54 +247,46 @@ export async function updateAging(
   agingId: number,
   updatesBody: UpdateAgingBody,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    const { updates, retrieveAcohol } = updatesBody;
+  const { updates, retrieveAcohol } = updatesBody;
 
-    const result = await db.transaction(async (tx) => {
-      const [aging] = await db
-        .update(agingTable)
-        .set({
-          ...(updates.amount && { amount: updates.amount }),
-          ...(updates.startDate && {
-            startDate:
-              updates.startDate === "now"
-                ? new Date()
-                : new Date(updates.startDate),
-          }),
-          ...(updates.endDate && { endDate: new Date(updates.endDate) }),
-          ...(updates.alcoholId && { alcoholId: updates.alcoholId }),
-        })
-        .where(
-          and(eq(agingTable.id, agingId), eq(agingTable.compoundId, compId)),
-        )
-        .returning();
+  const result = await db.transaction(async (tx) => {
+    const [aging] = await db
+      .update(agingTable)
+      .set({
+        ...(updates.amount && { amount: updates.amount }),
+        ...(updates.startDate && {
+          startDate:
+            updates.startDate === "now"
+              ? new Date()
+              : new Date(updates.startDate),
+        }),
+        ...(updates.endDate && { endDate: new Date(updates.endDate) }),
+        ...(updates.alcoholId && { alcoholId: updates.alcoholId }),
+      })
+      .where(and(eq(agingTable.id, agingId), eq(agingTable.compoundId, compId)))
+      .returning();
 
-      if (!aging) tx.rollback();
+    if (!aging) tx.rollback();
 
-      if (!retrieveAcohol || !updates.amount) return aging;
+    if (!retrieveAcohol || !updates.amount) return aging;
 
-      const oilAmount = updates.amount * (aging!.concentration / 100);
-      const alcoAmount = updates.amount - oilAmount;
+    const oilAmount = updates.amount * (aging!.concentration / 100);
+    const alcoAmount = updates.amount - oilAmount;
 
-      const alcohol = await alcoholService.increaseStock(
-        aging!.alcoholId,
-        alcoAmount,
-        tx,
-      );
+    const alcohol = await alcoholService.increaseStock(
+      aging!.alcoholId,
+      alcoAmount,
+      tx,
+    );
 
-      if (!alcohol) tx.rollback();
+    if (!alcohol) tx.rollback();
 
-      return aging;
-    });
+    return aging;
+  });
 
-    return result;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  return result!;
 }
 
 export async function deleteAging(
@@ -328,40 +296,32 @@ export async function deleteAging(
   agingId: number,
   retrieveAcohol: boolean,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    const result = await db.transaction(async (tx) => {
-      const [aging] = await db
-        .delete(agingTable)
-        .where(
-          and(eq(agingTable.id, agingId), eq(agingTable.compoundId, compId)),
-        )
-        .returning();
+  const result = await db.transaction(async (tx) => {
+    const [aging] = await db
+      .delete(agingTable)
+      .where(and(eq(agingTable.id, agingId), eq(agingTable.compoundId, compId)))
+      .returning();
 
-      if (!aging) tx.rollback();
-      if (!retrieveAcohol) return aging;
+    if (!aging) tx.rollback();
+    if (!retrieveAcohol) return aging;
 
-      const oilAmount = aging!.amount * (aging!.concentration / 100);
-      const alcoAmount = aging!.amount - oilAmount;
+    const oilAmount = aging!.amount * (aging!.concentration / 100);
+    const alcoAmount = aging!.amount - oilAmount;
 
-      const alcohol = await alcoholService.increaseStock(
-        aging!.alcoholId,
-        alcoAmount,
-        tx,
-      );
+    const alcohol = await alcoholService.increaseStock(
+      aging!.alcoholId,
+      alcoAmount,
+      tx,
+    );
 
-      if (!alcohol) tx.rollback();
+    if (!alcohol) tx.rollback();
 
-      return aging;
-    });
+    return aging;
+  });
 
-    return result;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  return result!;
 }
 
 export async function queryCompAgings(
@@ -390,65 +350,58 @@ export async function queryCompAgingById(
   shopId: number,
   agingId: number,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    const [compAging] = await db
-      .select()
-      .from(agingTable)
-      .where(eq(agingTable.id, agingId));
+  const [compAging] = await db
+    .select()
+    .from(agingTable)
+    .where(eq(agingTable.id, agingId));
 
-    return compAging;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  if (!compAging)
+    throw new AppError(404, `Aging with id: ${agingId} not found`);
+
+  return compAging;
 }
 
 export async function increaseStock(
   decrement: { compId: number; spray?: number; oil?: number },
   higherTx?: DbTx,
 ) {
-  try {
-    const _db = higherTx ?? db;
-    const [compound] = await _db
-      .update(perfumesCompoundsTable)
-      .set({
-        sprayAmountInMl: sql`${perfumesCompoundsTable.sprayAmountInMl} + ${Math.abs(decrement.spray || 0)}`,
-        oilAmountInMl: sql`${perfumesCompoundsTable.oilAmountInMl} + ${Math.abs(decrement.oil || 0)}`,
-      })
-      .where(eq(perfumesCompoundsTable.id, decrement.compId))
-      .returning();
+  const _db = higherTx ?? db;
+  const [compound] = await _db
+    .update(perfumesCompoundsTable)
+    .set({
+      sprayAmountInMl: sql`${perfumesCompoundsTable.sprayAmountInMl} + ${Math.abs(decrement.spray || 0)}`,
+      oilAmountInMl: sql`${perfumesCompoundsTable.oilAmountInMl} + ${Math.abs(decrement.oil || 0)}`,
+    })
+    .where(eq(perfumesCompoundsTable.id, decrement.compId))
+    .returning();
 
-    return compound;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    // if (e instanceof TransactionRollbackError) {
-    //   throw e;
-    // }
-    throw e;
-  }
+  if (!compound)
+    throw new AppError(
+      404,
+      `Perfume Compound with id: ${decrement.compId} not found.`,
+    );
+
+  return compound;
 }
 
 export async function decreaseStock(
   amounts: { compId: number; spray?: number; oil?: number }[],
   higherTx?: DbTx,
 ) {
-  try {
-    const _db = higherTx ?? db;
+  const _db = higherTx ?? db;
 
-    const result = await _db.transaction(async (tx) => {
-      const decrements = sql.join(
-        amounts.map(
-          (obj) =>
-            sql`(${obj.compId}, ${Math.abs(obj.spray || 0)}, ${Math.abs(obj.oil || 0)})`,
-        ),
-        sql`, `,
-      );
+  const result = await _db.transaction(async (tx) => {
+    const decrements = sql.join(
+      amounts.map(
+        (obj) =>
+          sql`(${obj.compId}, ${Math.abs(obj.spray || 0)}, ${Math.abs(obj.oil || 0)})`,
+      ),
+      sql`, `,
+    );
 
-      const rows = (await tx.execute(sql`
+    const rows = (await tx.execute(sql`
         UPDATE perfumes_compounds AS pc
         SET  oil_amount_in_ml = oil_amount_in_ml - decs.oil,
           spray_amount_in_ml = spray_amount_in_ml - decs.spray,
@@ -460,17 +413,12 @@ export async function decreaseStock(
         RETURNING pc.id AS id, pc.oil_amount_in_ml AS "oilAmount", pc.spray_amount_in_ml AS "sprayAmount"
       `)) as { id: number; oilAmount: number; sprayAmount: number }[];
 
-      if (rows.length !== amounts.length) tx.rollback();
+    if (rows.length !== amounts.length) tx.rollback();
 
-      return rows;
-    });
+    return rows;
+  });
 
-    return result;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  return result;
 }
 
 // ------------ Helpers ------------

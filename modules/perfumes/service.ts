@@ -2,70 +2,52 @@ import { and, arrayContains, eq, ilike } from "drizzle-orm";
 import { db } from "../../db/config";
 import { perfumesTable } from "../../db/schema/index";
 import type {
-  DashboardQueryFilters,
-  ApprovedPerfumeBody,
-  CreateAdminPerfumeBody,
-  PublicQueryFilters,
+  CreatePerfumeBody,
+  QueryPerfumesFilters,
   Season,
   UpdatePerfumeBody,
 } from "./schema";
+import { AppError } from "../../utils/AppError";
 
-// Create Perfume
-export async function create(name: string) {
-  try {
-    const [perfume] = await db
-      .insert(perfumesTable)
-      .values({
-        name,
-      })
-      .returning();
+export async function create(
+  newPerfume: CreatePerfumeBody,
+  approved?: boolean,
+) {
+  const [perfume] = await db
+    .insert(perfumesTable)
+    .values({ ...newPerfume, approved })
+    .returning();
 
-    return perfume;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  if (!perfume) throw new AppError(400, "Cannot create new perfume.");
+
+  return perfume;
 }
 
-export async function adminCreate(approvedPerfume: CreateAdminPerfumeBody) {
-  try {
-    const [perfume] = await db
-      .insert(perfumesTable)
-      .values({
-        ...approvedPerfume,
-        approved: true,
-      })
-      .returning();
+export async function adminApprove(
+  perfumeId: number,
+  perfume: UpdatePerfumeBody,
+) {
+  const [approvedPerfume] = await db
+    .update(perfumesTable)
+    .set({
+      ...perfume,
+      approved: true,
+    })
+    .where(
+      and(eq(perfumesTable.id, perfumeId), eq(perfumesTable.approved, false)),
+    )
+    .returning();
 
-    return perfume;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  if (!approvedPerfume)
+    throw new AppError(
+      404,
+      `Perfume with id: ${perfumeId} not found or already approved`,
+    );
+
+  return approvedPerfume;
 }
 
-export async function adminApprove(id: number, perfume: ApprovedPerfumeBody) {
-  try {
-    const [approvedPerfume] = await db
-      .update(perfumesTable)
-      .set({
-        ...perfume,
-        approved: true,
-      })
-      .where(and(eq(perfumesTable.id, id), eq(perfumesTable.approved, false)))
-      .returning();
-
-    return approvedPerfume;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
-}
-
-export async function publicQuery(filters: PublicQueryFilters) {
+export async function query(filters: QueryPerfumesFilters) {
   try {
     const conditions = preparePerfumesFilters(filters);
     const { page = 1, limit = 10 } = filters;
@@ -73,7 +55,6 @@ export async function publicQuery(filters: PublicQueryFilters) {
     const perfumes = await db
       .select()
       .from(perfumesTable)
-      // .innerJoin()
       .where(and(...conditions, eq(perfumesTable.approved, true)))
       .offset((page - 1) * limit)
       .limit(limit);
@@ -86,72 +67,38 @@ export async function publicQuery(filters: PublicQueryFilters) {
   }
 }
 
-export async function dashboardQuery(filters: DashboardQueryFilters) {
-  try {
-    const { page = 1, limit = 20 } = filters;
-    const conditions = preparePerfumesFilters(filters);
+export async function update(perfumeId: number, updates: UpdatePerfumeBody) {
+  const [perfume] = await db
+    .update(perfumesTable)
+    .set(updates)
+    .where(eq(perfumesTable.id, perfumeId))
+    .returning();
 
-    const perfumes = await db
-      .select()
-      .from(perfumesTable)
-      .where(and(...conditions))
-      .offset((page - 1) * limit)
-      .limit(limit);
+  if (!perfume)
+    throw new AppError(404, `Perfuem with id: ${perfumeId} not found.`);
 
-    return perfumes;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  return perfume;
 }
 
-export async function update(id: number, updates: UpdatePerfumeBody) {
-  try {
-    const { name, sex, description, seasons } = updates;
+export async function remove(perfumeId: number) {
+  const [perfume] = await db
+    .delete(perfumesTable)
+    .where(eq(perfumesTable.id, perfumeId))
+    .returning();
 
-    const [perfume] = await db
-      .update(perfumesTable)
-      .set({
-        ...(name !== undefined && name !== "" && { name }),
-        ...(sex !== undefined && { sex }),
-        ...(description !== undefined && description !== "" && { description }),
-        ...(seasons !== undefined && seasons.length >= 1 && { seasons }),
-      })
-      .where(eq(perfumesTable.id, id))
-      .returning();
+  if (!perfume)
+    throw new AppError(404, `Perfume with id: ${perfumeId} not found`);
 
-    return perfume;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
-}
-
-export async function remove(id: number) {
-  try {
-    const [perfume] = await db
-      .delete(perfumesTable)
-      .where(eq(perfumesTable.id, id))
-      .returning();
-
-    return perfume || null;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  return perfume;
 }
 
 // HELPERS
-function preparePerfumesFilters(
-  filters: DashboardQueryFilters | PublicQueryFilters,
-) {
+function preparePerfumesFilters(filters: QueryPerfumesFilters) {
   const {
     search,
     sex,
     seasons, // still separated comma string => winter,fall
+    approved,
   } = filters;
 
   const seasonsArray = seasons
@@ -165,8 +112,8 @@ function preparePerfumesFilters(
   if (seasonsArray?.length)
     conditions.push(arrayContains(perfumesTable.seasons, seasonsArray));
 
-  if ("approved" in filters && filters.approved !== undefined)
-    conditions.push(eq(perfumesTable.approved, filters.approved));
+  if (approved !== undefined)
+    conditions.push(eq(perfumesTable.approved, filters.approved || true));
 
   return conditions;
 }

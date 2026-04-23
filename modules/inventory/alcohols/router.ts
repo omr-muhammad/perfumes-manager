@@ -1,30 +1,15 @@
 import Elysia from "elysia";
-import * as handlers from "./handlers";
-import { AlcoInvParams, ShopParams } from "../../../utils/globalSchema";
-import { AlcoholsQueryFilters, CreateAlcoBody, UpdateAlcoBody } from "./schema";
+
 import { protect, restrictTo } from "../../../utils/auth";
+
+import * as handlers from "./handlers";
+import { AlcoSchema } from "./schema";
 
 export const alcoholsRouter = new Elysia({ prefix: "/alcohols" })
   .use(protect)
   .use(restrictTo("owner"))
-  .post("/", handlers.createAlco, {
-    params: ShopParams,
-    body: CreateAlcoBody,
-  })
-  .get("/", handlers.getAllAlcoInv, {
-    params: ShopParams,
-    query: AlcoholsQueryFilters,
-  })
-  .group("/:alcoholId", (app) =>
-    app
-      .patch("/", handlers.updateAlco, {
-        params: AlcoInvParams,
-        body: UpdateAlcoBody,
-      })
-      .delete("/", handlers.deleteAlco, {
-        params: AlcoInvParams,
-      })
-      .get("/", handlers.getAlcoById, {
-        params: AlcoInvParams,
-      }),
-  );
+  .post("", handlers.createAlco, AlcoSchema.create)
+  .get("", handlers.getAllAlcoInv, AlcoSchema.queryAll)
+  .patch("/:alcoholId", handlers.updateAlco, AlcoSchema.update)
+  .delete("/:alcoholId", handlers.deleteAlco, AlcoSchema.del)
+  .get("/:alcoholId", handlers.getAlcoById, AlcoSchema.queryOne);

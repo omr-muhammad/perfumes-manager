@@ -2,7 +2,7 @@ import { and, eq, ilike, ne } from "drizzle-orm";
 import { db } from "../../db/config";
 import { addressesTable, shopsTable, usersTable } from "../../db/schema";
 import type {
-  NewShop,
+  CreateShop,
   ShopsQueryFilters,
   StaffBody,
   UpdateShopBody,
@@ -11,39 +11,37 @@ import type {
 import { shopsStaffTable } from "../../db/schema/index";
 import { assertOwnership, assertIsOwner } from "../../utils/assertOwnership";
 import type { Address } from "../../utils/globalSchema";
+import { AppError } from "../../utils/AppError";
 
 export async function create(
   ownerId: number,
-  newShop: NewShop,
+  newShop: CreateShop,
   address?: Address,
 ) {
-  try {
-    await assertIsOwner(ownerId);
+  await assertIsOwner(ownerId);
 
-    const [shop] = await db
-      .insert(shopsTable)
-      .values({
-        ...newShop,
-        ownerId,
-      })
-      .returning();
+  const [shop] = await db
+    .insert(shopsTable)
+    .values({
+      ...newShop,
+      ownerId,
+    })
+    .returning();
 
-    if (!shop) return null;
-    if (!address) return shop;
+  if (!shop) throw new AppError(400, "Cannot create new shop.");
+  if (!address) return shop;
 
-    const [shopAddress] = await db
-      .insert(addressesTable)
-      .values({
-        ...address,
-        shopId: shop.id,
-      })
-      .returning();
+  const [shopAddress] = await db
+    .insert(addressesTable)
+    .values({
+      ...address,
+      shopId: shop.id,
+    })
+    .returning();
 
-    return { ...shop, address: shopAddress };
-  } catch (e: any) {
-    console.log("Error: ", e.cause);
-    throw e;
-  }
+  if (!shop) throw new AppError(400, "Cannot create new shop.");
+
+  return { ...shop, address: shopAddress };
 }
 
 export async function update(
@@ -51,20 +49,17 @@ export async function update(
   ownerId: number,
   updates: UpdateShopBody,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    const [shop] = await db
-      .update(shopsTable)
-      .set(updates)
-      .where(and(eq(shopsTable.id, shopId), eq(shopsTable.ownerId, ownerId)))
-      .returning();
+  const [shop] = await db
+    .update(shopsTable)
+    .set(updates)
+    .where(and(eq(shopsTable.id, shopId), eq(shopsTable.ownerId, ownerId)))
+    .returning();
 
-    return shop;
-  } catch (e: any) {
-    console.log("Error: ", e.cause);
-    throw e;
-  }
+  if (!shop) throw new AppError(404, `Shop with id: ${shopId} not found.`);
+
+  return shop;
 }
 
 export async function upsertShopAddress(
@@ -72,42 +67,36 @@ export async function upsertShopAddress(
   shopId: number,
   address: Address,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    let [shopAddress] = await db
-      .insert(addressesTable)
-      .values(address)
-      .onConflictDoUpdate({
-        target: addressesTable.shopId,
-        set: {
-          ...address,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
+  const [shopAddress] = await db
+    .insert(addressesTable)
+    .values(address)
+    .onConflictDoUpdate({
+      target: addressesTable.shopId,
+      set: {
+        ...address,
+      },
+    })
+    .returning();
 
-    return shopAddress;
-  } catch (e: any) {
-    console.log("Error: ", e.cause);
-    throw e;
-  }
+  if (!shopAddress)
+    throw new AppError(400, "Cannot creat/update shop address.");
+
+  return shopAddress;
 }
 
-export async function remove(shopId: number, ownerId: number) {
-  try {
-    await assertOwnership(shopId, ownerId);
+export async function remove(shopId: number, ownerId?: number) {
+  if (ownerId) await assertOwnership(shopId, ownerId);
 
-    const [shop] = await db
-      .delete(shopsTable)
-      .where(and(eq(shopsTable.id, shopId), eq(shopsTable.ownerId, ownerId)))
-      .returning();
+  const [shop] = await db
+    .delete(shopsTable)
+    .where(eq(shopsTable.id, shopId))
+    .returning();
 
-    return shop;
-  } catch (e: any) {
-    console.log("Error: ", e.cause);
-    throw e;
-  }
+  if (!shop) throw new AppError(404, `Shop with id: ${shopId} not found.`);
+
+  return shop;
 }
 
 export async function query(filters: ShopsQueryFilters, ownerId?: number) {
@@ -151,71 +140,52 @@ export async function query(filters: ShopsQueryFilters, ownerId?: number) {
 }
 
 export async function queryById(shopId: number, ownerId?: number) {
-  try {
-    if (!ownerId)
-      return await db
-        .select()
-        .from(shopsTable)
-        .where(eq(shopsTable.id, shopId));
+  if (ownerId) await assertOwnership(shopId, ownerId);
 
-    await assertOwnership(shopId, ownerId);
+  const cond = ownerId ? eq(shopsTable.ownerId, ownerId) : undefined;
+  const [shop] = await db
+    .select()
+    .from(shopsTable)
+    .innerJoin(addressesTable, eq(addressesTable.shopId, shopsTable.id))
+    .where(and(eq(shopsTable.id, shopId), cond));
 
-    const [shop] = await db
-      .select()
-      .from(shopsTable)
-      .innerJoin(addressesTable, eq(addressesTable.shopId, shopsTable.id))
-      .where(and(eq(shopsTable.id, shopId), eq(shopsTable.ownerId, ownerId)));
+  if (!shop) throw new AppError(404, `Shop with id: ${shopId} not found.`);
 
-    if (!shop) return null;
-
-    const {
-      shops,
-      addresses: { shopId: adShopId, createdAt, updatedAt, ...others },
-    } = shop;
-    return { ...shops, ...others };
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  const {
+    shops,
+    addresses: { shopId: adShopId, createdAt, updatedAt, ...others },
+  } = shop;
+  return { ...shops, ...others };
 }
 
 export async function handleActivation(shopId: number, active: boolean) {
-  try {
-    const [shop] = await db
-      .update(shopsTable)
-      .set({
-        active,
-      })
-      .where(eq(shopsTable.id, shopId))
-      .returning();
+  const [shop] = await db
+    .update(shopsTable)
+    .set({
+      active,
+    })
+    .where(eq(shopsTable.id, shopId))
+    .returning();
 
-    return shop;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  if (!shop) throw new AppError(404, `Shop with id: ${shopId} not found.`);
+
+  return shop;
 }
 
 export async function hide(ownerId: number, shopId: number, hidden: boolean) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    const [shop] = await db
-      .update(shopsTable)
-      .set({
-        hidden,
-      })
-      .where(and(eq(shopsTable.id, shopId), ne(shopsTable.hidden, hidden)))
-      .returning();
+  const [shop] = await db
+    .update(shopsTable)
+    .set({
+      hidden,
+    })
+    .where(and(eq(shopsTable.id, shopId), ne(shopsTable.hidden, hidden)))
+    .returning();
 
-    return shop;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  if (!shop) throw new AppError(404, `Shop with id: ${shopId} not found.`);
+
+  return shop;
 }
 
 // -------------- Shop Staff --------------
@@ -224,47 +194,41 @@ export async function addStaff(
   shopId: number,
   staffBody: StaffBody,
 ) {
-  try {
-    const shop = await assertOwnership(shopId, ownerId);
+  const shop = await assertOwnership(shopId, ownerId);
 
-    const { userStaff, shopStaff } = await db.transaction(async (tx) => {
-      const hashed = await Bun.password.hash(staffBody.password);
+  const { userStaff, shopStaff } = await db.transaction(async (tx) => {
+    const hashed = await Bun.password.hash(staffBody.password);
 
-      const [userStaff] = await tx
-        .insert(usersTable)
-        .values({
-          ...staffBody,
-          role: "staff",
-          password: hashed,
-        })
-        .returning();
+    const [userStaff] = await tx
+      .insert(usersTable)
+      .values({
+        ...staffBody,
+        role: "staff",
+        password: hashed,
+      })
+      .returning();
 
-      if (!userStaff) tx.rollback();
+    if (!userStaff) tx.rollback();
 
-      const [shopStaff] = await db
-        .insert(shopsStaffTable)
-        .values({
-          shopId,
-          userId: userStaff!.id,
-          role: staffBody.role,
-        })
-        .returning();
+    const [shopStaff] = await db
+      .insert(shopsStaffTable)
+      .values({
+        shopId,
+        userId: userStaff!.id,
+        role: staffBody.role,
+      })
+      .returning();
 
-      if (!shopStaff) tx.rollback();
+    if (!shopStaff) tx.rollback();
 
-      return { userStaff, shopStaff };
-    });
+    return { userStaff, shopStaff };
+  });
 
-    return {
-      shop,
-      user: userStaff!,
-      staffRole: shopStaff!.role,
-    };
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  return {
+    shop,
+    user: userStaff!,
+    staffRole: shopStaff!.role,
+  };
 }
 
 export async function removeStaff(
@@ -272,35 +236,29 @@ export async function removeStaff(
   shopId: number,
   staffId: number,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
-    const user = await db.transaction(async (tx) => {
-      const [user] = await tx
-        .update(usersTable)
-        .set({ role: "customer" })
-        .where(eq(usersTable.id, staffId))
-        .returning();
+  await assertOwnership(shopId, ownerId);
+  const user = await db.transaction(async (tx) => {
+    const [user] = await tx
+      .update(usersTable)
+      .set({ role: "customer" })
+      .where(eq(usersTable.id, staffId))
+      .returning();
 
-      if (!user) tx.rollback();
+    if (!user) tx.rollback();
 
-      await tx
-        .delete(shopsStaffTable)
-        .where(
-          and(
-            eq(shopsStaffTable.shopId, shopId),
-            eq(shopsStaffTable.userId, staffId),
-          ),
-        );
-
-      return user;
-    });
+    await tx
+      .delete(shopsStaffTable)
+      .where(
+        and(
+          eq(shopsStaffTable.shopId, shopId),
+          eq(shopsStaffTable.userId, staffId),
+        ),
+      );
 
     return user;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  });
+
+  return user!;
 }
 
 export async function getShopStaff(ownerId: number, shopId: number) {
@@ -327,27 +285,27 @@ export async function updateShopStaff(
   staffId: number,
   updates: UpdateStaffBody,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    const [staff] = await db
-      .update(shopsStaffTable)
-      .set(updates)
-      .where(
-        and(
-          eq(shopsStaffTable.shopId, shopId),
-          eq(shopsStaffTable.userId, staffId),
-          ne(shopsStaffTable.role, updates.role),
-        ),
-      )
-      .returning();
+  const [staff] = await db
+    .update(shopsStaffTable)
+    .set(updates)
+    .where(
+      and(
+        eq(shopsStaffTable.shopId, shopId),
+        eq(shopsStaffTable.userId, staffId),
+        ne(shopsStaffTable.role, updates.role),
+      ),
+    )
+    .returning();
 
-    return staff;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  if (!staff)
+    throw new AppError(
+      404,
+      `Staff with id: ${staffId} not found, or may not belong to shop with id: ${shopId}`,
+    );
+
+  return staff;
 }
 
 // -------------- Helpers --------------

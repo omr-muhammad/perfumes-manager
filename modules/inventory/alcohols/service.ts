@@ -1,12 +1,4 @@
-import {
-  and,
-  eq,
-  gte,
-  ilike,
-  lte,
-  sql,
-  TransactionRollbackError,
-} from "drizzle-orm";
+import { and, eq, gte, ilike, lte, sql } from "drizzle-orm";
 import { db } from "../../../db/config";
 import { alcoholsTable, shopsTable } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
@@ -16,37 +8,33 @@ import type {
   UpdateAlcoBody,
 } from "./schema";
 import type { DbTx } from "../../../utils/globalSchema";
+import { AppError } from "../../../utils/AppError";
 
 export async function create(
   ownerId: number,
   shopId: number,
   newAlco: CreateAlcoBody,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  const shop = await assertOwnership(shopId, ownerId);
 
-    const unitSellPrice = Math.ceil(newAlco.ltSellPrice / 1000);
+  const unitSellPrice = Math.ceil(newAlco.ltSellPrice / 1000);
 
-    const [alcohol] = await db
-      .insert(alcoholsTable)
-      .values({
-        ...newAlco,
-        ltBuyPrice: newAlco.ltBuyPrice.toFixed(2),
-        ltSellPrice: newAlco.ltSellPrice.toFixed(2),
-        unitSellPrice: unitSellPrice.toFixed(2),
-        expiryDate: new Date(newAlco.expiryDate),
-        shopId,
-      })
-      .returning();
+  const [alcohol] = await db
+    .insert(alcoholsTable)
+    .values({
+      ...newAlco,
+      ltBuyPrice: newAlco.ltBuyPrice.toFixed(2),
+      ltSellPrice: newAlco.ltSellPrice.toFixed(2),
+      unitSellPrice: unitSellPrice.toFixed(2),
+      expiryDate: new Date(newAlco.expiryDate),
+      shopId,
+    })
+    .returning();
 
-    if (!alcohol) throw new Error("Failed to create new alcohol");
+  if (!alcohol)
+    throw new AppError(400, `Cannot create new alcohol for shop: ${shop.name}`);
 
-    return alcohol;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  return alcohol;
 }
 
 export async function update(
@@ -55,38 +43,35 @@ export async function update(
   alcoholId: number,
   updates: UpdateAlcoBody,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    const [alcohol] = await db
-      .update(alcoholsTable)
-      .set({
-        ...(updates.name && { name: updates.name }),
-        ...(updates.type && { type: updates.type }),
-        ...(updates.concentration && { concentration: updates.concentration }),
-        ...(updates.ltBuyPrice && {
-          ltBuyPrice: updates.ltBuyPrice.toFixed(2),
-        }),
-        ...(updates.ltSellPrice && {
-          ltSellPrice: updates.ltSellPrice.toFixed(2),
-        }),
-        ...(updates.ltSellPrice && {
-          unitSellPrice: Math.ceil(updates.ltSellPrice / 1000).toFixed(2),
-        }),
-        ...(updates.amountInMl && { amountInMl: updates.amountInMl }),
-        ...(updates.expiryDate && { expiryDate: new Date(updates.expiryDate) }),
-      })
-      .where(
-        and(eq(alcoholsTable.shopId, shopId), eq(alcoholsTable.id, alcoholId)),
-      )
-      .returning();
+  const [alcohol] = await db
+    .update(alcoholsTable)
+    .set({
+      ...(updates.name && { name: updates.name }),
+      ...(updates.type && { type: updates.type }),
+      ...(updates.concentration && { concentration: updates.concentration }),
+      ...(updates.ltBuyPrice && {
+        ltBuyPrice: updates.ltBuyPrice.toFixed(2),
+      }),
+      ...(updates.ltSellPrice && {
+        ltSellPrice: updates.ltSellPrice.toFixed(2),
+      }),
+      ...(updates.ltSellPrice && {
+        unitSellPrice: Math.ceil(updates.ltSellPrice / 1000).toFixed(2),
+      }),
+      ...(updates.amountInMl && { amountInMl: updates.amountInMl }),
+      ...(updates.expiryDate && { expiryDate: new Date(updates.expiryDate) }),
+    })
+    .where(
+      and(eq(alcoholsTable.shopId, shopId), eq(alcoholsTable.id, alcoholId)),
+    )
+    .returning();
 
-    return alcohol;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  if (!alcohol)
+    throw new AppError(404, `Alcohol with id: ${alcoholId} not found.`);
+
+  return alcohol;
 }
 
 export async function remove(
@@ -94,22 +79,19 @@ export async function remove(
   shopId: number,
   alcoholId: number,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    const [alcohol] = await db
-      .delete(alcoholsTable)
-      .where(
-        and(eq(alcoholsTable.shopId, shopId), eq(alcoholsTable.id, alcoholId)),
-      )
-      .returning();
+  const [alcohol] = await db
+    .delete(alcoholsTable)
+    .where(
+      and(eq(alcoholsTable.shopId, shopId), eq(alcoholsTable.id, alcoholId)),
+    )
+    .returning();
 
-    return alcohol;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  if (!alcohol)
+    throw new AppError(404, `Alcohol with id: ${alcoholId} not found.`);
+
+  return alcohol;
 }
 
 export async function queryAll(
@@ -153,6 +135,9 @@ export async function queryById(
       .innerJoin(shopsTable, eq(shopsTable.id, alcoholsTable.shopId))
       .where(eq(alcoholsTable.id, alcoholId));
 
+    if (!alcohol)
+      throw new AppError(404, `Alcohol with id: ${alcoholId} not found.`);
+
     return alcohol;
   } catch (e: any) {
     console.log("Error: ", e);
@@ -166,44 +151,35 @@ export async function increaseStock(
   amount: number,
   higherTx?: DbTx,
 ) {
-  try {
-    const _db = higherTx ?? db;
-    const [alcohol] = await _db
-      .update(alcoholsTable)
-      .set({
-        amountInMl: sql`${alcoholsTable.amountInMl} + ${Math.abs(amount)}`,
-      })
-      .where(eq(alcoholsTable.id, alcoholId))
-      .returning();
+  const _db = higherTx ?? db;
+  const [alcohol] = await _db
+    .update(alcoholsTable)
+    .set({
+      amountInMl: sql`${alcoholsTable.amountInMl} + ${Math.abs(amount)}`,
+    })
+    .where(eq(alcoholsTable.id, alcoholId))
+    .returning();
 
-    return alcohol;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
+  if (!alcohol)
+    throw new AppError(404, `Alcohol with id: ${alcoholId} not found.`);
 
-    if (e instanceof TransactionRollbackError) {
-      throw e; // re-throw → bubbles up → outer rolls back
-    }
-
-    throw e;
-  }
+  return alcohol;
 }
 
 export async function decreaseStock(
   amounts: { alcoholId: number; amountInMl: number }[],
   higherTx?: DbTx,
 ) {
-  try {
-    const _db = higherTx ?? db;
-    const result = (await _db.transaction(async (tx) => {
-      const decrementsTable = sql.join(
-        amounts.map(
-          (obj) => sql`(${obj.alcoholId}, ${Math.abs(obj.amountInMl)})`,
-        ),
-        sql`, `,
-      );
+  const _db = higherTx ?? db;
+  const result = (await _db.transaction(async (tx) => {
+    const decrementsTable = sql.join(
+      amounts.map(
+        (obj) => sql`(${obj.alcoholId}, ${Math.abs(obj.amountInMl)})`,
+      ),
+      sql`, `,
+    );
 
-      const rows = await tx.execute(sql`
+    const rows = await tx.execute(sql`
         UPDATE alcohols AS alco
         
         SET amount_in_ml = amount_in_ml - decs.amount,
@@ -217,22 +193,12 @@ export async function decreaseStock(
         RETURNING alco.id AS id, alco.amount_in_ml AS "amountInMl";
       `);
 
-      if (rows.length !== amounts.length) tx.rollback();
-
-      return result;
-    })) as { id: number; amountInMl: number }[];
+    if (rows.length !== amounts.length) tx.rollback();
 
     return result;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
+  })) as { id: number; amountInMl: number }[];
 
-    if (e instanceof TransactionRollbackError) {
-      throw e; // re-throw → bubbles up → outer rolls back
-    }
-
-    throw e;
-  }
+  return result;
 }
 
 // ---------- Helpers ----------

@@ -1,13 +1,8 @@
-import type {
-  Ctx,
-  AlcoInvParams,
-  ShopParams,
-} from "../../../utils/globalSchema";
 import { response as res } from "../../../utils/response";
-import type { CreateAlcoBody, UpdateAlcoBody } from "./schema";
+import type { AlcoCTXs } from "./schema";
 import * as alcoService from "./service";
 
-export async function createAlco(context: Ctx<CreateAlcoBody, ShopParams>) {
+export async function createAlco(context: AlcoCTXs["createAlco"]) {
   const { body, params, authPayload } = context;
 
   const alcohol = await alcoService.create(
@@ -19,7 +14,7 @@ export async function createAlco(context: Ctx<CreateAlcoBody, ShopParams>) {
   return res.ok("Alcohol added to inventory.", { alcohol });
 }
 
-export async function updateAlco(context: Ctx<UpdateAlcoBody, AlcoInvParams>) {
+export async function updateAlco(context: AlcoCTXs["updateAlco"]) {
   const { body, params, authPayload } = context;
 
   const alcohol = await alcoService.update(
@@ -29,12 +24,10 @@ export async function updateAlco(context: Ctx<UpdateAlcoBody, AlcoInvParams>) {
     body,
   );
 
-  if (!alcohol) return res.fail("Failed to update.", { code: "FAILED" });
-
   return res.ok("Alcohol Inventory Updates.", { alcohol });
 }
 
-export async function deleteAlco(context: Ctx<unknown, AlcoInvParams>) {
+export async function deleteAlco(context: AlcoCTXs["delAlco"]) {
   const { authPayload, params } = context;
 
   const alcohol = await alcoService.remove(
@@ -43,15 +36,10 @@ export async function deleteAlco(context: Ctx<unknown, AlcoInvParams>) {
     params.alcoholId,
   );
 
-  if (!alcohol)
-    return res.fail("Failed to delete, alcohol may not exist.", {
-      code: "FAILED",
-    });
-
   return res.ok("Alcohol inventory deleted.", { id: alcohol.id });
 }
 
-export async function getAllAlcoInv(context: Ctx<unknown, ShopParams>) {
+export async function getAllAlcoInv(context: AlcoCTXs["queryAll"]) {
   const { authPayload, params, query } = context;
 
   const alcohols = await alcoService.queryAll(
@@ -69,7 +57,7 @@ export async function getAllAlcoInv(context: Ctx<unknown, ShopParams>) {
   });
 }
 
-export async function getAlcoById(context: Ctx<unknown, AlcoInvParams>) {
+export async function getAlcoById(context: AlcoCTXs["queryOne"]) {
   const { params, authPayload } = context;
 
   const alcohol = await alcoService.queryById(
@@ -77,8 +65,6 @@ export async function getAlcoById(context: Ctx<unknown, AlcoInvParams>) {
     params.shopId,
     params.alcoholId,
   );
-
-  if (!alcohol) return res.fail("alcohol not found.", { code: "NOT_FOUND" });
 
   const {
     alcohols,

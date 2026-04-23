@@ -3,50 +3,47 @@ import { db } from "../../db/config";
 import { companiesTable } from "../../db/schema";
 import type {
   CreateCompanyBody,
-  ApproveCompnayBody,
   UpdateCompanyBody,
   CompaniesQueryFilters,
 } from "./schema";
+import { AppError } from "../../utils/AppError";
 
 export async function create(companyBody: CreateCompanyBody, approve: boolean) {
-  try {
-    const [company] = await db
-      .insert(companiesTable)
-      .values({
-        ...companyBody,
-        ...(approve && { approved: true }),
-      })
-      .returning();
+  const [company] = await db
+    .insert(companiesTable)
+    .values({
+      ...companyBody,
+      ...(approve && { approved: true }),
+    })
+    .returning();
 
-    return company;
-  } catch (e) {
-    console.log("Error: ", e);
-  }
+  if (!company) throw new AppError(400, "Cannot create new company.");
+
+  return company;
 }
 
 export async function approve(
   companyId: number,
-  approvedComany: ApproveCompnayBody,
+  approvedComany: UpdateCompanyBody,
 ) {
-  try {
-    const [company] = await db
-      .update(companiesTable)
-      .set({
-        ...approvedComany,
-        approved: true,
-      })
-      .where(
-        and(
-          eq(companiesTable.id, companyId),
-          eq(companiesTable.approved, false),
-        ),
-      )
-      .returning();
+  const [company] = await db
+    .update(companiesTable)
+    .set({
+      ...approvedComany,
+      approved: true,
+    })
+    .where(
+      and(eq(companiesTable.id, companyId), eq(companiesTable.approved, false)),
+    )
+    .returning();
 
-    return company;
-  } catch (e: any) {
-    console.dir(e.cause);
-  }
+  if (!company)
+    throw new AppError(
+      400,
+      `Company with id: ${companyId} does not exist or already approved.`,
+    );
+
+  return company;
 }
 
 export async function queryAll(filters: CompaniesQueryFilters) {
@@ -67,40 +64,38 @@ export async function queryAll(filters: CompaniesQueryFilters) {
   }
 }
 
-export async function update(id: number, updates: UpdateCompanyBody) {
-  try {
-    const [company] = await db
-      .update(companiesTable)
-      .set(updates)
-      .where(eq(companiesTable.id, id))
-      .returning();
+export async function update(companyId: number, updates: UpdateCompanyBody) {
+  const [company] = await db
+    .update(companiesTable)
+    .set(updates)
+    .where(eq(companiesTable.id, companyId))
+    .returning();
 
-    return company;
-  } catch (e: any) {
-    console.log("Error: ", e.cause);
-  }
+  if (!company)
+    throw new AppError(404, `Company with id: ${companyId} does not exist.`);
+
+  return company;
 }
 
-export async function remove(id: number) {
-  try {
-    const [company] = await db
-      .delete(companiesTable)
-      .where(eq(companiesTable.id, id))
-      .returning();
+export async function remove(companyId: number) {
+  const [company] = await db
+    .delete(companiesTable)
+    .where(eq(companiesTable.id, companyId))
+    .returning();
 
-    return company || null;
-  } catch (e: any) {
-    console.log("Error: ", e.cause);
-  }
+  if (!company)
+    throw new AppError(404, `Company with id: ${companyId} does not exist.`);
+
+  return company;
 }
 
-// Helpers
+// ------------- Helpers -------------
 function prepareCoFilters(filters: CompaniesQueryFilters) {
-  const { name, country, type, approved } = filters;
+  const { search, country, type, approved } = filters;
 
   const conditions = [];
 
-  if (name) conditions.push(ilike(companiesTable.name, `%${name}%`));
+  if (search) conditions.push(ilike(companiesTable.name, `%${search}%`));
   if (country) conditions.push(ilike(companiesTable.country, `%${country}%`));
   if (type) conditions.push(eq(companiesTable.type, type));
   if (approved !== undefined)

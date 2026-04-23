@@ -1,21 +1,12 @@
-import type { Ctx } from "../../utils/globalSchema";
 import { response as res } from "../../utils/response";
-import type {
-  CreateCompanyBody,
-  ApproveCompnayBody,
-  UpdateCompanyBody,
-  CParams,
-} from "./schema";
+import type { CoCTXs } from "./schema";
 import * as companiesService from "./service";
 
-export async function createCompany(context: Ctx<CreateCompanyBody>) {
+export async function createCompany(context: CoCTXs["CreateCoCtx"]) {
   const { body, authPayload } = context;
 
   const approve = authPayload.role === "admin";
   const company = await companiesService.create(body, approve);
-
-  if (!company)
-    return res.fail("Failed to create company.", { code: "FAILED" });
 
   return res.ok("Company created", {
     id: company.id,
@@ -23,21 +14,18 @@ export async function createCompany(context: Ctx<CreateCompanyBody>) {
   });
 }
 
-export async function approveCompany(context: {
-  params: { id: number };
-  body: ApproveCompnayBody;
-}) {
+export async function approveCompany(context: CoCTXs["ApproveCoCtx"]) {
   const { params, body } = context;
 
-  const company = await companiesService.approve(params.id, body);
+  const company = await companiesService.approve(params.compnayId, body);
 
   return res.ok("Company approved", {
-    id: company?.id,
-    name: company?.name,
+    id: company.id,
+    name: company.name,
   });
 }
 
-export async function getAllCompanies(context: Ctx) {
+export async function getAllCompanies(context: CoCTXs["QueryCoCtx"]) {
   const { query } = context;
 
   const companies = await companiesService.queryAll(query);
@@ -45,25 +33,18 @@ export async function getAllCompanies(context: Ctx) {
   return res.ok("Companies fetched", companies);
 }
 
-export async function updateCompany(context: Ctx<UpdateCompanyBody, CParams>) {
+export async function updateCompany(context: CoCTXs["UpdateCoCtx"]) {
   const { params, body } = context;
 
   const company = await companiesService.update(params.compnayId, body);
 
-  if (!company) return res.fail("Failed to update company", { code: "FAILED" });
-
   return res.ok("Company updated", { company });
 }
 
-export async function deleteCompany(context: Ctx<unknown, CParams>) {
+export async function deleteCompany(context: CoCTXs["DelCoCtx"]) {
   const { params } = context;
 
   const company = await companiesService.remove(params.compnayId);
-
-  if (!company)
-    return res.fail(`Compnay with id: ${params.compnayId} not found.`, {
-      code: "NOT_FOUND",
-    });
 
   return res.ok("Company deleted", { id: company.id, name: company.name });
 }

@@ -1,85 +1,53 @@
 import * as perfumeService from "./service";
-import type {
-  ApprovedPerfumeBody,
-  CreateAdminPerfumeBody,
-  CreatePerfumeBody,
-  UpdatePerfumeBody,
-} from "./schema";
+import { type PerfumesCTXs as CTXs } from "./schema";
 import { response } from "../../utils/response";
-import type { Ctx, CtxWithoutPayload } from "../../utils/globalSchema";
 
-export async function createPerfume(context: { body: CreatePerfumeBody }) {
-  const { body } = context;
+export async function createPerfume(context: CTXs["CreatePfCtx"]) {
+  const { body, authPayload } = context;
 
-  const perfume = await perfumeService.create(body.name);
+  const approved = authPayload.role === "admin";
+  const perfume = await perfumeService.create(body, approved);
 
   return response.ok("Perfume Created", {
-    id: perfume?.id,
-    name: perfume?.name,
+    id: perfume.id,
+    name: perfume.name,
   });
 }
 
-export async function createAdminPerfume(context: {
-  body: CreateAdminPerfumeBody;
-}) {
-  const { body } = context;
-
-  const perfume = await perfumeService.adminCreate(body);
-
-  return response.ok("Approved Perfume Created", {
-    id: perfume?.id,
-    name: perfume?.name,
-  });
-}
-
-export async function approvePerfume(context: {
-  params: { id: number };
-  body: ApprovedPerfumeBody;
-}) {
+export async function approvePerfume(context: CTXs["UpdatePfCtx"]) {
   const { body, params } = context;
 
-  const perfume = await perfumeService.adminApprove(params.id, body);
+  const perfume = await perfumeService.adminApprove(params.perfumeId, body);
 
   return response.ok("Perfume Approved", {
-    id: perfume?.id,
-    name: perfume?.name,
+    id: perfume.id,
+    name: perfume.name,
   });
 }
 
-export async function getPublicPerfumes(context: CtxWithoutPayload) {
+export async function getPerfumes(context: CTXs["QueryPfCtx"]) {
   const { query } = context;
 
-  const perfumes = await perfumeService.dashboardQuery(query);
+  const perfumes = await perfumeService.query(query);
 
   return response.ok("Perfumes fetched", perfumes);
 }
 
-export async function getDashboardPerfumes(context: Ctx) {
-  const { query } = context;
-
-  const perfumes = await perfumeService.publicQuery(query);
-
-  return response.ok("Perfumes fetched", perfumes);
-}
-
-export async function updatePerfume(context: {
-  params: { id: number };
-  body: UpdatePerfumeBody;
-}) {
+export async function updatePerfume(context: CTXs["UpdatePfCtx"]) {
   const { body, params } = context;
 
-  const perfume = await perfumeService.update(params.id, body);
+  const perfume = await perfumeService.update(params.perfumeId, body);
 
   return response.ok("Perfume updated", {
-    id: perfume?.id,
-    name: perfume?.name,
+    id: perfume.id,
+    name: perfume.name,
   });
 }
 
-export async function deletePerfume(context: { params: { id: number } }) {
+export async function deletePerfume(context: CTXs["DelPfCtx"]) {
   const { params } = context;
 
-  const perfume = await perfumeService.remove(params.id);
+  const perfume = await perfumeService.remove(params.perfumeId);
 
-  return response.ok("Perfume deleted", { name: perfume?.name });
+  return response.ok("Perfume deleted", { name: perfume.name });
 }

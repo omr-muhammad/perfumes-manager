@@ -1,13 +1,4 @@
-import {
-  and,
-  eq,
-  gte,
-  ilike,
-  lte,
-  max,
-  sql,
-  TransactionRollbackError,
-} from "drizzle-orm";
+import { and, eq, gte, ilike, lte, sql } from "drizzle-orm";
 import { db } from "../../../db/config";
 import { bottlesTable } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
@@ -17,31 +8,29 @@ import type {
   UpdateBottleBody,
 } from "./schema";
 import type { DbTx } from "../../../utils/globalSchema";
+import { AppError } from "../../../utils/AppError";
 
 export async function create(
   ownerId: number,
   shopId: number,
   bottle: CreateBottleBody,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    const [newBottle] = await db
-      .insert(bottlesTable)
-      .values({
-        ...bottle,
-        buyPrice: bottle.buyPrice.toFixed(2),
-        sellPrice: bottle.sellPrice.toFixed(2),
-        shopId,
-      })
-      .returning();
+  const [newBottle] = await db
+    .insert(bottlesTable)
+    .values({
+      ...bottle,
+      buyPrice: bottle.buyPrice.toFixed(2),
+      sellPrice: bottle.sellPrice.toFixed(2),
+      shopId,
+    })
+    .returning();
 
-    return newBottle;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  if (!newBottle)
+    throw new AppError(400, `Cannot create new bottle inventory.`);
+
+  return newBottle;
 }
 
 export async function update(
@@ -50,31 +39,25 @@ export async function update(
   bottleId: number,
   updates: UpdateBottleBody,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    const [bottle] = await db
-      .update(bottlesTable)
-      .set({
-        ...(updates.name && { name: updates.name }),
-        ...(updates.type && { type: updates.type }),
-        ...(updates.category && { category: updates.category }),
-        ...(updates.size && { size: updates.size }),
-        ...(updates.buyPrice && { buyPrice: updates.buyPrice.toFixed(2) }),
-        ...(updates.sellPrice && { sellPrice: updates.sellPrice.toFixed(2) }),
-        ...(updates.img && { img: updates.img }),
-      })
-      .where(
-        and(eq(bottlesTable.id, bottleId), eq(bottlesTable.shopId, shopId)),
-      )
-      .returning();
+  const [bottle] = await db
+    .update(bottlesTable)
+    .set({
+      ...(updates.name && { name: updates.name }),
+      ...(updates.type && { type: updates.type }),
+      ...(updates.category && { category: updates.category }),
+      ...(updates.size && { size: updates.size }),
+      ...(updates.buyPrice && { buyPrice: updates.buyPrice.toFixed(2) }),
+      ...(updates.sellPrice && { sellPrice: updates.sellPrice.toFixed(2) }),
+      ...(updates.img && { img: updates.img }),
+    })
+    .where(eq(bottlesTable.id, bottleId))
+    .returning();
 
-    return bottle;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  if (!bottle) throw new AppError(404, `Bottle with id: ${bottleId} not found`);
+
+  return bottle;
 }
 
 export async function remove(
@@ -82,22 +65,16 @@ export async function remove(
   shopId: number,
   bottleId: number,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    const [bottle] = await db
-      .delete(bottlesTable)
-      .where(
-        and(eq(bottlesTable.id, bottleId), eq(bottlesTable.shopId, shopId)),
-      )
-      .returning();
+  const [bottle] = await db
+    .delete(bottlesTable)
+    .where(and(eq(bottlesTable.id, bottleId), eq(bottlesTable.shopId, shopId)))
+    .returning();
 
-    return bottle;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  if (!bottle) throw new AppError(404, `Bottle with id: ${bottleId} not found`);
+
+  return bottle;
 }
 
 export async function queryAll(
@@ -136,7 +113,7 @@ export async function queryAll(
 export async function queryById(
   ownerId: number,
   shopId: number,
-  btlId: number,
+  bottleId: number,
 ) {
   try {
     const shop = await assertOwnership(shopId, ownerId);
@@ -144,9 +121,12 @@ export async function queryById(
     const [bottle] = await db
       .select()
       .from(bottlesTable)
-      .where(and(eq(bottlesTable.shopId, shopId), eq(bottlesTable.id, btlId)));
+      .where(
+        and(eq(bottlesTable.shopId, shopId), eq(bottlesTable.id, bottleId)),
+      );
 
-    if (!bottle) return null;
+    if (!bottle)
+      throw new AppError(404, `Bottle with id: ${bottleId} not found`);
 
     return {
       ...bottle,
@@ -165,40 +145,32 @@ export async function increaseStock(
   quantity: number,
   higherTx?: DbTx,
 ) {
-  try {
-    const _db = higherTx ?? db;
-    const [bottle] = await _db
-      .update(bottlesTable)
-      .set({
-        stock: sql`${bottlesTable.stock} + ${Math.abs(quantity)}`,
-      })
-      .where(eq(bottlesTable.id, bottleId))
-      .returning();
+  const _db = higherTx ?? db;
+  const [bottle] = await _db
+    .update(bottlesTable)
+    .set({
+      stock: sql`${bottlesTable.stock} + ${Math.abs(quantity)}`,
+    })
+    .where(eq(bottlesTable.id, bottleId))
+    .returning();
 
-    return bottle;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    // if (e instanceof TransactionRollbackError) {
-    //   throw e;
-    // }
-    throw e;
-  }
+  if (!bottle) throw new AppError(404, `Bottle with id: ${bottleId} not found`);
+
+  return bottle;
 }
 
 export async function decreaseStock(
   quantities: { bottleId: number; qty: number }[],
   higherTx?: DbTx,
 ) {
-  try {
-    const _db = higherTx ?? db;
-    const result = (await _db.transaction(async (tx) => {
-      const decrementsTable = sql.join(
-        quantities.map((obj) => sql`(${obj.bottleId}, ${Math.abs(obj.qty)})`),
-        sql`, `,
-      );
+  const _db = higherTx ?? db;
+  const result = (await _db.transaction(async (tx) => {
+    const decrementsTable = sql.join(
+      quantities.map((obj) => sql`(${obj.bottleId}, ${Math.abs(obj.qty)})`),
+      sql`, `,
+    );
 
-      const rows = await tx.execute(sql`
+    const rows = await tx.execute(sql`
         UPDATE bottles AS b
         
         SET stock = stock - decs.qty,
@@ -212,22 +184,12 @@ export async function decreaseStock(
         RETURNING b.id AS id, b.stock AS stock 
       `);
 
-      if (rows.length !== quantities.length) tx.rollback();
-
-      return result;
-    })) as { id: number; stock: number }[];
+    if (rows.length !== quantities.length) tx.rollback();
 
     return result;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
+  })) as { id: number; stock: number }[];
 
-    if (higherTx && e instanceof TransactionRollbackError) {
-      throw e; // re-throw → bubbles up → outer rolls back
-    }
-
-    throw e;
-  }
+  return result;
 }
 
 // ----------- Helpers -----------
