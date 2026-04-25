@@ -1,3 +1,4 @@
+import { customType } from "drizzle-orm/pg-core";
 import { timestamp } from "drizzle-orm/pg-core";
 
 export const timestamps = {
@@ -7,3 +8,9 @@ export const timestamps = {
     .notNull()
     .$onUpdate(() => new Date()),
 };
+
+export const int4range = customType<{ data: string }>({
+  dataType() {
+    return "int4range";
+  },
+});

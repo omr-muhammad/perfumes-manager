@@ -16,3 +16,5 @@ export const bottleCatgeroyEn = pgEnum("bottle_category", [
   "elegant",
 ]);
 export const companyTypeEn = pgEnum("type", ["global", "custom"]);
+export const pricingTypeEn = pgEnum("pricing_type", ["discount", "fixed"]);
+export const discountTypeEn = pgEnum("discount_type", ["percentage", "fixed"]);
