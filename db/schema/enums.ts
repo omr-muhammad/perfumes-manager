@@ -6,7 +6,7 @@ export const seasonsEn = pgEnum("seasons", [
   "summer",
   "fall",
 ]);
-export const sexEn = pgEnum("sex", ["men", "women", "unisex"]);
+export const sexEn = pgEnum("sex", ["male", "female", "unisex"]);
 export const roleEn = pgEnum("role", ["admin", "owner", "staff", "customer"]);
 export const langEn = pgEnum("language", ["ar", "en"]);
 export const staffEn = pgEnum("staff_role", ["manager", "cashier"]);
@@ -15,6 +15,12 @@ export const bottleCatgeroyEn = pgEnum("bottle_category", [
   "normal",
   "elegant",
 ]);
-export const companyTypeEn = pgEnum("type", ["global", "custom"]);
+export const companyTypeEn = pgEnum("type", ["global", "local"]);
 export const pricingTypeEn = pgEnum("pricing_type", ["discount", "fixed"]);
 export const discountTypeEn = pgEnum("discount_type", ["percentage", "fixed"]);
+export const lotStatusEn = pgEnum("lot_status", [
+  "inuse",
+  "ready",
+  "depleted",
+  "expired",
+]);

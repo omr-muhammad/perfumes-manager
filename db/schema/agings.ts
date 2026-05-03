@@ -6,21 +6,20 @@ import {
   unique,
 } from "drizzle-orm/pg-core";
 import { timestamps } from "../columns.helpers";
-import { perfumesCompounds } from "./perfumesCompounds";
 import { sql } from "drizzle-orm";
-import { alcoholsTable } from ".";
+import { alcoholsTable, compoundLotsTable } from ".";
 
 export const aging = pgTable(
-  "aging",
+  "agings",
   {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     amount: integer("amount").notNull(),
     concentration: integer("concentration").notNull(),
     startDate: timestamp("start_date").notNull(),
     endDate: timestamp("end_date").notNull(),
-    compoundId: integer("compound_id")
+    lotId: integer("lot_id")
       .notNull()
-      .references(() => perfumesCompounds.id, { onDelete: "cascade" }),
+      .references(() => compoundLotsTable.id, { onDelete: "cascade" }),
     alcoholId: integer("alcohol_id")
       .notNull()
       .references(() => alcoholsTable.id, { onDelete: "restrict" }),
@@ -31,7 +30,7 @@ export const aging = pgTable(
       table.amount,
       table.startDate,
       table.endDate,
-      table.compoundId,
+      table.lotId,
     ),
     check(
       "amount_must_be_positive",

@@ -18,6 +18,7 @@ export const alcoholLots = pgTable(
     receivedAt: timestamp().notNull().defaultNow(),
     status: lotStatusEn("status").notNull(),
     amount: integer("amount").notNull().default(0),
+    remainingAmount: integer("remaining_amount").notNull(),
     expiryDate: timestamp("expiry_date").notNull(),
     costPerLiter: numeric("cost_per_liter", {
       precision: 10,
@@ -46,6 +47,12 @@ export const alcoholLots = pgTable(
       sql`
     ${lot.costPerLiter} <=   ${lot.baseSellPerLiter}
   `,
+    ),
+    check(
+      `remaining_amount_cannot_exceed_main_amount`,
+      sql`
+      ${lot.remainingAmount} <= ${lot.amount}  
+    `,
     ),
   ],
 );

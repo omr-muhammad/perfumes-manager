@@ -1,6 +1,6 @@
 {
-  "id": "7f97a75d-bd38-402b-8c6b-fdfecf9e963f",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "cfe93f2d-a109-4754-8498-5fc6aaf41a10",
+  "prevId": "7f97a75d-bd38-402b-8c6b-fdfecf9e963f",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1638,6 +1638,7 @@
       "values": [
         "inuse",
         "ready",
+        "depleted",
         "expired"
       ]
     },
