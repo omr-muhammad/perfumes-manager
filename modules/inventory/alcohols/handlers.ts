@@ -30,7 +30,7 @@ export async function updateAlco(context: AlcoCTXs["updateAlco"]) {
 export async function deleteAlco(context: AlcoCTXs["delAlco"]) {
   const { authPayload, params } = context;
 
-  const alcohol = await alcoService.removeAlco(
+  const alcohol = await alcoService.deleteAlco(
     authPayload.userId,
     params.shopId,
     params.alcoholId,

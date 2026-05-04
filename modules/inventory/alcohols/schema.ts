@@ -31,7 +31,7 @@ const AlcoholLot = t.Omit(AlcoLot, [
   "alcoholId",
   "remainingAmount",
 ]);
-type AlcoholLot = Static<typeof AlcoholLot>;
+export type AlcoholLot = Static<typeof AlcoholLot>;
 
 const CreateAlcoBody = t.Object({
   alcohol: Alcohol,

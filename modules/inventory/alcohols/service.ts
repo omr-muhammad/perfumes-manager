@@ -7,9 +7,11 @@ import {
 } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
 import type {
+  AlcoholLot,
   AlcoholQueryFilters,
   CreateAlcoBody,
   UpdateAlcoBody,
+  UpdateLotBody,
 } from "./schema";
 import type { DbTx } from "../../../utils/globalSchema";
 import { AppError } from "../../../utils/AppError";
@@ -82,7 +84,7 @@ export async function updateAlco(
   return alcohol;
 }
 
-export async function removeAlco(
+export async function deleteAlco(
   ownerId: number,
   shopId: number,
   alcoholId: number,
@@ -187,6 +189,87 @@ export async function decreaseStock(
         FROM (VALUES ${decrementsTable} AS decs(alco_id, amount))
       `);
   });
+}
+
+// ---------- Lots ----------
+export async function createLot(
+  ownerId: number,
+  shopId: number,
+  alcoholId: number,
+  newLot: AlcoholLot,
+) {
+  await assertOwnership(shopId, ownerId);
+
+  const [lot] = await db
+    .insert(alcoholLotsTable)
+    .values({
+      ...newLot,
+      alcoholId,
+      costPerLiter: newLot.costPerLiter.toFixed(3),
+      baseSellPerLiter: newLot.baseSellPerLiter.toFixed(3),
+      receivedAt: new Date(newLot.receivedAt),
+      expiryDate: new Date(newLot.expiryDate),
+      remainingAmount: newLot.amount || 0,
+    })
+    .returning();
+
+  if (!lot)
+    throw new AppError(
+      400,
+      `Cannot create new lot for alcohol with id: ${alcoholId}`,
+    );
+
+  return lot;
+}
+
+export async function updateLot(
+  ownerId: number,
+  shopId: number,
+  lotId: number,
+  updates: UpdateLotBody,
+) {
+  await assertOwnership(shopId, ownerId);
+
+  const { baseSellPerLiter, costPerLiter, expiryDate, receivedAt, amount } =
+    updates;
+  const [lot] = await db
+    .update(alcoholLotsTable)
+    .set({
+      ...(baseSellPerLiter && {
+        baseSellPerLiter: baseSellPerLiter.toFixed(3),
+      }),
+      ...(costPerLiter && { costPerLiter: costPerLiter.toFixed(3) }),
+      ...(expiryDate && { expiryDate: new Date(expiryDate) }),
+      ...(receivedAt && { receivedAt: new Date(receivedAt) }),
+      ...(Number.isFinite(amount) && {
+        amount,
+        remainingAmount:
+          amount === 0 ? 0 : sql`remaining_amount - (amount - ${amount})`,
+      }),
+    })
+    .where(eq(alcoholLotsTable.id, lotId))
+    .returning();
+
+  if (!lot) throw new AppError(404, `lot with id ${lotId} not found.`);
+
+  return lot;
+}
+
+export async function deleteLot(
+  ownerId: number,
+  shopId: number,
+  lotId: number,
+) {
+  await assertOwnership(shopId, ownerId);
+
+  const [lot] = await db
+    .delete(alcoholLotsTable)
+    .where(eq(alcoholLotsTable.id, lotId))
+    .returning();
+
+  if (!lot) throw new AppError(404, `lot with id ${lotId} not found.`);
+
+  return lot;
 }
 
 // ---------- Helpers ----------
