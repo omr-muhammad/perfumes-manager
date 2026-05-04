@@ -48,13 +48,7 @@ export async function getAllAlcoInv(context: AlcoCTXs["queryAll"]) {
     query,
   );
 
-  return res.ok("Alcohols fetched.", {
-    alcohols: alcohols.map(({ alcohols, shops }) => ({
-      ...alcohols,
-      shopName: shops.name,
-      ...(shops.logo && { shopLogo: shops.logo }),
-    })),
-  });
+  return res.ok("Alcohols fetched.", { alcohols });
 }
 
 export async function getAlcoById(context: AlcoCTXs["queryOne"]) {
@@ -66,11 +60,5 @@ export async function getAlcoById(context: AlcoCTXs["queryOne"]) {
     params.alcoholId,
   );
 
-  const {
-    alcohols,
-    shops: { name, logo, ...others },
-  } = alcohol;
-  return res.ok("Alcohol fetched.", {
-    alcohol: { ...alcohols, shopName: name, ...(logo && { shopLogo: logo }) },
-  });
+  return res.ok("Alcohol fetched.", { alcohol });
 }
