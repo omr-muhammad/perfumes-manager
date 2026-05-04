@@ -1,5 +1,5 @@
 import { createInsertSchema } from "drizzle-typebox";
-import { alcoholLots, alcoholsTable } from "../../../db/schema";
+import { alcoholLotsTable, alcoholsTable } from "../../../db/schema";
 import { t, type Static } from "elysia";
 import {
   ID,
@@ -11,7 +11,8 @@ import {
 const BaseAlco = createInsertSchema(alcoholsTable, {
   concentration: t.Optional(t.Number({ minimum: 1, maximum: 100 })),
 });
-const AlcoLot = createInsertSchema(alcoholLots, {
+const AlcoLot = createInsertSchema(alcoholLotsTable, {
+  receivedAt: t.String(),
   costPerLiter: t.Number({ minimum: 0 }),
   baseSellPerLiter: t.Number({ minimum: 0 }),
   expiryDate: t.String(),
@@ -24,7 +25,12 @@ const Alcohol = t.Omit(BaseAlco, [
   "createdAt",
   "updatedAt",
 ]);
-const AlcoholLot = t.Omit(AlcoLot, ["createdAt", "updatedAt", "alcoholId"]);
+const AlcoholLot = t.Omit(AlcoLot, [
+  "createdAt",
+  "updatedAt",
+  "alcoholId",
+  "remainingAmount",
+]);
 type AlcoholLot = Static<typeof AlcoholLot>;
 
 const CreateAlcoBody = t.Object({

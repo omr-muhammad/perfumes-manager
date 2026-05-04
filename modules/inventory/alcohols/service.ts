@@ -1,6 +1,10 @@
 import { and, eq, gte, ilike, lte, sql } from "drizzle-orm";
 import { db } from "../../../db/config";
-import { alcoholsTable, shopsTable } from "../../../db/schema";
+import {
+  alcoholLotsTable,
+  alcoholsTable,
+  shopsTable,
+} from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
 import type {
   AlcoholQueryFilters,
@@ -10,34 +14,55 @@ import type {
 import type { DbTx } from "../../../utils/globalSchema";
 import { AppError } from "../../../utils/AppError";
 
-export async function create(
+export async function createAlco(
   ownerId: number,
   shopId: number,
   newAlco: CreateAlcoBody,
 ) {
   const shop = await assertOwnership(shopId, ownerId);
 
-  const unitSellPrice = Math.ceil(newAlco.ltSellPrice / 1000);
+  const { alcohol, alcoholLot } = newAlco;
+  const result = db.transaction(async (tx) => {
+    const [alco] = await tx
+      .insert(alcoholsTable)
+      .values({
+        ...alcohol,
+        shopId,
+      })
+      .returning();
 
-  const [alcohol] = await db
-    .insert(alcoholsTable)
-    .values({
-      ...newAlco,
-      ltBuyPrice: newAlco.ltBuyPrice.toFixed(2),
-      ltSellPrice: newAlco.ltSellPrice.toFixed(2),
-      unitSellPrice: unitSellPrice.toFixed(2),
-      expiryDate: new Date(newAlco.expiryDate),
-      shopId,
-    })
-    .returning();
+    if (!alco)
+      throw new AppError(
+        400,
+        `Cannot create new alcohol for shop: ${shop.name}`,
+      );
 
-  if (!alcohol)
-    throw new AppError(400, `Cannot create new alcohol for shop: ${shop.name}`);
+    const [alcoLot] = await tx
+      .insert(alcoholLotsTable)
+      .values({
+        ...alcoholLot,
+        costPerLiter: alcoholLot.costPerLiter.toFixed(3),
+        baseSellPerLiter: alcoholLot.baseSellPerLiter.toFixed(3),
+        receivedAt: new Date(alcoholLot.receivedAt),
+        expiryDate: new Date(alcoholLot.expiryDate),
+        alcoholId: alco.id,
+        remainingAmount: alcoholLot.amount || 0,
+      })
+      .returning();
 
-  return alcohol;
+    if (!alcoLot)
+      throw new AppError(
+        400,
+        `Cannot create new alcohol for shop ${shop.name}`,
+      );
+
+    return { ...alco, lot: alcoLot };
+  });
+
+  return result;
 }
 
-export async function update(
+export async function updateAlco(
   ownerId: number,
   shopId: number,
   alcoholId: number,
@@ -47,25 +72,8 @@ export async function update(
 
   const [alcohol] = await db
     .update(alcoholsTable)
-    .set({
-      ...(updates.name && { name: updates.name }),
-      ...(updates.type && { type: updates.type }),
-      ...(updates.concentration && { concentration: updates.concentration }),
-      ...(updates.ltBuyPrice && {
-        ltBuyPrice: updates.ltBuyPrice.toFixed(2),
-      }),
-      ...(updates.ltSellPrice && {
-        ltSellPrice: updates.ltSellPrice.toFixed(2),
-      }),
-      ...(updates.ltSellPrice && {
-        unitSellPrice: Math.ceil(updates.ltSellPrice / 1000).toFixed(2),
-      }),
-      ...(updates.amountInMl && { amountInMl: updates.amountInMl }),
-      ...(updates.expiryDate && { expiryDate: new Date(updates.expiryDate) }),
-    })
-    .where(
-      and(eq(alcoholsTable.shopId, shopId), eq(alcoholsTable.id, alcoholId)),
-    )
+    .set(updates)
+    .where(eq(alcoholsTable.id, alcoholId))
     .returning();
 
   if (!alcohol)
@@ -74,7 +82,7 @@ export async function update(
   return alcohol;
 }
 
-export async function remove(
+export async function removeAlco(
   ownerId: number,
   shopId: number,
   alcoholId: number,
@@ -83,9 +91,7 @@ export async function remove(
 
   const [alcohol] = await db
     .delete(alcoholsTable)
-    .where(
-      and(eq(alcoholsTable.shopId, shopId), eq(alcoholsTable.id, alcoholId)),
-    )
+    .where(eq(alcoholsTable.id, alcoholId))
     .returning();
 
   if (!alcohol)
@@ -99,26 +105,23 @@ export async function queryAll(
   shopId: number,
   filters: AlcoholQueryFilters,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    const conditions = prepareAlcoFilters(filters);
-    const { page = 1, limit = 20 } = filters;
+  const conditions = prepareAlcoFilters(filters);
+  const { page = 1, limit = 20 } = filters;
 
-    const alcohols = await db
-      .select()
-      .from(alcoholsTable)
-      .innerJoin(shopsTable, eq(shopsTable.id, alcoholsTable.shopId))
-      .where(and(eq(alcoholsTable.shopId, shopId), ...conditions))
-      .offset((page - 1) * limit)
-      .limit(limit);
+  const alcohols = await db
+    .select()
+    .from(alcoholsTable)
+    .innerJoin(
+      alcoholLotsTable,
+      eq(alcoholLotsTable.alcoholId, alcoholsTable.id),
+    )
+    .where(and(eq(alcoholsTable.shopId, shopId), ...conditions))
+    .offset((page - 1) * limit)
+    .limit(limit);
 
-    return alcohols;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  return alcohols;
 }
 
 export async function queryById(
@@ -126,42 +129,38 @@ export async function queryById(
   shopId: number,
   alcoholId: number,
 ) {
-  try {
-    await assertOwnership(shopId, ownerId);
+  await assertOwnership(shopId, ownerId);
 
-    const [alcohol] = await db
-      .select()
-      .from(alcoholsTable)
-      .innerJoin(shopsTable, eq(shopsTable.id, alcoholsTable.shopId))
-      .where(eq(alcoholsTable.id, alcoholId));
+  const [alcohol] = await db
+    .select()
+    .from(alcoholsTable)
+    .where(eq(alcoholsTable.id, alcoholId));
 
-    if (!alcohol)
-      throw new AppError(404, `Alcohol with id: ${alcoholId} not found.`);
+  if (!alcohol)
+    throw new AppError(404, `Alcohol with id: ${alcoholId} not found.`);
 
-    return alcohol;
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  return alcohol;
 }
 
 export async function increaseStock(
-  alcoholId: number,
+  lotId: number,
   amount: number,
   higherTx?: DbTx,
 ) {
   const _db = higherTx ?? db;
   const [alcohol] = await _db
-    .update(alcoholsTable)
+    .update(alcoholLotsTable)
     .set({
-      amountInMl: sql`${alcoholsTable.amountInMl} + ${Math.abs(amount)}`,
+      amount: sql`${alcoholLotsTable.amount} + ${Math.abs(amount)}`,
     })
-    .where(eq(alcoholsTable.id, alcoholId))
+    .where(eq(alcoholLotsTable.id, lotId))
     .returning();
 
   if (!alcohol)
-    throw new AppError(404, `Alcohol with id: ${alcoholId} not found.`);
+    throw new AppError(
+      404,
+      `There no alcohol lot with id: ${lotId} not found.`,
+    );
 
   return alcohol;
 }
@@ -171,7 +170,7 @@ export async function decreaseStock(
   higherTx?: DbTx,
 ) {
   const _db = higherTx ?? db;
-  const result = (await _db.transaction(async (tx) => {
+  await _db.transaction(async (tx) => {
     const decrementsTable = sql.join(
       amounts.map(
         (obj) => sql`(${obj.alcoholId}, ${Math.abs(obj.amountInMl)})`,
@@ -180,25 +179,14 @@ export async function decreaseStock(
     );
 
     const rows = await tx.execute(sql`
-        UPDATE alcohols AS alco
-        
-        SET amount_in_ml = amount_in_ml - decs.amount,
-          updated_at = NOW()
-        
+        SELECT 
+          _deduct_alcohol_lots(
+            decs.alco_id::integer,
+            decs.amount::integer
+          ) 
         FROM (VALUES ${decrementsTable} AS decs(alco_id, amount))
-        
-        WHERE alco.id = decs.alco_id
-          AND alco.amount_in_ml >= decs.amount
-        
-        RETURNING alco.id AS id, alco.amount_in_ml AS "amountInMl";
       `);
-
-    if (rows.length !== amounts.length) tx.rollback();
-
-    return result;
-  })) as { id: number; amountInMl: number }[];
-
-  return result;
+  });
 }
 
 // ---------- Helpers ----------
@@ -208,7 +196,6 @@ function prepareAlcoFilters(filters: AlcoholQueryFilters) {
     type,
     minAmount,
     maxAmount,
-    amountUnit,
     minLtPrice,
     maxLtPrice,
     minConcentration,
@@ -220,25 +207,26 @@ function prepareAlcoFilters(filters: AlcoholQueryFilters) {
   const conditions = [];
   let minInMl, maxInMl;
 
-  if (minAmount) minInMl = amountUnit === "l" ? minAmount * 1000 : minAmount;
-  if (maxAmount) maxInMl = amountUnit === "l" ? maxAmount * 1000 : maxAmount;
-
   if (search) conditions.push(ilike(alcoholsTable.name, `%${search}%`));
   if (type) conditions.push(ilike(alcoholsTable.type, `%${type}%`));
-  if (minInMl) conditions.push(gte(alcoholsTable.amountInMl, minInMl));
-  if (maxInMl) conditions.push(lte(alcoholsTable.amountInMl, maxInMl));
+  if (minInMl) conditions.push(gte(alcoholLotsTable.remainingAmount, minInMl));
+  if (maxInMl) conditions.push(lte(alcoholLotsTable.remainingAmount, maxInMl));
   if (minLtPrice)
-    conditions.push(gte(alcoholsTable.ltSellPrice, minLtPrice.toFixed(2)));
+    conditions.push(
+      gte(alcoholLotsTable.baseSellPerLiter, minLtPrice.toFixed(2)),
+    );
   if (maxLtPrice)
-    conditions.push(lte(alcoholsTable.ltSellPrice, maxLtPrice.toFixed(2)));
+    conditions.push(
+      lte(alcoholLotsTable.baseSellPerLiter, maxLtPrice.toFixed(2)),
+    );
   if (minConcentration)
     conditions.push(gte(alcoholsTable.concentration, minConcentration));
   if (maxConcentration)
     conditions.push(lte(alcoholsTable.concentration, maxConcentration));
   if (expiresBefore)
-    conditions.push(lte(alcoholsTable.expiryDate, new Date(expiresBefore)));
+    conditions.push(lte(alcoholLotsTable.expiryDate, new Date(expiresBefore)));
   if (expiresAfter)
-    conditions.push(gte(alcoholsTable.expiryDate, new Date(expiresAfter)));
+    conditions.push(gte(alcoholLotsTable.expiryDate, new Date(expiresAfter)));
 
   return conditions;
 }

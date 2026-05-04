@@ -5,7 +5,7 @@ import * as alcoService from "./service";
 export async function createAlco(context: AlcoCTXs["createAlco"]) {
   const { body, params, authPayload } = context;
 
-  const alcohol = await alcoService.create(
+  const alcohol = await alcoService.createAlco(
     authPayload.userId,
     params.shopId,
     body,
@@ -17,7 +17,7 @@ export async function createAlco(context: AlcoCTXs["createAlco"]) {
 export async function updateAlco(context: AlcoCTXs["updateAlco"]) {
   const { body, params, authPayload } = context;
 
-  const alcohol = await alcoService.update(
+  const alcohol = await alcoService.updateAlco(
     authPayload.userId,
     params.shopId,
     params.alcoholId,
@@ -30,7 +30,7 @@ export async function updateAlco(context: AlcoCTXs["updateAlco"]) {
 export async function deleteAlco(context: AlcoCTXs["delAlco"]) {
   const { authPayload, params } = context;
 
-  const alcohol = await alcoService.remove(
+  const alcohol = await alcoService.removeAlco(
     authPayload.userId,
     params.shopId,
     params.alcoholId,
