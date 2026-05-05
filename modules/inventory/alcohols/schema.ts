@@ -6,6 +6,7 @@ import {
   QueriesMeta,
   ShopParams,
   type Ctx,
+  type InvAuth,
 } from "../../../utils/globalSchema";
 
 const BaseAlco = createInsertSchema(alcoholsTable, {
@@ -81,6 +82,13 @@ const AlcoLotParams = t.Object({
   lotId: ID,
 });
 type AlcoLotParams = Static<typeof AlcoLotParams>;
+
+// -------------- Service IDs --------------
+export interface ServiceIDs {
+  BaseAlcoIDs: InvAuth;
+  ExtendedAlcoIDs: InvAuth & { alcoholId: number };
+  ExtendedLotIDs: ServiceIDs["ExtendedAlcoIDs"] & { lotId: number };
+}
 
 // -------------- Alco Ctxs --------------
 export interface AlcoCTXs {

@@ -10,6 +10,15 @@ export const alcoholsRouter = new Elysia({ prefix: "/alcohols" })
   .use(restrictTo("owner"))
   .post("", handlers.createAlco, AlcoSchema.create)
   .get("", handlers.getAllAlcoInv, AlcoSchema.queryAll)
-  .patch("/:alcoholId", handlers.updateAlco, AlcoSchema.update)
-  .delete("/:alcoholId", handlers.deleteAlco, AlcoSchema.del)
-  .get("/:alcoholId", handlers.getAlcoById, AlcoSchema.queryOne);
+  .group("/:alcoholId", (app) =>
+    app
+      .patch("", handlers.updateAlco, AlcoSchema.update)
+      .delete("", handlers.deleteAlco, AlcoSchema.del)
+      .get("", handlers.getAlcoById, AlcoSchema.queryOne)
+      .group("/lots", (app) =>
+        app
+          .post("", handlers.createAlcoLot, AlcoSchema.createLot)
+          .patch("/:lotId", handlers.updateAlcoLot, AlcoSchema.updateLot)
+          .delete("/:lotId", handlers.deleteAlcoLot, AlcoSchema.delLot),
+      ),
+  );

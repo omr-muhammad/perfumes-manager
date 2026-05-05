@@ -10,6 +10,7 @@ import type {
   AlcoholLot,
   AlcoholQueryFilters,
   CreateAlcoBody,
+  ServiceIDs,
   UpdateAlcoBody,
   UpdateLotBody,
 } from "./schema";
@@ -17,10 +18,10 @@ import type { DbTx } from "../../../utils/globalSchema";
 import { AppError } from "../../../utils/AppError";
 
 export async function createAlco(
-  ownerId: number,
-  shopId: number,
+  ids: ServiceIDs["BaseAlcoIDs"],
   newAlco: CreateAlcoBody,
 ) {
+  const { ownerId, shopId } = ids;
   const shop = await assertOwnership(shopId, ownerId);
 
   const { alcohol, alcoholLot } = newAlco;
@@ -65,17 +66,19 @@ export async function createAlco(
 }
 
 export async function updateAlco(
-  ownerId: number,
-  shopId: number,
-  alcoholId: number,
+  ids: ServiceIDs["ExtendedAlcoIDs"],
   updates: UpdateAlcoBody,
 ) {
+  const { shopId, ownerId, alcoholId } = ids;
+
   await assertOwnership(shopId, ownerId);
 
   const [alcohol] = await db
     .update(alcoholsTable)
     .set(updates)
-    .where(eq(alcoholsTable.id, alcoholId))
+    .where(
+      and(eq(alcoholsTable.shopId, shopId), eq(alcoholsTable.id, alcoholId)),
+    )
     .returning();
 
   if (!alcohol)
@@ -84,16 +87,16 @@ export async function updateAlco(
   return alcohol;
 }
 
-export async function deleteAlco(
-  ownerId: number,
-  shopId: number,
-  alcoholId: number,
-) {
+export async function deleteAlco(ids: ServiceIDs["ExtendedAlcoIDs"]) {
+  const { ownerId, shopId, alcoholId } = ids;
+
   await assertOwnership(shopId, ownerId);
 
   const [alcohol] = await db
     .delete(alcoholsTable)
-    .where(eq(alcoholsTable.id, alcoholId))
+    .where(
+      and(eq(alcoholsTable.shopId, shopId), eq(alcoholsTable.id, alcoholId)),
+    )
     .returning();
 
   if (!alcohol)
@@ -103,10 +106,11 @@ export async function deleteAlco(
 }
 
 export async function queryAll(
-  ownerId: number,
-  shopId: number,
+  ids: ServiceIDs["BaseAlcoIDs"],
   filters: AlcoholQueryFilters,
 ) {
+  const { ownerId, shopId } = ids;
+
   await assertOwnership(shopId, ownerId);
 
   const conditions = prepareAlcoFilters(filters);
@@ -126,11 +130,9 @@ export async function queryAll(
   return alcohols;
 }
 
-export async function queryById(
-  ownerId: number,
-  shopId: number,
-  alcoholId: number,
-) {
+export async function queryById(ids: ServiceIDs["ExtendedAlcoIDs"]) {
+  const { ownerId, shopId, alcoholId } = ids;
+
   await assertOwnership(shopId, ownerId);
 
   const [alcohol] = await db
@@ -140,29 +142,6 @@ export async function queryById(
 
   if (!alcohol)
     throw new AppError(404, `Alcohol with id: ${alcoholId} not found.`);
-
-  return alcohol;
-}
-
-export async function increaseStock(
-  lotId: number,
-  amount: number,
-  higherTx?: DbTx,
-) {
-  const _db = higherTx ?? db;
-  const [alcohol] = await _db
-    .update(alcoholLotsTable)
-    .set({
-      amount: sql`${alcoholLotsTable.amount} + ${Math.abs(amount)}`,
-    })
-    .where(eq(alcoholLotsTable.id, lotId))
-    .returning();
-
-  if (!alcohol)
-    throw new AppError(
-      404,
-      `There no alcohol lot with id: ${lotId} not found.`,
-    );
 
   return alcohol;
 }
@@ -186,18 +165,18 @@ export async function decreaseStock(
             decs.alco_id::integer,
             decs.amount::integer
           ) 
-        FROM (VALUES ${decrementsTable} AS decs(alco_id, amount))
+        FROM (VALUES ${decrementsTable}) AS decs(alco_id, amount)
       `);
   });
 }
 
 // ---------- Lots ----------
 export async function createLot(
-  ownerId: number,
-  shopId: number,
-  alcoholId: number,
+  ids: ServiceIDs["ExtendedAlcoIDs"],
   newLot: AlcoholLot,
 ) {
+  const { ownerId, shopId, alcoholId } = ids;
+
   await assertOwnership(shopId, ownerId);
 
   const [lot] = await db
@@ -223,11 +202,11 @@ export async function createLot(
 }
 
 export async function updateLot(
-  ownerId: number,
-  shopId: number,
-  lotId: number,
+  ids: ServiceIDs["ExtendedLotIDs"],
   updates: UpdateLotBody,
 ) {
+  const { ownerId, shopId, alcoholId, lotId } = ids;
+
   await assertOwnership(shopId, ownerId);
 
   const { baseSellPerLiter, costPerLiter, expiryDate, receivedAt, amount } =
@@ -247,7 +226,12 @@ export async function updateLot(
           amount === 0 ? 0 : sql`remaining_amount - (amount - ${amount})`,
       }),
     })
-    .where(eq(alcoholLotsTable.id, lotId))
+    .where(
+      and(
+        eq(alcoholLotsTable.alcoholId, alcoholId),
+        eq(alcoholLotsTable.id, lotId),
+      ),
+    )
     .returning();
 
   if (!lot) throw new AppError(404, `lot with id ${lotId} not found.`);
@@ -255,16 +239,19 @@ export async function updateLot(
   return lot;
 }
 
-export async function deleteLot(
-  ownerId: number,
-  shopId: number,
-  lotId: number,
-) {
+export async function deleteLot(ids: ServiceIDs["ExtendedLotIDs"]) {
+  const { ownerId, shopId, alcoholId, lotId } = ids;
+
   await assertOwnership(shopId, ownerId);
 
   const [lot] = await db
     .delete(alcoholLotsTable)
-    .where(eq(alcoholLotsTable.id, lotId))
+    .where(
+      and(
+        eq(alcoholLotsTable.alcoholId, alcoholId),
+        eq(alcoholLotsTable.id, lotId),
+      ),
+    )
     .returning();
 
   if (!lot) throw new AppError(404, `lot with id ${lotId} not found.`);
