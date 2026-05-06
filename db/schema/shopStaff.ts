@@ -5,19 +5,18 @@ import {
   primaryKey,
   unique,
 } from "drizzle-orm/pg-core";
-import { shops } from "./shops";
-import { users } from "./users";
 import { staffEn } from "./enums";
 import { timestamps } from "../columns.helpers";
+import { shopsTable, usersTable } from ".";
 
-export const shopStaff = pgTable(
+export const shopsStaffTable = pgTable(
   "shop_staff",
   {
     shopId: integer("shop_id")
-      .references(() => shops.id, { onDelete: "cascade" })
+      .references(() => shopsTable.id, { onDelete: "cascade" })
       .notNull(),
     userId: integer("user_id")
-      .references(() => users.id, { onDelete: "cascade" })
+      .references(() => usersTable.id, { onDelete: "cascade" })
       .notNull(),
     role: staffEn("role").notNull(),
     ...timestamps,

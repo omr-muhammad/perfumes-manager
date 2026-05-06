@@ -11,7 +11,7 @@ import { sql } from "drizzle-orm";
 import { timestamps } from "../columns.helpers";
 import { alcoholsTable } from ".";
 
-export const alcoholLots = pgTable(
+export const alcoholLotsTable = pgTable(
   "alcohol_lots",
   {
     id: integer("id").primaryKey().notNull().generatedAlwaysAsIdentity(),

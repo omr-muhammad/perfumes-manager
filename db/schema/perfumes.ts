@@ -2,7 +2,6 @@ import {
   pgTable,
   integer,
   varchar,
-  pgEnum,
   boolean,
   text,
   check,
@@ -14,7 +13,7 @@ import { seasonsEn, sexEn } from "./enums";
 // later for better structure
 // export const familiesEn = pgEnum("families", ["fresh", "aromatic", "citrus", "water", "green", "fruity", "floral", "soft floral", "oriental(Amber)", "floral oriental", "soft oriental", "woody oriental", "woody", "woods", "mossy woods", "dry woods"])
 
-export const perfumes = pgTable(
+export const perfumesTable = pgTable(
   "perfumes",
   {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),

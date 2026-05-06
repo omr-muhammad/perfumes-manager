@@ -9,9 +9,9 @@ import {
 import { sql } from "drizzle-orm";
 
 import { timestamps } from "../columns.helpers";
-import { shops } from "./shops";
+import { shopsTable } from ".";
 
-export const alcohols = pgTable(
+export const alcoholsTable = pgTable(
   "alcohols",
   {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -20,7 +20,7 @@ export const alcohols = pgTable(
     concentration: smallint("concentration").default(96),
     shopId: integer("shop_id")
       .notNull()
-      .references(() => shops.id, { onDelete: "cascade" }),
+      .references(() => shopsTable.id, { onDelete: "cascade" }),
     ...timestamps,
   },
   (table) => [
@@ -33,6 +33,6 @@ export const alcohols = pgTable(
     check(
       "concentration_must_be_between_1_and_100",
       sql`${table.concentration} > 0 AND ${table.concentration} <= 100`,
-    )
+    ),
   ],
 );

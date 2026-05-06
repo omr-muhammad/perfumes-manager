@@ -8,7 +8,7 @@ import {
 import { perfumesTable, companiesTable, shopsTable, alcoholsTable } from ".";
 import { timestamps } from "../columns.helpers";
 
-export const perfumesCompounds = pgTable(
+export const perfumeCompoundsTable = pgTable(
   "perfumes_compounds",
   {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),

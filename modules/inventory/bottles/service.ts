@@ -1,58 +1,70 @@
 import { and, eq, gte, ilike, lte, sql } from "drizzle-orm";
 import { db } from "../../../db/config";
-import { bottlesTable } from "../../../db/schema";
+import { bottlesLotsTable, bottlesTable } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
 import type {
+  BottleCatg,
   BottlesQueryFilters,
+  BottleType,
   CreateBottleBody,
+  CreateBottleLot,
+  ServiceIDs,
   UpdateBottleBody,
+  UpdateBottleLotBody,
 } from "./schema";
 import type { DbTx } from "../../../utils/globalSchema";
 import { AppError } from "../../../utils/AppError";
 
-export async function create(
-  ownerId: number,
-  shopId: number,
-  bottle: CreateBottleBody,
+export async function createBottle(
+  ids: ServiceIDs["base"],
+  createBody: CreateBottleBody,
 ) {
+  const { ownerId, shopId } = ids;
   await assertOwnership(shopId, ownerId);
 
-  const [newBottle] = await db
-    .insert(bottlesTable)
-    .values({
-      ...bottle,
-      buyPrice: bottle.buyPrice.toFixed(2),
-      sellPrice: bottle.sellPrice.toFixed(2),
-      shopId,
-    })
-    .returning();
+  const result = await db.transaction(async (tx) => {
+    const { bottleBody, lotBody } = createBody;
+    const [bottle] = await tx
+      .insert(bottlesTable)
+      .values({
+        ...bottleBody,
+        shopId,
+      })
+      .returning();
 
-  if (!newBottle)
-    throw new AppError(400, `Cannot create new bottle inventory.`);
+    if (!bottle) throw new AppError(400, `Cannot create new inventory bottle.`);
 
-  return newBottle;
+    const [lot] = await tx
+      .insert(bottlesLotsTable)
+      .values({
+        ...lotBody,
+        costPrice: lotBody.costPrice.toFixed(3),
+        baseSellPrice: lotBody.baseSellPrice.toFixed(3),
+        receivedAt: new Date(lotBody.receivedAt),
+        remainingStock: lotBody.stock || 0,
+        bottleId: bottle.id,
+      })
+      .returning();
+
+    if (!lot) throw new AppError(400, `Cannot create new inventory bottle.`);
+
+    return { ...bottle, lots: [lot] };
+  });
+
+  return result;
 }
 
-export async function update(
-  ownerId: number,
-  shopId: number,
-  bottleId: number,
+export async function updateBottle(
+  ids: ServiceIDs["extended"],
   updates: UpdateBottleBody,
 ) {
+  const { ownerId, shopId, bottleId } = ids;
   await assertOwnership(shopId, ownerId);
 
   const [bottle] = await db
     .update(bottlesTable)
-    .set({
-      ...(updates.name && { name: updates.name }),
-      ...(updates.type && { type: updates.type }),
-      ...(updates.category && { category: updates.category }),
-      ...(updates.size && { size: updates.size }),
-      ...(updates.buyPrice && { buyPrice: updates.buyPrice.toFixed(2) }),
-      ...(updates.sellPrice && { sellPrice: updates.sellPrice.toFixed(2) }),
-      ...(updates.img && { img: updates.img }),
-    })
-    .where(eq(bottlesTable.id, bottleId))
+    .set(updates)
+    .where(and(eq(bottlesTable.shopId, shopId), eq(bottlesTable.id, bottleId)))
     .returning();
 
   if (!bottle) throw new AppError(404, `Bottle with id: ${bottleId} not found`);
@@ -60,11 +72,8 @@ export async function update(
   return bottle;
 }
 
-export async function remove(
-  ownerId: number,
-  shopId: number,
-  bottleId: number,
-) {
+export async function deleteBottle(ids: ServiceIDs["extended"]) {
+  const { ownerId, shopId, bottleId } = ids;
   await assertOwnership(shopId, ownerId);
 
   const [bottle] = await db
@@ -78,81 +87,39 @@ export async function remove(
 }
 
 export async function queryAll(
-  ownerId: number,
-  shopId: number,
+  ids: ServiceIDs["base"],
   filters: BottlesQueryFilters,
 ) {
-  try {
-    const shop = await assertOwnership(shopId, ownerId);
+  const { ownerId, shopId } = ids;
 
-    const conditions = prepareBottlesFilters(filters);
-    const { page = 1, limit = 20 } = filters;
+  const shop = await assertOwnership(shopId, ownerId);
 
-    const bottles = await db
-      .select()
-      .from(bottlesTable)
-      .where(and(eq(bottlesTable.shopId, shopId), ...conditions))
-      .offset((page - 1) * limit)
-      .limit(limit)
-      .orderBy(bottlesTable.createdAt);
+  const conditions = prepareBottlesFilters(filters);
+  const { page = 1, limit = 20 } = filters;
 
-    if (bottles.length === 0) return [];
+  const bottles = await db
+    .select()
+    .from(bottlesTable)
+    .leftJoin(bottlesLotsTable, eq(bottlesLotsTable.bottleId, bottlesTable.id))
+    .where(and(eq(bottlesTable.shopId, shopId), ...conditions))
+    .offset((page - 1) * limit)
+    .limit(limit)
+    .orderBy(bottlesTable.createdAt);
 
-    return bottles.map((b) => ({
-      ...b,
-      shopName: shop.name,
-      ...(shop.logo && { shopLogo: shop.logo }),
-    }));
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  if (bottles.length === 0) return [];
+
+  return bottles;
 }
 
-export async function queryById(
-  ownerId: number,
-  shopId: number,
-  bottleId: number,
-) {
-  try {
-    const shop = await assertOwnership(shopId, ownerId);
+export async function queryById(ids: ServiceIDs["extended"]) {
+  const { ownerId, shopId, bottleId } = ids;
 
-    const [bottle] = await db
-      .select()
-      .from(bottlesTable)
-      .where(
-        and(eq(bottlesTable.shopId, shopId), eq(bottlesTable.id, bottleId)),
-      );
+  const shop = await assertOwnership(shopId, ownerId);
 
-    if (!bottle)
-      throw new AppError(404, `Bottle with id: ${bottleId} not found`);
-
-    return {
-      ...bottle,
-      shopName: shop.name,
-      ...(shop.logo && { shopLogo: shop.logo }),
-    };
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
-}
-
-export async function increaseStock(
-  bottleId: number,
-  quantity: number,
-  higherTx?: DbTx,
-) {
-  const _db = higherTx ?? db;
-  const [bottle] = await _db
-    .update(bottlesTable)
-    .set({
-      stock: sql`${bottlesTable.stock} + ${Math.abs(quantity)}`,
-    })
-    .where(eq(bottlesTable.id, bottleId))
-    .returning();
+  const [bottle] = await db
+    .select()
+    .from(bottlesTable)
+    .where(and(eq(bottlesTable.shopId, shopId), eq(bottlesTable.id, bottleId)));
 
   if (!bottle) throw new AppError(404, `Bottle with id: ${bottleId} not found`);
 
@@ -164,32 +131,113 @@ export async function decreaseStock(
   higherTx?: DbTx,
 ) {
   const _db = higherTx ?? db;
-  const result = (await _db.transaction(async (tx) => {
+  await _db.transaction(async (tx) => {
     const decrementsTable = sql.join(
       quantities.map((obj) => sql`(${obj.bottleId}, ${Math.abs(obj.qty)})`),
       sql`, `,
     );
 
     const rows = await tx.execute(sql`
-        UPDATE bottles AS b
-        
-        SET stock = stock - decs.qty,
-          updated_at = NOW()
-        
-        FROM (VALUES ${decrementsTable} AS decs(b_id, qty))
-        
-        WHERE b.id = decs.b_id
-          AND b.stock >= decs.qty
-        
-        RETURNING b.id AS id, b.stock AS stock 
-      `);
+      SELECT 
+        _deduct_bottles_lots(
+          decs.id::integer,
+          decs.qty::integer
+        )
+      FROM (VALUES ${decrementsTable}) AS decs(id, qty)
+    `);
+  });
+}
 
-    if (rows.length !== quantities.length) tx.rollback();
+// ----------- Lots -----------
+export async function createBtlLot(
+  ids: ServiceIDs["extended"],
+  lotBody: CreateBottleLot,
+) {
+  const { ownerId, shopId, bottleId } = ids;
 
-    return result;
-  })) as { id: number; stock: number }[];
+  await assertOwnership(shopId, ownerId);
 
-  return result;
+  const [lot] = await db
+    .insert(bottlesLotsTable)
+    .values({
+      ...lotBody,
+      costPrice: lotBody.costPrice.toFixed(3),
+      baseSellPrice: lotBody.baseSellPrice.toFixed(3),
+      receivedAt: new Date(lotBody.receivedAt),
+      remainingStock: lotBody.stock || 0,
+      bottleId,
+    })
+    .returning();
+
+  if (!lot)
+    throw new AppError(
+      400,
+      `Failed to create new lot for bottle with id: ${bottleId}`,
+    );
+
+  return lot;
+}
+
+export async function updateBtlLot(
+  ids: ServiceIDs["extendedLot"],
+  updates: UpdateBottleLotBody,
+) {
+  const { ownerId, shopId, bottleId, lotId } = ids;
+
+  await assertOwnership(shopId, ownerId);
+
+  const { costPrice, baseSellPrice, stock, receivedAt, status } = updates;
+  const [lot] = await db
+    .update(bottlesLotsTable)
+    .set({
+      ...(costPrice && { costPrice: costPrice.toFixed(3) }),
+      ...(baseSellPrice && { baseSellPrice: baseSellPrice.toFixed(3) }),
+      ...(stock && {
+        stock,
+        remainingStock: sql`remaining_stock - (stock - ${stock})`,
+      }),
+      ...(receivedAt && { receivedAt: new Date(receivedAt) }),
+      ...(status && { status }),
+    })
+    .where(
+      and(
+        eq(bottlesLotsTable.id, lotId),
+        eq(bottlesLotsTable.bottleId, bottleId),
+      ),
+    )
+    .returning();
+
+  if (!lot)
+    throw new AppError(
+      404,
+      `Failed to update, lot with id: ${lotId} may not exist or not belong to bottle with id: ${bottleId}`,
+    );
+
+  return lot;
+}
+
+export async function deleteBtlLot(ids: ServiceIDs["extendedLot"]) {
+  const { ownerId, shopId, bottleId, lotId } = ids;
+
+  await assertOwnership(shopId, ownerId);
+
+  const [lot] = await db
+    .delete(bottlesLotsTable)
+    .where(
+      and(
+        eq(bottlesLotsTable.id, lotId),
+        eq(bottlesLotsTable.bottleId, bottleId),
+      ),
+    )
+    .returning();
+
+  if (!lot)
+    throw new AppError(
+      404,
+      `Lot with id: ${lotId} may not exist or not belonging to bottle with id: ${bottleId}`,
+    );
+
+  return lot;
 }
 
 // ----------- Helpers -----------
@@ -199,19 +247,16 @@ function prepareBottlesFilters(filters: BottlesQueryFilters) {
 
   const conditions = [];
 
-  type Type = "spray" | "oil" | "tester";
-  type Catg = "normal" | "elegant";
-
   if (search) conditions.push(ilike(bottlesTable.name, `%${search}%`));
-  if (type) conditions.push(eq(bottlesTable.type, type as Type));
-  if (catg) conditions.push(eq(bottlesTable.category, catg as Catg));
+  if (type) conditions.push(eq(bottlesTable.type, type as BottleType));
+  if (catg) conditions.push(eq(bottlesTable.category, catg as BottleCatg));
   if (sku) conditions.push(ilike(bottlesTable.sku, `%${sku}%`));
   if (minPrice)
-    conditions.push(gte(bottlesTable.sellPrice, minPrice.toFixed(2)));
+    conditions.push(gte(bottlesLotsTable.baseSellPrice, minPrice.toFixed(2)));
   if (maxPrice)
-    conditions.push(lte(bottlesTable.sellPrice, maxPrice.toFixed(2)));
-  if (minStock) conditions.push(gte(bottlesTable.stock, minStock));
-  if (maxStock) conditions.push(lte(bottlesTable.stock, maxStock));
+    conditions.push(lte(bottlesLotsTable.baseSellPrice, maxPrice.toFixed(2)));
+  if (minStock) conditions.push(gte(bottlesLotsTable.stock, minStock));
+  if (maxStock) conditions.push(lte(bottlesLotsTable.stock, maxStock));
 
   return conditions;
 }

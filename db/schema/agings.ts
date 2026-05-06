@@ -9,7 +9,7 @@ import { timestamps } from "../columns.helpers";
 import { sql } from "drizzle-orm";
 import { alcoholsTable, compoundLotsTable } from ".";
 
-export const aging = pgTable(
+export const agingsTable = pgTable(
   "agings",
   {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),

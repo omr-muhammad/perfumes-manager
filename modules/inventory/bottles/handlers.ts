@@ -5,7 +5,7 @@ import { response as res } from "../../../utils/response";
 export async function createBtl(context: AlcoCTXs["create"]) {
   const { body, params, authPayload } = context;
 
-  const bottle = await btlService.create(
+  const bottle = await btlService.createBottle(
     authPayload.userId,
     params.shopId,
     body,
@@ -17,7 +17,7 @@ export async function createBtl(context: AlcoCTXs["create"]) {
 export async function updateBtl(context: AlcoCTXs["update"]) {
   const { authPayload, body, params } = context;
 
-  const bottle = await btlService.update(
+  const bottle = await btlService.updateBottle(
     authPayload.userId,
     params.shopId,
     params.bottleId,
@@ -30,7 +30,7 @@ export async function updateBtl(context: AlcoCTXs["update"]) {
 export async function deleteBtl(context: AlcoCTXs["del"]) {
   const { params, authPayload } = context;
 
-  const bottle = await btlService.remove(
+  const bottle = await btlService.deleteBottle(
     authPayload.userId,
     params.shopId,
     params.bottleId,

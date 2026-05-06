@@ -7,11 +7,10 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { timestamps } from "../columns.helpers";
-import { shops } from "./shops";
-import { users } from "./users";
 import { sql } from "drizzle-orm";
+import { shopsTable, usersTable } from ".";
 
-export const addresses = pgTable(
+export const addressesTable = pgTable(
   "addresses",
   {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -22,10 +21,10 @@ export const addresses = pgTable(
     buildingNumber: smallint("building_number"),
     notes: text("notes").default(""),
     shopId: integer("shop_id")
-      .references(() => shops.id, { onDelete: "cascade" })
+      .references(() => shopsTable.id, { onDelete: "cascade" })
       .unique(),
     userId: integer("user_id")
-      .references(() => users.id, { onDelete: "cascade" })
+      .references(() => usersTable.id, { onDelete: "cascade" })
       .unique(),
     ...timestamps,
   },

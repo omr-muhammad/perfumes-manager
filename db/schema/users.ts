@@ -2,7 +2,7 @@ import { boolean, integer, pgTable, varchar } from "drizzle-orm/pg-core";
 import { timestamps } from "../columns.helpers";
 import { langEn, roleEn } from "./enums";
 
-export const users = pgTable("users", {
+export const usersTable = pgTable("users", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   name: varchar("name", { length: 50 }).notNull(),
   username: varchar("username", { length: 50 })

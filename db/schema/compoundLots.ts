@@ -8,7 +8,7 @@ import {
   timestamp,
   unique,
 } from "drizzle-orm/pg-core";
-import { alcoholsTable, perfumesCompoundsTable } from ".";
+import { alcoholsTable, perfumeCompoundsTable } from ".";
 import { lotStatusEn } from "./enums";
 import { timestamps } from "../columns.helpers";
 
@@ -39,7 +39,7 @@ export const compoundLotsTable = pgTable(
     remainingOilAmount: integer("remaining_oil_amount").default(0),
     remainingSprayAmount: integer("remaining_spray_amount").default(0),
     compoundId: integer("compound_id")
-      .references(() => perfumesCompoundsTable.id)
+      .references(() => perfumeCompoundsTable.id)
       .notNull(),
     alcoholId: integer("alcohol_id").references(() => alcoholsTable.id, {
       onDelete: "restrict",

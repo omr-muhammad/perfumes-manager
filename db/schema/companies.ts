@@ -12,7 +12,7 @@ import {
 import { timestamps } from "../columns.helpers";
 import { companyTypeEn } from "./enums";
 
-export const companies = pgTable(
+export const companiesTable = pgTable(
   "companies",
   {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),

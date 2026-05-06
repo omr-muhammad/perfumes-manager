@@ -2,6 +2,7 @@ import { migrate } from "drizzle-orm/bun-sql/migrator";
 import { db } from "./config";
 import { sql } from "drizzle-orm";
 import { setupAlcoholTriggers } from "./utils/syncAlcohol";
+import { triggers } from "./utils/triggers";
 
 async function main() {
   await migrate(db, { migrationsFolder: "./db/migrations" });
@@ -28,7 +29,7 @@ async function main() {
   END $$
 `);
 
-  await setupAlcoholTriggers();
+  await triggers();
 
   console.log("Migration Done 🥳");
   process.exit(0);
