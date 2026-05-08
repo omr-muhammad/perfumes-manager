@@ -2,132 +2,146 @@ import { response as res } from "../../../utils/response";
 import type { CompCTXs } from "./schema";
 import * as compService from "./service";
 
-export async function createComp(context: CompCTXs["create"]) {
+export async function createComp(context: CompCTXs["createComp"]) {
   const { authPayload, params, body } = context;
 
-  const compound = await compService.create(
-    authPayload.userId,
-    params.shopId,
+  const compound = await compService.createComp(
+    { ...params, ownerId: authPayload.userId },
     body,
   );
-
-  if (body.aging && !compound.aging)
-    return res.ok("Compound created but failed to add aging.", { compound });
 
   return res.ok("Compound create.", { compound });
 }
 
-export async function updateComp(context: CompCTXs["update"]) {
+export async function updateComp(context: CompCTXs["updateComp"]) {
   const { body, params, authPayload } = context;
 
-  const compound = await compService.update(
-    authPayload.userId,
-    params.shopId,
-    params.compId,
+  const compound = await compService.updateComp(
+    { ...params, ownerId: authPayload.userId },
     body,
   );
 
   return res.ok("Perfume Compound updated.", { compound });
 }
 
-export async function deleteComp(context: CompCTXs["del"]) {
+export async function deleteComp(context: CompCTXs["delComp"]) {
   const { authPayload, params } = context;
 
-  const compound = await compService.remove(
-    authPayload.userId,
-    params.shopId,
-    params.compId,
-  );
+  const compound = await compService.removeComp({
+    ...params,
+    ownerId: authPayload.userId,
+  });
 
   return res.ok("Perfume Compound deleted.", { id: compound.id });
 }
 
-export async function getShopCompounds(context: CompCTXs["queryAll"]) {
+export async function getShopCompounds(context: CompCTXs["queryAllComps"]) {
   const { params, authPayload, query } = context;
 
   const compounds = await compService.queryAll(
-    authPayload.userId,
-    params.shopId,
+    { ...params, ownerId: authPayload.userId },
     query,
   );
 
   return res.ok("Perfumes Compounds fetched.", { compounds });
 }
 
-export async function getBtlById(context: CompCTXs["queryOne"]) {
+export async function getCompById(context: CompCTXs["queryCompById"]) {
   const { authPayload, params } = context;
 
-  const compound = await compService.queryById(
-    authPayload.userId,
-    params.shopId,
-    params.compId,
-  );
+  const compound = await compService.queryById({
+    ...params,
+    ownerId: authPayload.userId,
+  });
 
   return res.ok("Compound fetched.", { compound });
 }
 
+export async function createCompLot(context: CompCTXs["createCompLot"]) {
+  const { params, body, authPayload } = context;
+
+  const compLot = await compService.createLot(
+    { ...params, ownerId: authPayload.userId },
+    body,
+  );
+
+  return res.ok("Lot created.", { lot: compLot });
+}
+
+export async function updateCompLot(context: CompCTXs["updateCompoundLot"]) {
+  const { params, body, authPayload } = context;
+
+  const compLot = await compService.updateLot(
+    { ...params, ownerId: authPayload.userId },
+    body,
+  );
+
+  return res.ok("Lot updated.", { lot: compLot });
+}
+
+export async function delCompLot(context: CompCTXs["delCompoundLot"]) {
+  const { params, authPayload } = context;
+
+  const compLot = await compService.deleteLot({
+    ...params,
+    ownerId: authPayload.userId,
+  });
+
+  return res.ok("Lot deleted.", { id: compLot.id });
+}
+
 // AGING
-export async function addAgingToComp(context: CompCTXs["addAging"]) {
+export async function addAgingToLot(context: CompCTXs["createLotAging"]) {
   const { params, body, authPayload } = context;
 
   const aging = await compService.addAging(
-    authPayload.userId,
-    params.shopId,
-    params.compId,
+    { ...params, ownerId: authPayload.userId },
     body,
   );
 
   return res.ok("Aging Added to perfume compound.", { aging });
 }
 
-export async function updateCompAging(context: CompCTXs["updateAging"]) {
+export async function updateLotAging(context: CompCTXs["updateLotAging"]) {
   const { authPayload, body, params } = context;
 
   const aging = await compService.updateAging(
-    authPayload.userId,
-    params.shopId,
-    params.compId,
-    params.agingId,
+    { ...params, ownerId: authPayload.userId },
     body,
   );
 
   return res.ok("Perfume Compound Aging updated.", { aging });
 }
 
-export async function deleteCompAging(context: CompCTXs["delAging"]) {
+export async function deleteLotAging(context: CompCTXs["delLotAging"]) {
   const { params, authPayload, body } = context;
 
   const aging = await compService.deleteAging(
-    authPayload.userId,
-    params.shopId,
-    params.compId,
-    params.agingId,
-    body.retrieveAcohol,
+    { ...params, ownerId: authPayload.userId },
+    body.syncAlcohol,
   );
 
-  return res.ok("Aging deleted.", { id: aging.id, compoundId: params.compId });
+  return res.ok("Aging deleted.", { id: aging.id, lotId: params.lotId });
 }
 
-export async function getCompAgings(context: CompCTXs["queryCompAgings"]) {
+export async function getLotAgings(context: CompCTXs["queryLotAgings"]) {
   const { authPayload, params } = context;
 
-  const compAgings = await compService.queryCompAgings(
-    authPayload.userId,
-    params.shopId,
-    params.compId,
-  );
+  const compAgings = await compService.queryCompAgings({
+    ...params,
+    ownerId: authPayload.userId,
+  });
 
   return res.ok("Perfume Compound Agings fetched.", { agings: compAgings });
 }
 
-export async function getCompAgingById(context: CompCTXs["queryOneAging"]) {
+export async function getLotAgingById(context: CompCTXs["queryOneAging"]) {
   const { authPayload, params } = context;
 
-  const compAging = await compService.queryCompAgingById(
-    authPayload.userId,
-    params.shopId,
-    params.agingId,
-  );
+  const compAging = await compService.queryCompAgingById({
+    ...params,
+    ownerId: authPayload.userId,
+  });
 
   return res.ok("Perfume Compound Agings fetched.", { agings: compAging });
 }
