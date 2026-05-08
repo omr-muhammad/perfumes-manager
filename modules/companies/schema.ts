@@ -2,10 +2,10 @@ import { createInsertSchema } from "drizzle-typebox";
 import { t, type Static } from "elysia";
 import { companiesTable } from "../../db/schema";
 import { ID, QueriesMeta, type Ctx } from "../../utils/globalSchema";
+import { enumToUnion } from "../../utils/unionToLiteral";
+import { companyTypeEn } from "../../db/schema/enums";
 
-const CoClass = t.Union([t.Literal("global"), t.Literal("custom")], {
-  error: "Compnay type is either (global) or (custom)",
-});
+const CoClass = enumToUnion(companyTypeEn);
 
 const insertSchema = createInsertSchema(companiesTable, {
   country: t.String({
