@@ -26,7 +26,7 @@ export const shopsRouter = new Elysia({ prefix: "/shops" })
       .delete("", handlers.deleteShopById, ShopSchema.DelShop)
       .patch("", handlers.updateMyShop, ShopSchema.UpdateShop)
       .put("/address", handlers.upsertShopAddress, ShopSchema.UpsertShopAddress)
-      .patch("/:shopId/visible", handlers.hideShop, ShopSchema.Visibility)
+      .patch("/visible", handlers.hideShop, ShopSchema.Visibility)
 
       // Shop Staff
       .group("/staff", (app) =>
