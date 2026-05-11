@@ -10,6 +10,7 @@ import {
 } from "../../../utils/globalSchema";
 import { enumToUnion } from "../../../utils/unionToLiteral";
 import { bottleCatgeroyEn, bottleTypeEn } from "../../../db/schema/enums";
+import { UpdateTier, CreateTier } from "../amountTiers/schema";
 
 const BottleInsertSchema = createInsertSchema(bottlesTable, {
   size: t.Number({ minimum: 1 }),
@@ -84,6 +85,13 @@ const BottleLotParams = t.Object({
   lotId: ID,
 });
 type BottleLotParams = Static<typeof BottleLotParams>;
+
+const BottleLotAmountParams = t.Object({
+  ...baseParams,
+  lotId: ID,
+  tierId: ID,
+});
+type BottleLotAmountParams = Static<typeof BottleLotAmountParams>;
 // ------------- Service IDs -------------
 export interface ServiceIDs {
   base: InvAuth;
@@ -103,6 +111,11 @@ export interface BottleCTXs {
   createLot: Ctx<CreateBottleLot, BottleParams>;
   updateLot: Ctx<UpdateBottleLotBody, BottleLotParams>;
   deleteLot: Ctx<unknown, BottleLotParams>;
+
+  // amount tier
+  addAmountTier: Ctx<CreateTier, BottleLotParams>;
+  updateAmountTier: Ctx<UpdateTier, BottleLotAmountParams>;
+  deleteAmountTier: Ctx<unknown, BottleLotAmountParams>;
 }
 
 export const BottleSchema = {
@@ -116,4 +129,9 @@ export const BottleSchema = {
   createLot: { params: BottleParams, body: CreateBottleLot },
   updateLot: { params: BottleLotParams, body: UpdateBottleLotBody },
   deleteLot: { params: BottleLotParams },
+
+  // Amount Tiers
+  addAmountTier: { params: BottleLotParams, body: CreateTier },
+  updateAmountTier: { params: BottleLotAmountParams, body: UpdateTier },
+  delAmountTier: { params: BottleLotAmountParams },
 };

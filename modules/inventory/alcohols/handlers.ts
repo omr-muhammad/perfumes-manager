@@ -146,5 +146,5 @@ export async function deleteAmountTier(context: AlcoCTXs["deleteAmountTier"]) {
     },
   );
 
-  return res.ok("Amount Tier created.", { amountTier: tier });
+  return res.ok("Amount Tier deleted.", { amountTier: tier });
 }

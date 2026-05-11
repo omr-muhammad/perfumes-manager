@@ -9,15 +9,40 @@ export const bottlesRouter = new Elysia({ prefix: "/bottles" })
   .use(restrictTo("owner"))
   .get("", handlers.getShopBottles, BottleSchema.qAll)
   .post("", handlers.createBtl, BottleSchema.create)
+
+  // /inventory/bottles/:bottleId
   .group("/:bottleId", (app) =>
     app
       .get("", handlers.getBtlById, BottleSchema.qOne)
       .patch("", handlers.updateBtl, BottleSchema.update)
       .delete("", handlers.deleteBtl, BottleSchema.del)
+
+      // /inventory/bottles/:bottleId/lots
       .group("/lots", (app) =>
         app
           .post("", handlers.createBtlLot, BottleSchema.createLot)
-          .patch("/:lotId", handlers.updateBtlLot, BottleSchema.updateLot)
-          .delete("/:lotId", handlers.deleteBtlLot, BottleSchema.deleteLot),
+
+          // /inventory/bottles/:bottleId/lots/:lotId
+          .group("/:lotId", (app) =>
+            app
+              .patch("", handlers.updateBtlLot, BottleSchema.updateLot)
+              .delete("", handlers.deleteBtlLot, BottleSchema.deleteLot)
+
+              // /inventory/bottles/:bottleId/lots/:lotId/amount-tiers
+              .group("/amount-tiers", (app) =>
+                app
+                  .post("", handlers.addAmountTier, BottleSchema.addAmountTier)
+                  .patch(
+                    "/:tierId",
+                    handlers.updateAmountTier,
+                    BottleSchema.updateAmountTier,
+                  )
+                  .delete(
+                    "/:tierId",
+                    handlers.deleteAmountTier,
+                    BottleSchema.delAmountTier,
+                  ),
+              ),
+          ),
       ),
   );
