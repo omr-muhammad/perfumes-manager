@@ -1,6 +1,7 @@
 import { response as res } from "../../../utils/response";
 import type { AlcoCTXs } from "./schema";
 import * as alcoService from "./service";
+import * as amountTierService from "../amountTiers/service";
 
 export async function createAlco(context: AlcoCTXs["createAlco"]) {
   const {
@@ -93,4 +94,57 @@ export async function deleteAlcoLot(context: AlcoCTXs["delAlcoLot"]) {
   const alcoLot = await alcoService.deleteLot({ ...params, ownerId });
 
   return res.ok("Deleted success.", { id: alcoLot.id });
+}
+
+// Amount Tiers
+export async function addAmountTier(context: AlcoCTXs["addAmountTier"]) {
+  const {
+    params: { alcoholId: entityId, ...rest },
+    body,
+    authPayload,
+  } = context;
+
+  const tier = await amountTierService.create(
+    { ...rest, ownerId: authPayload.userId },
+    { entityId, entityType: "alcohol" },
+    body,
+  );
+
+  return res.ok("Amount Tier created.", { amountTier: tier });
+}
+
+export async function updateAmountTier(context: AlcoCTXs["updateAmountTier"]) {
+  const {
+    params: { alcoholId: entityId, ...rest },
+    body,
+    authPayload,
+  } = context;
+
+  const tier = await amountTierService.update(
+    { ...rest, ownerId: authPayload.userId },
+    { entityId, entityType: "alcohol" },
+    body,
+  );
+
+  return res.ok("Amount Tier updated.", { amountTier: tier });
+}
+
+export async function deleteAmountTier(context: AlcoCTXs["deleteAmountTier"]) {
+  const {
+    params: { alcoholId: entityId, ...rest },
+    authPayload,
+  } = context;
+
+  const tier = await amountTierService.remove(
+    {
+      ...rest,
+      ownerId: authPayload.userId,
+    },
+    {
+      entityId,
+      entityType: "alcohol",
+    },
+  );
+
+  return res.ok("Amount Tier created.", { amountTier: tier });
 }

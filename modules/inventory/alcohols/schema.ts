@@ -8,6 +8,7 @@ import {
   type Ctx,
   type InvAuth,
 } from "../../../utils/globalSchema";
+import { CreateTier, UpdateTier } from "../amountTiers/schema";
 
 const BaseAlco = createInsertSchema(alcoholsTable, {
   concentration: t.Optional(t.Number({ minimum: 1, maximum: 100 })),
@@ -83,6 +84,14 @@ const AlcoLotParams = t.Object({
 });
 type AlcoLotParams = Static<typeof AlcoLotParams>;
 
+const AlcoLotAmountParams = t.Object({
+  shopId: ID,
+  alcoholId: ID,
+  lotId: ID,
+  tierId: ID,
+});
+type AlcoLotAmountParams = Static<typeof AlcoLotAmountParams>;
+
 // -------------- Service IDs --------------
 export interface ServiceIDs {
   BaseAlcoIDs: InvAuth;
@@ -103,6 +112,11 @@ export interface AlcoCTXs {
   createAlcoLot: Ctx<AlcoholLot, AlcoParams>;
   updateAlcoLot: Ctx<UpdateLotBody, AlcoLotParams>;
   delAlcoLot: Ctx<unknown, AlcoLotParams>;
+
+  // amount tier
+  addAmountTier: Ctx<CreateTier, AlcoLotParams>;
+  updateAmountTier: Ctx<UpdateTier, AlcoLotAmountParams>;
+  deleteAmountTier: Ctx<unknown, AlcoLotAmountParams>;
 }
 
 // -------------- Alco Schema --------------
@@ -117,4 +131,9 @@ export const AlcoSchema = {
   createLot: { params: AlcoParams, body: AlcoLot },
   updateLot: { params: AlcoLotParams, body: UpdateLotBody },
   delLot: { params: AlcoLotParams },
+
+  // Amount Tiers
+  addAmountTier: { params: AlcoLotParams, body: CreateTier },
+  updateAmountTier: { params: AlcoLotAmountParams, body: UpdateTier },
+  delAmountTier: { params: AlcoLotAmountParams },
 };
