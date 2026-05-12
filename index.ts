@@ -6,9 +6,11 @@ import { shopsRouter } from "./modules/shops/router";
 import { AppError } from "./utils/AppError";
 import { handlePgError } from "./utils/pgErrorHandler";
 import { response as res } from "./utils/response";
+import { adminRouter } from "./modules/admin/router";
 
 export const app = new Elysia({ prefix: "/api" })
   .onError(({ code, error, set }) => {
+    console.log("Error: ", error);
     const isDev = Bun.env.NODE_ENV === "development";
 
     if (error instanceof AppError) {
@@ -44,6 +46,7 @@ export const app = new Elysia({ prefix: "/api" })
     set.status = 500;
     return { success: false, message: "Internal server error" };
   })
+  .use(adminRouter)
   .use(perfumesRouter)
   .use(companiesRouter)
   .use(usersRouter)

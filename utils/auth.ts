@@ -5,12 +5,17 @@ import { AppError } from "./AppError";
 
 export const protect = new Elysia({ name: "protect" })
   .use(authPlugin)
-  .resolve({ as: "scoped" }, async ({ cookie: { authToken }, authJWT }) => {
+  .resolve({ as: "scoped" }, async ({ cookie, authJWT }) => {
+    const { authToken } = cookie;
+
     if (!authToken || typeof authToken.value !== "string")
       throw new AppError(401, "Unauthorized: No token provided, please login.");
 
     const token = authToken.value;
+
     const payload = await authJWT.verify(token);
+
+    console.debug("Payload: ", await authJWT.verify(token));
 
     if (!payload)
       throw new AppError(

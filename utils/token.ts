@@ -11,6 +11,7 @@ export async function signToken(
     userId: payload.userId,
     role: payload.role,
     exp: Math.floor(Date.now() / 1000) + duration,
+    tokenV: payload.tokenV,
   });
 }
 
