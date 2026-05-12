@@ -24,3 +24,8 @@ export const lotStatusEn = pgEnum("lot_status", [
   "depleted",
   "expired",
 ]);
+export const entityTypeEn = pgEnum("entity_type", [
+  "compound",
+  "bottle",
+  "alcohol",
+]);

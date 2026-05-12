@@ -1,7 +1,7 @@
 import { check, integer, numeric, pgTable } from "drizzle-orm/pg-core";
 import { perfumeCompoundsTable, shopsTable } from ".";
 import { int4range, timestamps } from "../columns.helpers";
-import { discountTypeEn, pricingTypeEn } from "./enums";
+import { discountTypeEn, entityTypeEn, pricingTypeEn } from "./enums";
 import { sql } from "drizzle-orm";
 
 export const amountTiersTable = pgTable(
@@ -11,9 +11,10 @@ export const amountTiersTable = pgTable(
     shopId: integer("shop_id")
       .references(() => shopsTable.id, { onDelete: "cascade" })
       .notNull(),
-    compoundId: integer("compound_id")
+    entityId: integer("entity_id")
       .references(() => perfumeCompoundsTable.id, { onDelete: "cascade" })
       .notNull(),
+    entityType: entityTypeEn("entity_type").notNull(),
     amountRange: int4range("amount_range").notNull(),
     pricingType: pricingTypeEn("pricing_type").notNull(),
     value: numeric("value", { precision: 10, scale: 4 }).notNull(),
