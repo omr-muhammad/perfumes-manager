@@ -3,6 +3,7 @@ import Elysia from "elysia";
 import { protect, restrictTo } from "../../../utils/auth";
 import * as handlers from "./handlers";
 import { BottleSchema } from "./schema";
+import { btlAmountRouter } from "../amountTiers/router";
 
 export const bottlesRouter = new Elysia({ prefix: "/bottles" })
   .use(protect)
@@ -18,31 +19,15 @@ export const bottlesRouter = new Elysia({ prefix: "/bottles" })
       .delete("", handlers.deleteBtl, BottleSchema.del)
 
       // /inventory/bottles/:bottleId/lots
-      .group("/lots", (app) =>
+      .post("/lots", handlers.createBtlLot, BottleSchema.createLot)
+
+      // /inventory/bottles/:bottleId/lots/:lotId
+      .group("/lots/:lotId", (app) =>
         app
-          .post("", handlers.createBtlLot, BottleSchema.createLot)
+          .patch("", handlers.updateBtlLot, BottleSchema.updateLot)
+          .delete("", handlers.deleteBtlLot, BottleSchema.deleteLot)
 
-          // /inventory/bottles/:bottleId/lots/:lotId
-          .group("/:lotId", (app) =>
-            app
-              .patch("", handlers.updateBtlLot, BottleSchema.updateLot)
-              .delete("", handlers.deleteBtlLot, BottleSchema.deleteLot)
-
-              // /inventory/bottles/:bottleId/lots/:lotId/amount-tiers
-              .group("/amount-tiers", (app) =>
-                app
-                  .post("", handlers.addAmountTier, BottleSchema.addAmountTier)
-                  .patch(
-                    "/:tierId",
-                    handlers.updateAmountTier,
-                    BottleSchema.updateAmountTier,
-                  )
-                  .delete(
-                    "/:tierId",
-                    handlers.deleteAmountTier,
-                    BottleSchema.delAmountTier,
-                  ),
-              ),
-          ),
+          // /inventory/bottles/:bottleId/lots/:lotId/amount-tiers
+          .group("/amount-tiers", (app) => app.use(btlAmountRouter)),
       ),
   );

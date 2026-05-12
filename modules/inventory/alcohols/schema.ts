@@ -82,7 +82,7 @@ const AlcoLotParams = t.Object({
   alcoholId: ID,
   lotId: ID,
 });
-type AlcoLotParams = Static<typeof AlcoLotParams>;
+export type AlcoLotParams = Static<typeof AlcoLotParams>;
 
 const AlcoLotAmountParams = t.Object({
   shopId: ID,

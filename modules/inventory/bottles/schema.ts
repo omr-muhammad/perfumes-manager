@@ -84,7 +84,7 @@ const BottleLotParams = t.Object({
   ...baseParams,
   lotId: ID,
 });
-type BottleLotParams = Static<typeof BottleLotParams>;
+export type BottleLotParams = Static<typeof BottleLotParams>;
 
 const BottleLotAmountParams = t.Object({
   ...baseParams,

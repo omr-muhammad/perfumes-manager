@@ -4,6 +4,7 @@ import { protect, restrictTo } from "../../../utils/auth";
 import * as handlers from "./handlers";
 import { CompSchema, type CompCTXs } from "./schema";
 import { AppError } from "../../../utils/AppError";
+import { compAmountRouter } from "../amountTiers/router";
 
 export const perfumesCompoundsRouter = new Elysia({ prefix: "/compounds" })
   .use(protect)
@@ -25,6 +26,9 @@ export const perfumesCompoundsRouter = new Elysia({ prefix: "/compounds" })
         app
           .patch("", handlers.updateCompLot, CompSchema.updateCompLot)
           .delete("", handlers.delCompLot, CompSchema.delCompLot)
+
+          // /:compId/lots/:lotId/amount-tiers
+          .group("/amount-tiers", (app) => app.use(compAmountRouter))
 
           // /:compId/lots/:lotId/agings
           .get("/agings", handlers.getLotAgings, CompSchema.queryLotAgings)

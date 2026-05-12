@@ -5,9 +5,8 @@ import {
   ID,
   QueriesMeta,
   ShopParams,
-  type AuthId,
   type Ctx,
-  type InvAuth,
+  type WithAuth,
 } from "../../../utils/globalSchema";
 import { compoundLotsTable } from "../../../db/schema/compoundLots";
 import type { InferSelectModel } from "drizzle-orm";
@@ -120,7 +119,7 @@ const compLotParams = {
   lotId: ID,
 };
 const CompLotParams = t.Object(compLotParams);
-type CompLotParams = Static<typeof CompLotParams>;
+export type CompLotParams = Static<typeof CompLotParams>;
 
 // Agings
 const AgingParams = t.Object({
@@ -130,8 +129,6 @@ const AgingParams = t.Object({
 type AgingParams = Static<typeof AgingParams>;
 
 // ---------------- Service IDs ----------------
-type WithAuth<T> = T & AuthId;
-
 export interface ServiceIDs {
   base: WithAuth<ShopParams>;
   extendsComp: WithAuth<CompParams>;
