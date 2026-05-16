@@ -2,8 +2,9 @@ CREATE TYPE "public"."bottle_category" AS ENUM('normal', 'elegant');--> statemen
 CREATE TYPE "public"."bottle_type" AS ENUM('spray', 'oil', 'tester');--> statement-breakpoint
 CREATE TYPE "public"."type" AS ENUM('global', 'local');--> statement-breakpoint
 CREATE TYPE "public"."discount_type" AS ENUM('percentage', 'fixed');--> statement-breakpoint
+CREATE TYPE "public"."entity_type" AS ENUM('compound', 'bottle', 'alcohol');--> statement-breakpoint
 CREATE TYPE "public"."language" AS ENUM('ar', 'en');--> statement-breakpoint
-CREATE TYPE "public"."lot_status" AS ENUM('inuse', 'ready', 'expired');--> statement-breakpoint
+CREATE TYPE "public"."lot_status" AS ENUM('inuse', 'ready', 'depleted', 'expired');--> statement-breakpoint
 CREATE TYPE "public"."pricing_type" AS ENUM('discount', 'fixed');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('admin', 'owner', 'staff', 'customer');--> statement-breakpoint
 CREATE TYPE "public"."seasons" AS ENUM('winter', 'spring', 'summer', 'fall');--> statement-breakpoint
@@ -87,7 +88,8 @@ CREATE TABLE "alcohols" (
 CREATE TABLE "amount_tiers" (
 	"id" integer GENERATED ALWAYS AS IDENTITY (sequence name "amount_tiers_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"shop_id" integer NOT NULL,
-	"compound_id" integer NOT NULL,
+	"entity_id" integer NOT NULL,
+	"entity_type" "entity_type" NOT NULL,
 	"amount_range" "int4range" NOT NULL,
 	"pricing_type" "pricing_type" NOT NULL,
 	"value" numeric(10, 4) NOT NULL,
@@ -115,30 +117,36 @@ CREATE TABLE "amount_tiers" (
 CREATE TABLE "bottles" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "bottles_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"name" varchar(50),
-	"sku" varchar(50) NOT NULL,
 	"type" "bottle_type" NOT NULL,
 	"size" smallint NOT NULL,
+	"sku" varchar(100) NOT NULL,
 	"category" "bottle_category" NOT NULL,
-	"buy_price" numeric(5, 2) NOT NULL,
-	"price" numeric(5, 2) NOT NULL,
 	"img" text,
 	"shop_id" integer NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"stock" integer DEFAULT 0 NOT NULL,
-	CONSTRAINT "bottle_must_have_unique_sku" UNIQUE("sku","shop_id","size"),
+	CONSTRAINT "duplicate_bottle" UNIQUE("shop_id","sku"),
 	CONSTRAINT "bottle_size_must_be_positive" CHECK (
       "bottles"."size" > 0
+    )
+);
+--> statement-breakpoint
+CREATE TABLE "bottles_lots" (
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "bottles_lots_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"received_at" timestamp DEFAULT now() NOT NULL,
+	"status" "lot_status" NOT NULL,
+	"stock" integer DEFAULT 0 NOT NULL,
+	"remaining_stock" integer NOT NULL,
+	"buy_price" numeric(5, 2) NOT NULL,
+	"price" numeric(5, 2) NOT NULL,
+	"bottle_id" integer NOT NULL,
+	CONSTRAINT "duplicate_lot" UNIQUE("bottle_id","received_at","buy_price","stock"),
+	CONSTRAINT "cost_price_must_be_lte_sell_price" CHECK (
+        "bottles_lots"."buy_price" <= "bottles_lots"."price"
     ),
-	CONSTRAINT "bottle_prices_cannot_be_negative" CHECK (
-      "bottles"."price" >= 0 AND "bottles"."buy_price" >= 0
-    ),
-	CONSTRAINT "bottle_sell_price_must_be_above_buy_price_or_equal" CHECK (
-        "bottles"."price" >= "bottles"."buy_price"
-      ),
-	CONSTRAINT "bottle_stock_must_be_positive" CHECK (
-        "bottles"."stock" >= 0
-      )
+	CONSTRAINT "remaining_stock_must_lte_base_stock" CHECK (
+            "bottles_lots"."remaining_stock" <= "bottles_lots"."stock"
+        )
 );
 --> statement-breakpoint
 CREATE TABLE "companies" (
@@ -276,8 +284,9 @@ ALTER TABLE "agings" ADD CONSTRAINT "agings_alcohol_id_alcohols_id_fk" FOREIGN K
 ALTER TABLE "alcohol_lots" ADD CONSTRAINT "alcohol_lots_alcohol_id_alcohols_id_fk" FOREIGN KEY ("alcohol_id") REFERENCES "public"."alcohols"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "alcohols" ADD CONSTRAINT "alcohols_shop_id_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."shops"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "amount_tiers" ADD CONSTRAINT "amount_tiers_shop_id_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."shops"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "amount_tiers" ADD CONSTRAINT "amount_tiers_compound_id_perfumes_compounds_id_fk" FOREIGN KEY ("compound_id") REFERENCES "public"."perfumes_compounds"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "amount_tiers" ADD CONSTRAINT "amount_tiers_entity_id_perfumes_compounds_id_fk" FOREIGN KEY ("entity_id") REFERENCES "public"."perfumes_compounds"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "bottles" ADD CONSTRAINT "bottles_shop_id_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."shops"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "bottles_lots" ADD CONSTRAINT "bottles_lots_bottle_id_bottles_id_fk" FOREIGN KEY ("bottle_id") REFERENCES "public"."bottles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "compound_lots" ADD CONSTRAINT "compound_lots_compound_id_perfumes_compounds_id_fk" FOREIGN KEY ("compound_id") REFERENCES "public"."perfumes_compounds"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "compound_lots" ADD CONSTRAINT "compound_lots_alcohol_id_alcohols_id_fk" FOREIGN KEY ("alcohol_id") REFERENCES "public"."alcohols"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "perfumes_compounds" ADD CONSTRAINT "perfumes_compounds_perfume_id_perfumes_id_fk" FOREIGN KEY ("perfume_id") REFERENCES "public"."perfumes"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint

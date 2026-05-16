@@ -1,1 +1,0 @@
-ALTER TYPE "public"."lot_status" ADD VALUE 'depleted' BEFORE 'expired';

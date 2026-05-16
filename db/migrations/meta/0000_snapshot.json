@@ -1,5 +1,5 @@
 {
-  "id": "7f97a75d-bd38-402b-8c6b-fdfecf9e963f",
+  "id": "6a6374b3-7635-4ad3-8869-c9d0191e4654",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -536,9 +536,16 @@
           "primaryKey": false,
           "notNull": true
         },
-        "compound_id": {
-          "name": "compound_id",
+        "entity_id": {
+          "name": "entity_id",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entity_type": {
+          "name": "entity_type",
+          "type": "entity_type",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
@@ -604,12 +611,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "amount_tiers_compound_id_perfumes_compounds_id_fk": {
-          "name": "amount_tiers_compound_id_perfumes_compounds_id_fk",
+        "amount_tiers_entity_id_perfumes_compounds_id_fk": {
+          "name": "amount_tiers_entity_id_perfumes_compounds_id_fk",
           "tableFrom": "amount_tiers",
           "tableTo": "perfumes_compounds",
           "columnsFrom": [
-            "compound_id"
+            "entity_id"
           ],
           "columnsTo": [
             "id"
@@ -664,12 +671,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "sku": {
-          "name": "sku",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true
-        },
         "type": {
           "name": "type",
           "type": "bottle_type",
@@ -683,22 +684,16 @@
           "primaryKey": false,
           "notNull": true
         },
+        "sku": {
+          "name": "sku",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
         "category": {
           "name": "category",
           "type": "bottle_category",
           "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "buy_price": {
-          "name": "buy_price",
-          "type": "numeric(5, 2)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "price": {
-          "name": "price",
-          "type": "numeric(5, 2)",
           "primaryKey": false,
           "notNull": true
         },
@@ -727,13 +722,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "stock": {
-          "name": "stock",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
         }
       },
       "indexes": {},
@@ -754,13 +742,12 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "bottle_must_have_unique_sku": {
-          "name": "bottle_must_have_unique_sku",
+        "duplicate_bottle": {
+          "name": "duplicate_bottle",
           "nullsNotDistinct": false,
           "columns": [
-            "sku",
             "shop_id",
-            "size"
+            "sku"
           ]
         }
       },
@@ -769,18 +756,115 @@
         "bottle_size_must_be_positive": {
           "name": "bottle_size_must_be_positive",
           "value": "\n      \"bottles\".\"size\" > 0\n    "
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.bottles_lots": {
+      "name": "bottles_lots",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "bottles_lots_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
         },
-        "bottle_prices_cannot_be_negative": {
-          "name": "bottle_prices_cannot_be_negative",
-          "value": "\n      \"bottles\".\"price\" >= 0 AND \"bottles\".\"buy_price\" >= 0\n    "
+        "received_at": {
+          "name": "received_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         },
-        "bottle_sell_price_must_be_above_buy_price_or_equal": {
-          "name": "bottle_sell_price_must_be_above_buy_price_or_equal",
-          "value": "\n        \"bottles\".\"price\" >= \"bottles\".\"buy_price\"\n      "
+        "status": {
+          "name": "status",
+          "type": "lot_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
         },
-        "bottle_stock_must_be_positive": {
-          "name": "bottle_stock_must_be_positive",
-          "value": "\n        \"bottles\".\"stock\" >= 0\n      "
+        "stock": {
+          "name": "stock",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "remaining_stock": {
+          "name": "remaining_stock",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "buy_price": {
+          "name": "buy_price",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "price": {
+          "name": "price",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bottle_id": {
+          "name": "bottle_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bottles_lots_bottle_id_bottles_id_fk": {
+          "name": "bottles_lots_bottle_id_bottles_id_fk",
+          "tableFrom": "bottles_lots",
+          "tableTo": "bottles",
+          "columnsFrom": [
+            "bottle_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "duplicate_lot": {
+          "name": "duplicate_lot",
+          "nullsNotDistinct": false,
+          "columns": [
+            "bottle_id",
+            "received_at",
+            "buy_price",
+            "stock"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "cost_price_must_be_lte_sell_price": {
+          "name": "cost_price_must_be_lte_sell_price",
+          "value": "\n        \"bottles_lots\".\"buy_price\" <= \"bottles_lots\".\"price\"\n    "
+        },
+        "remaining_stock_must_lte_base_stock": {
+          "name": "remaining_stock_must_lte_base_stock",
+          "value": "\n            \"bottles_lots\".\"remaining_stock\" <= \"bottles_lots\".\"stock\"\n        "
         }
       },
       "isRLSEnabled": false
@@ -1624,6 +1708,15 @@
         "fixed"
       ]
     },
+    "public.entity_type": {
+      "name": "entity_type",
+      "schema": "public",
+      "values": [
+        "compound",
+        "bottle",
+        "alcohol"
+      ]
+    },
     "public.language": {
       "name": "language",
       "schema": "public",
@@ -1638,6 +1731,7 @@
       "values": [
         "inuse",
         "ready",
+        "depleted",
         "expired"
       ]
     },

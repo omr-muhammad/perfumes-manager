@@ -1,7 +1,6 @@
 import { migrate } from "drizzle-orm/bun-sql/migrator";
 import { db } from "./config";
 import { sql } from "drizzle-orm";
-import { setupAlcoholTriggers } from "./utils/syncAlcohol";
 import { dbFunctions } from "./utils/triggers";
 
 async function main() {
@@ -22,7 +21,8 @@ async function main() {
       ADD CONSTRAINT no_amount_ranges_overlapping
       EXCLUDE USING GIST (
         shop_id WITH =,
-        compound_id WITH =,
+        entity_id WITH =,
+        entity_type WITH =,
         amount_range WITH &&
       );
     END IF;
