@@ -66,7 +66,7 @@ export async function signup(context: UserCTXs["Signup"]) {
 
   const user = await usersService.signup(body.user);
 
-  const { password, phone, role, ...safeInfo } = user;
+  const { password, phone, role, tokenVersion, ...safeInfo } = user;
 
   const token = await signToken(
     authJWT,
