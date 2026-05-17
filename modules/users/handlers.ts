@@ -120,7 +120,7 @@ export async function changePassword(context: UserCTXs["ChangePW"]) {
     body.newPw,
   );
 
-  const { password, role, phone, tokenVersion, ...safeInfo } = user;
+  const { password, role, phone, tokenVersion, active, ...safeInfo } = user;
 
   const token = await signToken(
     authJWT,
@@ -138,7 +138,7 @@ export async function updateMe(context: UserCTXs["UpdateMe"]) {
 
   const user = await usersService.update(authPayload.userId, body);
 
-  const { password, role, ...safeInfo } = user;
+  const { password, role, active, tokenVersion, ...safeInfo } = user;
   return res.ok("User updated", { user: safeInfo });
 }
 
@@ -155,14 +155,17 @@ export async function getMe(context: UserCTXs["GetMe"]) {
 
   const user = await usersService.getById(authPayload.userId);
 
-  const { password, ...safeInfo } = user;
+  const { password, tokenVersion, active, ...safeInfo } = user;
   return res.ok("User fetched", { user: safeInfo });
 }
 
 export async function deleteMe(context: UserCTXs["DelMe"]) {
-  const { body, authPayload } = context;
+  const { body, authPayload, cookie } = context;
 
   const user = await usersService.remove(authPayload.userId, body.password);
 
-  return res.ok("User delete", { userId: user });
+  // Remove cookies after deleting
+  cookie.authToken?.remove();
+
+  return res.ok("User delete", { userId: user.id });
 }

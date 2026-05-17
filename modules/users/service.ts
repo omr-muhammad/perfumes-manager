@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db/config";
 import { addressesTable, usersTable } from "../../db/schema";
 import type {
@@ -53,11 +53,13 @@ export async function queryAll() {
   }
 }
 
-export async function getById(userId: number) {
+export async function getById(userId: number, includeActive: boolean = true) {
+  const isActive = includeActive ? eq(usersTable.active, true) : undefined;
+
   const [user] = await db
     .select()
     .from(usersTable)
-    .where(eq(usersTable.id, userId));
+    .where(and(eq(usersTable.id, userId), isActive));
 
   if (!user) throw new AppError(404, `User with id: ${userId} not found.`);
 

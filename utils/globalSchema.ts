@@ -2,7 +2,7 @@ import { Cookie, status, t, type Static } from "elysia";
 import { authJWTPlugin } from "./jwtPlugin";
 import type { db } from "../db/config";
 import { addressesTable, usersTable } from "../db/schema";
-import { createInsertSchema } from "drizzle-typebox";
+import { createInsertSchema, createSelectSchema } from "drizzle-typebox";
 import { langEn, roleEn, staffEn } from "../db/schema/enums";
 import { enumToUnion } from "./unionToLiteral";
 
@@ -44,8 +44,9 @@ export const UserStaff = createInsertSchema(usersTable, {
 });
 
 // ------------------- Address -------------------
-const addressSchema = createInsertSchema(addressesTable);
+const addressSchema = createSelectSchema(addressesTable);
 export const AddressBase = t.Omit(addressSchema, [
+  "id",
   "updatedAt",
   "createdAt",
   "shopId",
