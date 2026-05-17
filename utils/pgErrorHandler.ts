@@ -49,6 +49,7 @@ function isPgError(err: any) {
   return (
     err !== null &&
     typeof err === "object" &&
+    typeof err.cause === "object" &&
     "code" in err.cause &&
     typeof err.cause.code === "string"
   );

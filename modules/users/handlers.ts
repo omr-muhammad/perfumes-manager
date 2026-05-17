@@ -66,7 +66,7 @@ export async function signup(context: UserCTXs["Signup"]) {
 
   const user = await usersService.signup(body.user);
 
-  const { password, phone, role, tokenVersion, ...safeInfo } = user;
+  const { password, phone, role, tokenVersion, active, ...safeInfo } = user;
 
   const token = await signToken(
     authJWT,
@@ -103,8 +103,11 @@ export async function login(context: UserCTXs["Login"]) {
 export async function logout(context: UserCTXs["Logout"]) {
   const { cookie } = context;
 
+  // 1) One
   cookie.authToken?.remove();
+  // 2) Two
   // delete cookie.authToken;
+
   return res.ok("User logged out.");
 }
 

@@ -11,7 +11,7 @@ import util from "node:util";
 import { handleValidation } from "./utils/validationErrorHandler";
 
 export const app = new Elysia({ prefix: "/api" })
-  .onError(({ code, error, set }) => {
+  .onError(({ code, error, set, cookie }) => {
     console.error(
       `\n[${code}]`,
       util.inspect(error, { depth: null, colors: true }),
