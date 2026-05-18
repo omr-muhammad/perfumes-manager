@@ -7,6 +7,7 @@ import {
   QueriesMeta,
   ShopParams,
   ShopRole,
+  ShopRoleEn,
   Url,
   UserStaff,
   type Address,
@@ -27,7 +28,7 @@ export type CreateShop = Static<typeof CreateShop>;
 
 const CreateShopBody = t.Object({
   ownerId: t.Optional(ID),
-  name: t.String({ error: "Shop name must be a string." }),
+  name: t.String(),
   logo: t.Optional(Url),
   address: t.Optional(AddressBase),
 });
@@ -51,7 +52,7 @@ export type StaffBody = Static<typeof StaffBody>;
 
 // -------------- Update Shop Staff --------------
 const UpdateStaffBody = t.Object({
-  role: ShopRole,
+  role: ShopRoleEn,
 });
 export type UpdateStaffBody = Static<typeof UpdateStaffBody>;
 
@@ -87,7 +88,7 @@ export interface ShopsCTXs {
 }
 
 export interface ShopStaffCTXs {
-  CreateStaff: Ctx<StaffBody, TStaffParams>;
+  CreateStaff: Ctx<StaffBody, ShopParams>;
   RmStaff: Ctx<unknown, TStaffParams>;
   QueryShopStaff: Ctx<unknown, ShopParams>;
   UpdateStaff: Ctx<UpdateStaffBody, TStaffParams>;
@@ -103,8 +104,9 @@ export const ShopSchema = {
   Activation: { params: ShopParams, body: HandleActivationBody },
   Visibility: { params: ShopParams, body: HideShopBody },
   UpsertShopAddress: { params: ShopParams, body: AddressBase },
+
   // Shop Staff
-  CreateStaff: { params: TStaffParams, body: StaffBody },
+  CreateStaff: { params: ShopParams, body: StaffBody },
   UpdateStaff: { params: TStaffParams, body: UpdateStaffBody },
   DelStaff: { params: TStaffParams },
   QueryShopStaff: { params: ShopParams },

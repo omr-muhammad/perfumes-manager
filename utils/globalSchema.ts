@@ -4,7 +4,7 @@ import type { db } from "../db/config";
 import { addressesTable, usersTable } from "../db/schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-typebox";
 import { langEn, roleEn, staffEn } from "../db/schema/enums";
-import { enumToUnion } from "./unionToLiteral";
+import { enumToUnion, toEnum } from "./unionToLiteral";
 
 // ------------------- GLOBALS -------------------
 type AuthId = { ownerId: number };
@@ -36,22 +36,24 @@ export type AppRole = Static<typeof AppRole>;
 export const ShopRole = enumToUnion(staffEn);
 export type ShopRole = Static<typeof ShopRole>;
 
+export const ShopRoleEn = toEnum(staffEn);
+
 export const User = createInsertSchema(usersTable, {
   email: Email,
 });
 export const UserStaff = createInsertSchema(usersTable, {
-  role: ShopRole,
+  role: ShopRoleEn,
 });
 
 // ------------------- Address -------------------
-const addressSchema = createSelectSchema(addressesTable);
-export const AddressBase = t.Omit(addressSchema, [
-  "id",
-  "updatedAt",
-  "createdAt",
-  "shopId",
-  "userId",
-]);
+export const AddressBase = t.Object({
+  country: t.String(),
+  city: t.String(),
+  street: t.String(),
+  district: t.Optional(t.String()),
+  buildingNumber: t.Optional(t.String()),
+  notes: t.Optional(t.String()),
+});
 export type Address = Static<typeof AddressBase>;
 
 export const UpdateAddressBody = t.Partial(AddressBase);

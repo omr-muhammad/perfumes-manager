@@ -3,7 +3,6 @@ import * as handlers from "./handlers";
 import { ShopSchema } from "./schema";
 
 import { protect, restrictTo } from "../../utils/auth";
-import { AppError } from "../../utils/AppError";
 
 import { alcoholsRouter } from "../inventory/alcohols/router";
 import { bottlesRouter } from "../inventory/bottles/router";
@@ -12,31 +11,28 @@ import { perfumesCompoundsRouter } from "../inventory/perfumeCompounds/router";
 export const shopsRouter = new Elysia({ prefix: "/shops" })
   .use(protect)
   .use(restrictTo("owner"))
-  .post("", handlers.createNewShop, {
-    beforeHandle({ authPayload, body }) {
-      if (authPayload.role === "admin" && !body.ownerId)
-        throw new AppError(422, "shop id is required to create a shop");
-    },
-    ...ShopSchema.CreateShop,
-  })
+  .post("", handlers.createNewShop, ShopSchema.CreateShop)
   .get("", handlers.getShops, ShopSchema.Query)
+
+  // /api/shops/:shopId
   .group("/:shopId", (app) =>
     app
       .get("", handlers.getShopById, ShopSchema.QueryById)
-      .delete("", handlers.deleteShopById, ShopSchema.DelShop)
       .patch("", handlers.updateMyShop, ShopSchema.UpdateShop)
+      .delete("", handlers.deleteShopById, ShopSchema.DelShop)
       .put("/address", handlers.upsertShopAddress, ShopSchema.UpsertShopAddress)
       .patch("/visible", handlers.hideShop, ShopSchema.Visibility)
 
-      // Shop Staff
+      // /api/shops/:shopId/staff/
       .group("/staff", (app) =>
         app
-          .post("", handlers.createShopStaff, ShopSchema.CreateStaff)
-          .delete("/:staffId", handlers.removeShopStaff, ShopSchema.DelStaff)
           .get("", handlers.getShopStaff, ShopSchema.QueryShopStaff)
-          .patch(":staffId", handlers.updateShopStaff, ShopSchema.UpdateStaff),
+          .post("", handlers.createShopStaff, ShopSchema.CreateStaff)
+          .patch("/:staffId", handlers.updateShopStaff, ShopSchema.UpdateStaff)
+          .delete("/:staffId", handlers.removeShopStaff, ShopSchema.DelStaff),
       )
-      // url /api/shops/:shopId/inventory/
+
+      // /api/shops/:shopId/inventory/
       .group("/inventory", (app) =>
         app.use(alcoholsRouter).use(bottlesRouter).use(perfumesCompoundsRouter),
       ),
