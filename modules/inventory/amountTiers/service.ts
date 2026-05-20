@@ -55,6 +55,10 @@ export async function update(
       ...(minAmount &&
         maxAmount && { amountRange: `[${minAmount}, ${maxAmount})` }),
       ...(value && { value: value.toFixed(4) }),
+      ...(rest.pricingType === "fixed" && {
+        discountType: null,
+        maxDiscountAmount: null,
+      }),
     })
     .where(
       and(

@@ -6,10 +6,12 @@ const CODES = {
   NOT_NULL_VIOLATION: "23502",
   CHECK_VIOLATION: "23514",
   STRING_TOO_LONG: "22001",
+  EXCLUSION_VOILATION: "23P01",
 } as const;
 
 interface PgError {
   code?: string;
+  errno: string;
   detail?: string;
   constraint?: string;
   column?: string;
@@ -21,7 +23,7 @@ export function handlePgError(error: unknown) {
 
   const pgErr = (error as any).cause as PgError;
 
-  switch (pgErr.code) {
+  switch (pgErr.errno) {
     case CODES.UNIQUE_VIOLATION:
       return new AppError(409, "Record with this value already exists.");
 
@@ -40,6 +42,13 @@ export function handlePgError(error: unknown) {
     case CODES.STRING_TOO_LONG:
       return new AppError(400, `Value too long for field '${pgErr.column}'`);
 
+    case CODES.EXCLUSION_VOILATION:
+      const { attempt, conflicting } = parseOverlapDetail(pgErr.detail!);
+      return new AppError(
+        409,
+        `Amount range ${attempt} ovelaps with existing range ${conflicting} (and possibly others 😁)`,
+      );
+
     default:
       return null;
   }
@@ -53,4 +62,10 @@ function isPgError(err: any) {
     "code" in err.cause &&
     typeof err.cause.code === "string"
   );
+}
+
+function parseOverlapDetail(detail: string) {
+  const matches = [...detail.matchAll(/[\[(][\d]+,[\d]+[\])](?=\))/g)];
+  const [attempt, conflicting] = matches.map((m) => m[0]);
+  return { attempt, conflicting };
 }

@@ -12,11 +12,10 @@ import { handleValidation } from "./utils/validationErrorHandler";
 
 export const app = new Elysia({ prefix: "/api" })
   .onError(({ code, error, set, cookie }) => {
-    console.error(
-      `\n[${code}]`,
-      util.inspect(error, { depth: null, colors: true }),
-    );
-
+    // console.error(
+    //   `\n[${code}]`,
+    //   util.inspect(error, { depth: null, colors: true }),
+    // );
     const isDev = Bun.env.NODE_ENV === "development";
 
     if (error instanceof AppError) {
@@ -48,8 +47,10 @@ export const app = new Elysia({ prefix: "/api" })
       });
     }
 
-    console.error("Unhandled Error: ", error);
-    console.error("Error Cause: ", (error as any).cause);
+    console.error(
+      `\nUnhandled Error: [${code}]`,
+      util.inspect(error, { depth: null, colors: true }),
+    );
 
     set.status = 500;
     return { success: false, message: "Internal server error" };

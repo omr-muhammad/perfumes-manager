@@ -1,19 +1,23 @@
 import { t, type Static } from "elysia";
-import { enumToUnion } from "../../../utils/unionToLiteral";
-import { entityTypeEn, pricingTypeEn } from "../../../db/schema/enums";
-import { ID, ShopParams, type Ctx } from "../../../utils/globalSchema";
-
-const pricingtTypeUnion = enumToUnion(pricingTypeEn);
-const EntityTypeUnion = enumToUnion(entityTypeEn);
+import {
+  discountTypeEn,
+  entityTypeEn,
+  pricingTypeEn,
+} from "../../../db/schema/enums";
+import { ID, type Ctx } from "../../../utils/globalSchema";
 
 // -------------- Create --------------
 export const CreateTier = t.Object({
   minAmount: t.Number({ minimum: 1 }),
   maxAmount: t.Optional(t.Number({ minimum: 1 })),
-  pricingType: pricingtTypeUnion,
+  pricingType: t.Union([t.Literal("discount"), t.Literal("fixed")], {
+    error: `pricing type can only be one of (${pricingTypeEn.enumValues.join(", ")})`,
+  }),
   value: t.Number({ minimum: 0 }),
   discountType: t.Optional(
-    t.Union([t.Literal("percentage"), t.Literal("fixed")]),
+    t.Union([t.Literal("percentage"), t.Literal("fixed")], {
+      error: `discount type can only be one of (${discountTypeEn.enumValues.join(", ")})`,
+    }),
   ),
   maxDiscountAmount: t.Optional(t.Number({ minimum: 0 })),
 });
@@ -30,24 +34,42 @@ export type ExtendedIDs = { tierId: number } & BaseIDs;
 // -------------- Meta --------------
 const MetaSchema = t.Object({
   entityId: ID,
-  entityType: EntityTypeUnion,
+  entityType: t.Union(
+    [t.Literal("alcohol"), t.Literal("bottle"), t.Literal("compound")],
+    {
+      error: `Entity type can only be one of (${entityTypeEn.enumValues.join(", ")})`,
+    },
+  ),
 });
-type AmountTierMeta = Static<typeof MetaSchema>;
+export type AmountTierMeta = Static<typeof MetaSchema>;
 type CtxMeta = { meta: AmountTierMeta };
 
-const TierParams = t.Object({ shopId: ID, tierId: ID });
+const TierID = t.Numeric({
+  minimum: 1,
+  error: "Invalid id, expected a positive number",
+});
+const TierParams = t.Union([
+  t.Object({
+    shopId: TierID,
+    alcoholId: TierID,
+    lotId: TierID,
+    tierId: TierID,
+  }),
+  t.Object({ shopId: TierID, bottleId: TierID, lotId: TierID, tierId: TierID }),
+  t.Object({ shopId: TierID, compId: TierID, lotId: TierID, tierId: TierID }),
+]);
 type TierParams = Static<typeof TierParams>;
-
-// -------------- CTXs --------------
-export interface TierCTXs {
-  create: Ctx<CreateTier, ShopParams> & CtxMeta;
-  update: Ctx<UpdateTier, TierParams> & CtxMeta;
-  delete: Ctx<unknown, TierParams> & CtxMeta;
-}
 
 // -------------- CTXs Schema --------------
 export const TierSchema = {
-  create: { body: CreateTier, params: ShopParams },
+  create: { body: CreateTier },
   update: { body: UpdateTier, params: TierParams },
   delete: { params: TierParams },
 };
+
+// -------------- CTXs --------------
+export interface TierCTXs {
+  create: Ctx<CreateTier> & CtxMeta;
+  update: Ctx<UpdateTier, TierParams> & CtxMeta;
+  delete: Ctx<unknown, TierParams> & CtxMeta;
+}

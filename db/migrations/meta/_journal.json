@@ -15,6 +15,20 @@
       "when": 1779031760731,
       "tag": "0001_careful_misty_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779114294096,
+      "tag": "0002_past_lily_hollister",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1779142611535,
+      "tag": "0003_windy_earthquake",
+      "breakpoints": true
     }
   ]
 }

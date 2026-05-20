@@ -6,10 +6,10 @@ import {
   varchar,
   unique,
 } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 import { timestamps } from "../columns.helpers";
-import { shopsTable } from ".";
+import { alcoholLotsTable, shopsTable } from ".";
 
 export const alcoholsTable = pgTable(
   "alcohols",
@@ -36,3 +36,11 @@ export const alcoholsTable = pgTable(
     ),
   ],
 );
+
+export const alcoRelations = relations(alcoholsTable, ({ one, many }) => ({
+  shop: one(shopsTable, {
+    fields: [alcoholsTable.shopId],
+    references: [shopsTable.id],
+  }),
+  lots: many(alcoholLotsTable),
+}));

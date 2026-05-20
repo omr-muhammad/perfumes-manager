@@ -15,7 +15,7 @@ async function main() {
   DO $$ BEGIN
     IF NOT EXISTS (
       SELECT 1 FROM pg_constraint
-      WHERE conname = 'no_amount_ranges_overlapping'
+      WHERE conname = 'amount_ranges_cannot_overlapping'
     ) THEN
       ALTER TABLE amount_tiers
       ADD CONSTRAINT no_amount_ranges_overlapping

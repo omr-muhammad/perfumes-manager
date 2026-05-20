@@ -14,10 +14,11 @@ const BaseAlco = createInsertSchema(alcoholsTable, {
   concentration: t.Optional(t.Number({ minimum: 1, maximum: 100 })),
 });
 const AlcoLot = createInsertSchema(alcoholLotsTable, {
-  receivedAt: t.String(),
+  receivedAt: t.Optional(t.String()),
   costPerLiter: t.Number({ minimum: 0 }),
   baseSellPerLiter: t.Number({ minimum: 0 }),
   expiryDate: t.String(),
+  amount: t.Number(),
 });
 
 // -------------- Create Alcohol --------------
@@ -77,7 +78,7 @@ const AlcoParams = t.Object({
 });
 type AlcoParams = Static<typeof AlcoParams>;
 
-const AlcoLotParams = t.Object({
+export const AlcoLotParams = t.Object({
   shopId: ID,
   alcoholId: ID,
   lotId: ID,
@@ -128,7 +129,7 @@ export const AlcoSchema = {
   queryOne: { params: AlcoParams },
 
   // Alco Lots
-  createLot: { params: AlcoParams, body: AlcoLot },
+  createLot: { params: AlcoParams, body: AlcoholLot },
   updateLot: { params: AlcoLotParams, body: UpdateLotBody },
   delLot: { params: AlcoLotParams },
 

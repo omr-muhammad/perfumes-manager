@@ -1,3 +1,4 @@
+import util from "node:util";
 import type { TSchema, ValidationError } from "elysia";
 
 export function handleValidation(e: Readonly<ValidationError>) {
@@ -5,6 +6,8 @@ export function handleValidation(e: Readonly<ValidationError>) {
   // @ts-expect-error
   const errors = [...e.validator.Errors(e.value)];
   return errors.map((err) => {
+    // console.error("Err: ", util.inspect(err, { depth: null, colors: true }));s
+
     const field = err.path.split("/").pop();
 
     // Custom Error Message

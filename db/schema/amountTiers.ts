@@ -11,9 +11,7 @@ export const amountTiersTable = pgTable(
     shopId: integer("shop_id")
       .references(() => shopsTable.id, { onDelete: "cascade" })
       .notNull(),
-    entityId: integer("entity_id")
-      .references(() => perfumeCompoundsTable.id, { onDelete: "cascade" })
-      .notNull(),
+    entityId: integer("entity_id"),
     entityType: entityTypeEn("entity_type").notNull(),
     amountRange: int4range("amount_range").notNull(),
     pricingType: pricingTypeEn("pricing_type").notNull(),
@@ -30,12 +28,12 @@ export const amountTiersTable = pgTable(
     `,
     ),
     check(
-      "discount_type_cannot_be_null_when_pricing_type_discount",
+      "discount_fields_must_match_pricing_type",
       sql`
-    ${tier.pricingType} = 'fixed'
-    OR
-    ${tier.discountType} IS NOT NULL
-  `,
+        (${tier.pricingType} = 'fixed' AND COALSCE(${tier.discountType}, ${tier.maxDiscountAmount}) IS NULL)
+        OR
+        (${tier.pricingType} = 'discount' AND ${tier.discountType} IS NOT NULL)
+      `,
     ),
     check(
       "discount_percentage_cannot_go_over_100",
@@ -44,7 +42,7 @@ export const amountTiersTable = pgTable(
       OR
       ${tier.discountType} = 'fixed'
       OR
-      ${tier.discountType} = 'percentage' AND ${tier.value} <= 100
+      ${tier.value} BETWEEN 0 AND 100 -- pricing type is discount and discount type is percentage
     `,
     ),
   ],

@@ -129,19 +129,19 @@ export async function queryAll(
       lots: sql<CompoundLotSelect[]>`
           json_agg(
             jsonb_build_object(
-              'id': ${compoundLotsTable.id}
-              'receivedAt': ${compoundLotsTable.receivedAt}
-              'densitySnapshot': ${compoundLotsTable.densitySnapshot}
-              'status': ${compoundLotsTable.status}
-              'costPerKilo': ${compoundLotsTable.costPerKilo}
-              'baseSellPerKilo': ${compoundLotsTable.baseSellPerKilo}
-              'baseGmSell': ${compoundLotsTable.baseGmSell}
-              'oilAmountGm': ${compoundLotsTable.oilAmountGm}
-              'sprayAmountMl': ${compoundLotsTable.sprayAmountMl}
-              'concentration': ${compoundLotsTable.concentration}
-              'remainingOilAmount': ${compoundLotsTable.remainingOilAmount}
-              'remainingSprayAmount': ${compoundLotsTable.remainingSprayAmount}
-              'alcohol': alcohol_agg.data
+              'id', ${compoundLotsTable.id},
+              'receivedAt', ${compoundLotsTable.receivedAt},
+              'densitySnapshot', ${compoundLotsTable.densitySnapshot},
+              'status', ${compoundLotsTable.status},
+              'costPerKilo', ${compoundLotsTable.costPerKilo},
+              'baseSellPerKilo', ${compoundLotsTable.baseSellPerKilo},
+              'baseGmSell', ${compoundLotsTable.baseGmSell},
+              'oilAmountGm', ${compoundLotsTable.oilAmountGm},
+              'sprayAmountMl', ${compoundLotsTable.sprayAmountMl},
+              'concentration', ${compoundLotsTable.concentration},
+              'remainingOilAmount', ${compoundLotsTable.remainingOilAmount},
+              'remainingSprayAmount', ${compoundLotsTable.remainingSprayAmount},
+              'alcohol', alcohol_agg.data
             )
           )
         `,

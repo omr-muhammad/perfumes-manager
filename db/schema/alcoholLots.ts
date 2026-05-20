@@ -7,7 +7,7 @@ import {
   unique,
 } from "drizzle-orm/pg-core";
 import { lotStatusEn } from "./enums";
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { timestamps } from "../columns.helpers";
 import { alcoholsTable } from ".";
 
@@ -15,7 +15,7 @@ export const alcoholLotsTable = pgTable(
   "alcohol_lots",
   {
     id: integer("id").primaryKey().notNull().generatedAlwaysAsIdentity(),
-    receivedAt: timestamp().notNull().defaultNow(),
+    receivedAt: timestamp("received_at").notNull().defaultNow(),
     status: lotStatusEn("status").notNull(),
     amount: integer("amount").notNull().default(0),
     remainingAmount: integer("remaining_amount").notNull(),
@@ -56,3 +56,10 @@ export const alcoholLotsTable = pgTable(
     ),
   ],
 );
+
+export const alcoLotRelations = relations(alcoholLotsTable, ({ one }) => ({
+  alcohol: one(alcoholsTable, {
+    fields: [alcoholLotsTable.alcoholId],
+    references: [alcoholsTable.id],
+  }),
+}));
