@@ -6,7 +6,7 @@ export function handleValidation(e: Readonly<ValidationError>) {
   // @ts-expect-error
   const errors = [...e.validator.Errors(e.value)];
   return errors.map((err) => {
-    // console.error("Err: ", util.inspect(err, { depth: null, colors: true }));s
+    // console.error("Err: ", util.inspect(err, { depth: null, colors: true }));
 
     const field = err.path.split("/").pop();
 

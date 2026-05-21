@@ -1,4 +1,5 @@
 import { AppError } from "./AppError";
+import util from "node:util";
 
 const CODES = {
   UNIQUE_VIOLATION: "23505",
@@ -22,6 +23,8 @@ export function handlePgError(error: unknown) {
   if (!isPgError(error)) return null;
 
   const pgErr = (error as any).cause as PgError;
+
+  console.error("Pg Err: ", util.inspect(error, { depth: null, colors: true }));
 
   switch (pgErr.errno) {
     case CODES.UNIQUE_VIOLATION:

@@ -33,7 +33,7 @@ export async function deleteBtl(context: BottleCTXs["del"]) {
     ownerId: authPayload.userId,
   });
 
-  return res.ok("Bottle deleted.", { bottle });
+  return res.ok("Bottle deleted.", { bottleId: bottle.id });
 }
 
 export async function getShopBottles(context: BottleCTXs["qAll"]) {
@@ -44,7 +44,7 @@ export async function getShopBottles(context: BottleCTXs["qAll"]) {
     query,
   );
 
-  return bottles;
+  return res.ok("Bottles Fetced.", { bottles });
 }
 
 export async function getBtlById(context: BottleCTXs["qOne"]) {

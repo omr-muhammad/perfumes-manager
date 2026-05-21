@@ -58,16 +58,15 @@ export const compAmountRouter = new Elysia()
 
 // Validate create tier body
 function beforeHandle({ body }: TierCTXs["create"]) {
-  if (body.pricingType === "discount")
-    if (discountTypeEn.enumValues.includes(body.discountType!))
+  if (body.pricingType === "discount") {
+    const allowedDiscountType = discountTypeEn.enumValues;
+    if (!allowedDiscountType.includes(body.discountType!))
       throw new AppError(
         422,
-        `Discount Type must be (fixed | percentage) when pricing type set to 'discount'`,
+        `Discount Type can only be one of (${allowedDiscountType.join(", ")}) when pricing type set to 'discount'`,
       );
 
-  if (body.value < 0 || body.value > 100)
-    throw new AppError(
-      422,
-      `value must be between 0 and 100 pricing type set to discount.`,
-    );
+    if (body.value < 0 || body.value > 100)
+      throw new AppError(422, `Discount percentage must be between 1 and 100.`);
+  }
 }

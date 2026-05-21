@@ -12,20 +12,26 @@ import { enumToUnion } from "../../../utils/unionToLiteral";
 import { bottleCatgeroyEn, bottleTypeEn } from "../../../db/schema/enums";
 import { UpdateTier, CreateTier } from "../amountTiers/schema";
 
+const BottleType = t.Union(enumToUnion(bottleTypeEn), {
+  error: `Bottle Type must be one of (${bottleTypeEn.enumValues.join(", ")})`,
+});
+export type BottleType = Static<typeof BottleType>;
+
+const BottleCatg = t.Union(enumToUnion(bottleCatgeroyEn), {
+  error: `Bottle category must be one of (${bottleCatgeroyEn.enumValues.join(", ")})`,
+});
+export type BottleCatg = Static<typeof BottleCatg>;
+
 const BottleInsertSchema = createInsertSchema(bottlesTable, {
   size: t.Number({ minimum: 1 }),
+  type: BottleType,
+  category: BottleCatg,
 });
 const LotInsertSchema = createInsertSchema(bottlesLotsTable, {
   costPrice: t.Number({ minimum: 0 }),
   baseSellPrice: t.Number({ minimum: 0 }),
-  receivedAt: t.String(),
+  receivedAt: t.Optional(t.String()),
 });
-
-const BottleTypeUnion = enumToUnion(bottleTypeEn);
-export type BottleType = Static<typeof BottleTypeUnion>;
-
-const BottleCatgUnion = enumToUnion(bottleCatgeroyEn);
-export type BottleCatg = Static<typeof BottleCatgUnion>;
 
 // ------------- Create -------------
 const CreateBottle = t.Omit(BottleInsertSchema, [
@@ -61,8 +67,8 @@ const BottlesQueryFilters = t.Partial(
   t.Object({
     search: t.String(),
     sku: t.String(),
-    type: BottleTypeUnion,
-    catg: BottleCatgUnion,
+    type: BottleType,
+    catg: BottleCatg,
     minStock: t.Number({ minimum: 0, default: 0 }),
     maxStock: t.Number({ minimum: 1 }),
     minPrice: t.Number({ minimum: 0 }),

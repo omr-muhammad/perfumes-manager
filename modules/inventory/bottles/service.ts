@@ -40,7 +40,7 @@ export async function createBottle(
         ...lotBody,
         costPrice: lotBody.costPrice.toFixed(3),
         baseSellPrice: lotBody.baseSellPrice.toFixed(3),
-        receivedAt: new Date(lotBody.receivedAt),
+        receivedAt: new Date(lotBody.receivedAt || ""),
         remainingStock: lotBody.stock || 0,
         bottleId: bottle.id,
       })
@@ -163,7 +163,7 @@ export async function createBtlLot(
       ...lotBody,
       costPrice: lotBody.costPrice.toFixed(3),
       baseSellPrice: lotBody.baseSellPrice.toFixed(3),
-      receivedAt: new Date(lotBody.receivedAt),
+      receivedAt: new Date(lotBody.receivedAt || ""),
       remainingStock: lotBody.stock || 0,
       bottleId,
     })

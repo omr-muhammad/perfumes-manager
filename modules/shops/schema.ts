@@ -7,7 +7,7 @@ import {
   QueriesMeta,
   ShopParams,
   ShopRole,
-  ShopRoleEn,
+  ShopRole,
   Url,
   UserStaff,
   type Address,
@@ -52,7 +52,7 @@ export type StaffBody = Static<typeof StaffBody>;
 
 // -------------- Update Shop Staff --------------
 const UpdateStaffBody = t.Object({
-  role: ShopRoleEn,
+  role: ShopRole,
 });
 export type UpdateStaffBody = Static<typeof UpdateStaffBody>;
 

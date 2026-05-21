@@ -5,20 +5,22 @@ import {
   pricingTypeEn,
 } from "../../../db/schema/enums";
 import { ID, type Ctx } from "../../../utils/globalSchema";
+import { enumToUnion } from "../../../utils/unionToLiteral";
+
+const PricingType = t.Union(enumToUnion(pricingTypeEn), {
+  error: `pricing type can only be one of (${pricingTypeEn.enumValues.join(", ")})`,
+});
+const DiscountType = t.Union(enumToUnion(discountTypeEn), {
+  error: `discount type can only be one of (${discountTypeEn.enumValues.join(", ")})`,
+});
 
 // -------------- Create --------------
 export const CreateTier = t.Object({
   minAmount: t.Number({ minimum: 1 }),
   maxAmount: t.Optional(t.Number({ minimum: 1 })),
-  pricingType: t.Union([t.Literal("discount"), t.Literal("fixed")], {
-    error: `pricing type can only be one of (${pricingTypeEn.enumValues.join(", ")})`,
-  }),
+  pricingType: PricingType,
   value: t.Number({ minimum: 0 }),
-  discountType: t.Optional(
-    t.Union([t.Literal("percentage"), t.Literal("fixed")], {
-      error: `discount type can only be one of (${discountTypeEn.enumValues.join(", ")})`,
-    }),
-  ),
+  discountType: t.Optional(DiscountType),
   maxDiscountAmount: t.Optional(t.Number({ minimum: 0 })),
 });
 export type CreateTier = Static<typeof CreateTier>;
