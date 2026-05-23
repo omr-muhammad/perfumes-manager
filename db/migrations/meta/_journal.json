@@ -29,6 +29,20 @@
       "when": 1779142611535,
       "tag": "0003_windy_earthquake",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1779427411157,
+      "tag": "0004_curved_eternals",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1779427642447,
+      "tag": "0005_stiff_mastermind",
+      "breakpoints": true
     }
   ]
 }

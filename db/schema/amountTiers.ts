@@ -30,7 +30,11 @@ export const amountTiersTable = pgTable(
     check(
       "discount_fields_must_match_pricing_type",
       sql`
-        (${tier.pricingType} = 'fixed' AND COALSCE(${tier.discountType}, ${tier.maxDiscountAmount}) IS NULL)
+        (
+          ${tier.pricingType} = 'fixed' AND 
+          ${tier.discountType} IS NULL AND 
+          ${tier.maxDiscountAmount} IS NULL
+        )
         OR
         (${tier.pricingType} = 'discount' AND ${tier.discountType} IS NOT NULL)
       `,
