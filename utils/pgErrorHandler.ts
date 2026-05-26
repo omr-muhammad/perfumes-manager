@@ -8,6 +8,7 @@ const CODES = {
   CHECK_VIOLATION: "23514",
   STRING_TOO_LONG: "22001",
   EXCLUSION_VOILATION: "23P01",
+  CUSTOM_USER_ERR: "U0",
 } as const;
 
 interface PgError {
@@ -17,6 +18,7 @@ interface PgError {
   constraint?: string;
   column?: string;
   table?: string;
+  message?: string;
 }
 
 export function handlePgError(error: unknown) {
@@ -24,7 +26,11 @@ export function handlePgError(error: unknown) {
 
   const pgErr = (error as any).cause as PgError;
 
+  console.error("Message: ", pgErr.message ?? "No message");
   console.error("Pg Err: ", util.inspect(error, { depth: null, colors: true }));
+
+  if (pgErr.errno.startsWith(CODES.CUSTOM_USER_ERR))
+    return new AppError(400, pgErr.message!);
 
   switch (pgErr.errno) {
     case CODES.UNIQUE_VIOLATION:
