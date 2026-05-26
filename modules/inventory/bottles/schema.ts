@@ -59,8 +59,11 @@ export type CreateBottleBody = Static<typeof CreateBottleBody>;
 const UpdateBottleBody = t.Partial(CreateBottle);
 export type UpdateBottleBody = Static<typeof UpdateBottleBody>;
 
-const UpdateBottleLotBody = t.Partial(CreateBottleLot);
+const UpdateBottleLotBody = t.Partial(t.Omit(CreateBottleLot, ["stock"]));
 export type UpdateBottleLotBody = Static<typeof UpdateBottleLotBody>;
+
+const UpdateLotStock = t.Object({ newStock: t.Number({ minimum: 0 }) });
+export type UpdateLotStock = Static<typeof UpdateLotStock>;
 
 // ------------- Context Query -------------
 const BottlesQueryFilters = t.Partial(
@@ -116,6 +119,7 @@ export interface BottleCTXs {
   // lots
   createLot: Ctx<CreateBottleLot, BottleParams>;
   updateLot: Ctx<UpdateBottleLotBody, BottleLotParams>;
+  updateLotStock: Ctx<UpdateLotStock, BottleLotParams>;
   deleteLot: Ctx<unknown, BottleLotParams>;
 
   // amount tier
@@ -134,6 +138,7 @@ export const BottleSchema = {
   // lots
   createLot: { params: BottleParams, body: CreateBottleLot },
   updateLot: { params: BottleLotParams, body: UpdateBottleLotBody },
+  updateLotStock: { params: BottleLotParams, body: UpdateLotStock },
   deleteLot: { params: BottleLotParams },
 
   // Amount Tiers

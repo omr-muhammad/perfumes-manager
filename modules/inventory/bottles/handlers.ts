@@ -83,6 +83,17 @@ export async function updateBtlLot(context: BottleCTXs["updateLot"]) {
   return res.ok("Lot updated.", { lot });
 }
 
+export async function updateLotStock(context: BottleCTXs["updateLotStock"]) {
+  const { authPayload, params, body } = context;
+
+  const lot = await btlService.updateLotStock(
+    { ...params, ownerId: authPayload.userId },
+    body.newStock,
+  );
+
+  return res.ok("Lot stock updated.", { newStock: lot.stock });
+}
+
 export async function deleteBtlLot(context: BottleCTXs["deleteLot"]) {
   const { params, authPayload } = context;
 

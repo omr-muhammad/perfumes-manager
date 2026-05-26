@@ -46,7 +46,7 @@ const _deductAlcoholLots = `
 
     -- Throw error if loops end while remaining to deduct
     IF v_remaining_to_deduct > 0 THEN
-      RAISE EXCEPTION 'Not enough alcohol stock. Short by % ml', v_remaining_to_deduct;
+      RAISE EXCEPTION 'Not enough alcohol stock. Short by % ml', v_remaining_to_deduct USING ERRCODE = 'U0001';
     END IF;
 
   END;
@@ -177,7 +177,8 @@ export const alcoholFuncs = sql.raw(`
     old_amount INT;
     new_amount INT;
   BEGIN
-    should_sync := COALESCE(current_setting('app.should_sync', true)::BOOLEAN, true);
+    -- NULLIF(a, b) returns NULL if the a === b;
+    should_sync := COALESCE(NULLIF(current_setting('app.should_sync', true), '')::BOOLEAN, true);
 
     IF NOT should_sync THEN RETURN NEW;
     END IF;

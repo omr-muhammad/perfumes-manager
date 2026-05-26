@@ -1,10 +1,6 @@
 import { and, eq, gte, ilike, lte, sql } from "drizzle-orm";
 import { db } from "../../../db/config";
-import {
-  alcoholLotsTable,
-  alcoholsTable,
-  shopsTable,
-} from "../../../db/schema";
+import { alcoholLotsTable, alcoholsTable } from "../../../db/schema";
 import { assertOwnership } from "../../../utils/assertOwnership";
 import type {
   AlcoholLot,
@@ -43,7 +39,7 @@ export async function createAlco(
         `Cannot create new alcohol for shop: ${shop.name}`,
       );
 
-    const amountInMl = (rest?.amount ?? 0) * 1000;
+    const amountInMl = (rest?.amountInLiter ?? 0) * 1000;
 
     const [alcoLot] = await tx
       .insert(alcoholLotsTable)
@@ -56,7 +52,7 @@ export async function createAlco(
         }),
         expiryDate: new Date(rest.expiryDate),
         alcoholId: alco.id,
-        amount: amountInMl,
+        amountInMl,
         remainingAmount: amountInMl,
       })
       .returning();
@@ -199,7 +195,7 @@ export async function createLot(
   await assertOwnership(shopId, ownerId);
 
   const { receivedAt, ...rest } = newLot;
-  const amountInMl = rest.amount ? rest.amount * 1000 : 0;
+  const amountInMl = rest.amountInLiter ? rest.amountInLiter * 1000 : 0;
 
   const [lot] = await db
     .insert(alcoholLotsTable)
@@ -210,7 +206,7 @@ export async function createLot(
       baseSellPerLiter: rest.baseSellPerLiter.toFixed(3),
       ...(receivedAt && { receivedAt: new Date(receivedAt) }),
       expiryDate: new Date(rest.expiryDate),
-      amount: amountInMl,
+      amountInMl,
       remainingAmount: amountInMl,
     })
     .returning();
@@ -232,8 +228,7 @@ export async function updateLot(
 
   await assertOwnership(shopId, ownerId);
 
-  const { baseSellPerLiter, costPerLiter, expiryDate, receivedAt, amount } =
-    updates;
+  const { baseSellPerLiter, costPerLiter, expiryDate, receivedAt } = updates;
   const [lot] = await db
     .update(alcoholLotsTable)
     .set({
@@ -243,13 +238,6 @@ export async function updateLot(
       ...(costPerLiter && { costPerLiter: costPerLiter.toFixed(3) }),
       ...(expiryDate && { expiryDate: new Date(expiryDate) }),
       ...(receivedAt && { receivedAt: new Date(receivedAt) }),
-      ...(Number.isFinite(amount) && {
-        amount: amount! * 1000,
-        remainingAmount:
-          amount === 0
-            ? 0
-            : sql`remaining_amount - (amount - ${amount! * 1000})`,
-      }),
     })
     .where(
       and(
@@ -262,6 +250,56 @@ export async function updateLot(
   if (!lot) throw new AppError(404, `lot with id ${lotId} not found.`);
 
   return lot;
+}
+
+export async function updateLotStock(
+  ids: ServiceIDs["ExtendedLotIDs"],
+  newAmountInLiter: number,
+) {
+  const { ownerId, shopId, alcoholId, lotId } = ids;
+
+  await assertOwnership(shopId, ownerId);
+
+  const amountInMl = newAmountInLiter * 1000;
+  const [lot] = await db
+    .update(alcoholLotsTable)
+    .set({
+      amountInMl,
+      remainingAmount: sql`remaining_amount - (amount_in_ml - ${amountInMl})`,
+    })
+    .where(
+      and(
+        eq(alcoholLotsTable.alcoholId, alcoholId),
+        eq(alcoholLotsTable.id, lotId),
+        sql`amount_in_ml - remaining_amount >= ${amountInMl}`,
+      ),
+    )
+    .returning();
+
+  if (lot) return lot;
+
+  // Figure why update fail?
+  const [found] = await db
+    .select()
+    .from(alcoholLotsTable)
+    .where(
+      and(
+        eq(alcoholLotsTable.alcoholId, alcoholId),
+        eq(alcoholLotsTable.id, lotId),
+      ),
+    );
+
+  if (!found)
+    throw new AppError(
+      404,
+      `Lot with id ${lot} cannot be found or not belong to alcohol with id ${alcoholId}.`,
+    );
+
+  const takenAmount = found.amountInMl - found.remainingAmount;
+  throw new AppError(
+    400,
+    `Cannot set amount to ${amountInMl} ml because ${takenAmount} ml was already taken.`,
+  );
 }
 
 export async function deleteLot(ids: ServiceIDs["ExtendedLotIDs"]) {

@@ -186,16 +186,12 @@ export async function updateBtlLot(
 
   await assertOwnership(shopId, ownerId);
 
-  const { costPrice, baseSellPrice, stock, receivedAt, status } = updates;
+  const { costPrice, baseSellPrice, receivedAt, status } = updates;
   const [lot] = await db
     .update(bottlesLotsTable)
     .set({
       ...(costPrice && { costPrice: costPrice.toFixed(3) }),
       ...(baseSellPrice && { baseSellPrice: baseSellPrice.toFixed(3) }),
-      ...(stock && {
-        stock,
-        remainingStock: sql`remaining_stock - (stock - ${stock})`,
-      }),
       ...(receivedAt && { receivedAt: new Date(receivedAt) }),
       ...(status && { status }),
     })
@@ -214,6 +210,55 @@ export async function updateBtlLot(
     );
 
   return lot;
+}
+
+export async function updateLotStock(
+  ids: ServiceIDs["extendedLot"],
+  newStock: number,
+) {
+  const { ownerId, shopId, bottleId, lotId } = ids;
+
+  await assertOwnership(shopId, ownerId);
+
+  const [lot] = await db
+    .update(bottlesLotsTable)
+    .set({
+      stock: newStock,
+      remainingStock: sql`remaining_stock - (stock - ${newStock})`,
+    })
+    .where(
+      and(
+        eq(bottlesLotsTable.bottleId, bottleId),
+        eq(bottlesLotsTable.id, lotId),
+        sql`stock - ${newStock} <= remaining_stock`,
+      ),
+    )
+    .returning();
+
+  if (lot) return lot;
+
+  // Reasoning failed update
+  const [found] = await db
+    .select()
+    .from(bottlesLotsTable)
+    .where(
+      and(
+        eq(bottlesLotsTable.bottleId, bottleId),
+        eq(bottlesLotsTable.id, lotId),
+      ),
+    );
+
+  if (!found)
+    throw new AppError(
+      404,
+      `Lot with id: ${lotId} not found or not belong to bottle with id: ${bottleId}.`,
+    );
+
+  const takenAmount = found.stock - found.remainingStock;
+  throw new AppError(
+    400,
+    `Cannot update stock to ${newStock} while ${takenAmount} was already taken.`,
+  );
 }
 
 export async function deleteBtlLot(ids: ServiceIDs["extendedLot"]) {

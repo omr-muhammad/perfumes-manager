@@ -79,6 +79,17 @@ export async function updateCompLot(context: CompCTXs["updateCompoundLot"]) {
   return res.ok("Lot updated.", { lot: compLot });
 }
 
+export async function updateCompLotStock(context: CompCTXs["updateLotStock"]) {
+  const { params, body, authPayload } = context;
+
+  const compLot = await compService.updateLotStock(
+    { ...params, ownerId: authPayload.userId },
+    body,
+  );
+
+  return res.ok("Lot updated.", { lot: compLot });
+}
+
 export async function delCompLot(context: CompCTXs["delCompoundLot"]) {
   const { params, authPayload } = context;
 

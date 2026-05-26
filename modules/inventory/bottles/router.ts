@@ -26,6 +26,7 @@ export const bottlesRouter = new Elysia({ prefix: "/bottles" })
         app
           .patch("", handlers.updateBtlLot, BottleSchema.updateLot)
           .delete("", handlers.deleteBtlLot, BottleSchema.deleteLot)
+          .patch("/stock", handlers.updateLotStock, BottleSchema.updateLotStock)
 
           // /inventory/bottles/:bottleId/lots/:lotId/amount-tiers
           .group("/amount-tiers", (app) => app.use(btlAmountRouter)),
