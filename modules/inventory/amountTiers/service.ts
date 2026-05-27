@@ -1,6 +1,14 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../../db/config";
-import { amountTiersTable } from "../../../db/schema";
+import {
+  alcoholLotsTable,
+  alcoholsTable,
+  amountTiersTable,
+  bottlesLotsTable,
+  bottlesTable,
+  compoundLotsTable,
+  shopsTable,
+} from "../../../db/schema";
 import { AppError } from "../../../utils/AppError";
 import { assertOwnership } from "../../../utils/assertOwnership";
 import type {
@@ -21,6 +29,9 @@ export async function create(
   await assertOwnership(shopId, ownerId);
 
   const { minAmount, maxAmount = "", value, ...rest } = newAmountTier;
+
+  await validateEntity(meta, newAmountTier.pricingType, value);
+
   const [tier] = await db
     .insert(amountTiersTable)
     .values({
@@ -48,6 +59,9 @@ export async function update(
   await assertOwnership(shopId, ownerId);
 
   const { maxAmount, minAmount, value, ...rest } = updates;
+
+  await validateEntity(meta, updates.pricingType, value);
+
   const [tier] = await db
     .update(amountTiersTable)
     .set({
@@ -101,4 +115,44 @@ export async function remove(ids: ExtendedIDs, meta: AmountTierMeta) {
     );
 
   return tier;
+}
+
+async function validateEntity(
+  meta: AmountTierMeta,
+  priceType?: CreateTier["pricingType"],
+  value?: number,
+) {
+  const tablesMap = {
+    alcohol: alcoholLotsTable,
+    bottle: bottlesLotsTable,
+    compound: compoundLotsTable,
+  };
+
+  // Validate FK Ref
+  const entTable = tablesMap[meta.entityType];
+  const [entity] = await db
+    .select()
+    .from(entTable)
+    .where(eq(entTable.id, meta.entityId));
+
+  if (!entity)
+    throw new AppError(
+      404,
+      `${meta.entityId} is not a valid ${meta.entityType} reference, Record not found.`,
+    );
+
+  // Validate Price
+
+  // @ts-expect-error
+  // prettier-ignore
+  const basePrice = entity.baseSellPerLiter || entity.baseSellPerKilo || entity.baseSellPrice;
+
+  if (!priceType || !value)
+    throw new AppError(422, "Pricing type or Price is missing.");
+
+  if (priceType === "fixed" && value >= basePrice)
+    throw new AppError(
+      400,
+      `Amount Tier price value must be less than base price in ${meta.entityType} lot, got ${value} expected to be less than ${basePrice}`,
+    );
 }
