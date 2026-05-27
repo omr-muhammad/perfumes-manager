@@ -1,19 +1,18 @@
 import { migrate } from "drizzle-orm/bun-sql/migrator";
 import { db } from "./config";
-import { alcoholFuncs, alcoholTrigs } from "./utils/syncAlcohol";
+import { alcoholTrigs } from "./utils/syncAlcohol";
 import {
   decreaseBottlesStock,
   decreaseCompoundsStock,
 } from "./utils/handleStock";
 import { addAmountRangeConstraints } from "./utils/validateOverlapping";
+import { amountTiersTriggers } from "./utils/validateTierEntityId";
 
 async function main() {
   await migrate(db, { migrationsFolder: "./db/migrations" });
 
   // Add functions & constraints
   await Promise.all([
-    // functions
-    db.execute(alcoholFuncs),
     db.execute(decreaseBottlesStock),
     db.execute(decreaseCompoundsStock),
 
@@ -22,7 +21,10 @@ async function main() {
   ]);
 
   // Add triggers
-  await Promise.all([db.execute(alcoholTrigs)]);
+  await Promise.all([
+    db.execute(alcoholTrigs),
+    db.execute(amountTiersTriggers),
+  ]);
 
   console.log("Migration Done 🥳");
   process.exit(0);

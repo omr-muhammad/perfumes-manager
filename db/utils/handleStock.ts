@@ -1,9 +1,7 @@
 import { sql } from "drizzle-orm";
 
 export const decreaseBottlesStock = sql`
-	DROP FUNCTION IF EXISTS _deduct_bottles_lots(integer, integer);
-
-  CREATE OR REPLACE FUNCTION _deduct_bottles_lots(
+	CREATE OR REPLACE FUNCTION _deduct_bottles_lots(
     p_bottle_id INT,
     p_stock_to_deduct INT
   )
@@ -55,8 +53,6 @@ export const decreaseBottlesStock = sql`
 `;
 
 export const decreaseCompoundsStock = sql`
-	DROP FUNCTION IF EXISTS _deduct_compound_lots(integer, integer, integer);
-
   CREATE OR REPLACE FUNCTION _deduct_compound_lots(
     p_compound_id INT,
     p_oil_to_deduct INT,

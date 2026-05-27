@@ -2,8 +2,6 @@ import { sql } from "drizzle-orm";
 
 // Separated for better maitainance
 const _deductAlcoholLots = `
-  DROP FUNCTION IF EXISTS _deduct_alcohol_lots(integer, integer);
-
   CREATE OR REPLACE FUNCTION _deduct_alcohol_lots(
     p_alcohol_id INT,
     p_amount_to_deduct INT
@@ -54,8 +52,6 @@ const _deductAlcoholLots = `
 `;
 
 const _returnAlcoholLots = `
-  DROP FUNCTION IF EXISTS _return_alcohol_lots(integer, integer);
-  
   CREATE OR REPLACE FUNCTION _return_alcohol_lots(
     p_alcohol_id INT,
     p_amount_to_return INT
@@ -99,8 +95,6 @@ const _returnAlcoholLots = `
 `;
 
 const _applyAlcoholSync = `
-  DROP FUNCTION IF EXISTS _apply_alcohol_sync(text, integer, integer, integer, integer, integer, integer);
-
   CREATE OR REPLACE FUNCTION _apply_alcohol_sync(
     tg_op TEXT,
     old_amount INT,
@@ -159,16 +153,12 @@ const _applyAlcoholSync = `
   $$;
 `;
 
-export const alcoholFuncs = sql.raw(`
+const alcoholFuncs = `
   ${_deductAlcoholLots}
 
   ${_returnAlcoholLots}
 
   ${_applyAlcoholSync}
-
-  -- casacde removes the attached trigger for this function
-  -- triggers will be recreated when migrating
-  DROP FUNCTION sync_alcohol() CASCADE; 
 
   CREATE OR REPLACE FUNCTION sync_alcohol()
   RETURNS TRIGGER LANGUAGE plpgsql AS $$
@@ -206,9 +196,11 @@ export const alcoholFuncs = sql.raw(`
     RETURN NEW;
   END;
   $$;
-`);
+`;
 
-export const alcoholTrigs = `
+export const alcoholTrigs = sql.raw(`
+  ${alcoholFuncs}
+  
   -- Attach to compound_lots table
   CREATE OR REPLACE TRIGGER trg_lot_alcohol_sync
   AFTER INSERT OR UPDATE OR DELETE ON compound_lots
@@ -218,4 +210,4 @@ export const alcoholTrigs = `
   CREATE OR REPLACE TRIGGER trg_aging_alcohol_sync
   AFTER INSERT OR UPDATE OR DELETE ON agings
   FOR EACH ROW EXECUTE FUNCTION sync_alcohol();
-`;
+`);
