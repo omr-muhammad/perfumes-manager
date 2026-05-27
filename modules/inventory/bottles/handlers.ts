@@ -33,7 +33,7 @@ export async function deleteBtl(context: BottleCTXs["del"]) {
     ownerId: authPayload.userId,
   });
 
-  return res.ok("Bottle deleted.", { bottle });
+  return res.ok("Bottle deleted.", { bottleId: bottle.id });
 }
 
 export async function getShopBottles(context: BottleCTXs["qAll"]) {
@@ -44,7 +44,7 @@ export async function getShopBottles(context: BottleCTXs["qAll"]) {
     query,
   );
 
-  return bottles;
+  return res.ok("Bottles Fetced.", { bottles });
 }
 
 export async function getBtlById(context: BottleCTXs["qOne"]) {
@@ -81,6 +81,17 @@ export async function updateBtlLot(context: BottleCTXs["updateLot"]) {
   );
 
   return res.ok("Lot updated.", { lot });
+}
+
+export async function updateLotStock(context: BottleCTXs["updateLotStock"]) {
+  const { authPayload, params, body } = context;
+
+  const lot = await btlService.updateLotStock(
+    { ...params, ownerId: authPayload.userId },
+    body.newStock,
+  );
+
+  return res.ok("Lot stock updated.", { newStock: lot.stock });
 }
 
 export async function deleteBtlLot(context: BottleCTXs["deleteLot"]) {

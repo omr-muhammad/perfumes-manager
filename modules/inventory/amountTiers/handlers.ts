@@ -1,3 +1,4 @@
+import type { ShopParams } from "../../../utils/globalSchema";
 import { response as res } from "../../../utils/response";
 import type { TierCTXs } from "./schema";
 import * as amountTierService from "./service";
@@ -7,7 +8,7 @@ export async function addAmountTier(context: TierCTXs["create"]) {
   const { params, body, authPayload, meta } = context;
 
   const tier = await amountTierService.create(
-    { ...params, ownerId: authPayload.userId },
+    { ...(params as ShopParams), ownerId: authPayload.userId },
     meta,
     body,
   );
@@ -38,5 +39,5 @@ export async function deleteAmountTier(context: TierCTXs["delete"]) {
     meta,
   );
 
-  return res.ok("Amount Tier deleted.", { amountTier: tier });
+  return res.ok("Amount Tier deleted.", { amountTierId: tier.id });
 }

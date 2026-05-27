@@ -1,7 +1,7 @@
 import { Cookie, status, t, type Static } from "elysia";
 import { authJWTPlugin } from "./jwtPlugin";
 import type { db } from "../db/config";
-import { addressesTable, usersTable } from "../db/schema";
+import { usersTable } from "../db/schema";
 import { createInsertSchema } from "drizzle-typebox";
 import { langEn, roleEn, staffEn } from "../db/schema/enums";
 import { enumToUnion } from "./unionToLiteral";
@@ -27,13 +27,19 @@ export const Url = t.String({
   error: "Invalid format, please provide a valid URL",
 });
 
-export const AppLanguage = enumToUnion(langEn);
+export const AppLanguage = t.Union(enumToUnion(langEn), {
+  error: `Language value must be one of (${langEn.enumValues.join(", ")})`,
+});
 export type AppLanguage = Static<typeof AppLanguage>;
 
-export const AppRole = enumToUnion(roleEn);
+export const AppRole = t.Union(enumToUnion(roleEn), {
+  error: `Language value must be one of (${roleEn.enumValues.join(", ")})`,
+});
 export type AppRole = Static<typeof AppRole>;
 
-export const ShopRole = enumToUnion(staffEn);
+export const ShopRole = t.Union(enumToUnion(staffEn), {
+  error: `Language value must be one of (${staffEn.enumValues.join(", ")})`,
+});
 export type ShopRole = Static<typeof ShopRole>;
 
 export const User = createInsertSchema(usersTable, {
@@ -44,13 +50,14 @@ export const UserStaff = createInsertSchema(usersTable, {
 });
 
 // ------------------- Address -------------------
-const addressSchema = createInsertSchema(addressesTable);
-export const AddressBase = t.Omit(addressSchema, [
-  "updatedAt",
-  "createdAt",
-  "shopId",
-  "userId",
-]);
+export const AddressBase = t.Object({
+  country: t.String(),
+  city: t.String(),
+  street: t.String(),
+  district: t.Optional(t.String()),
+  buildingNumber: t.Optional(t.String()),
+  notes: t.Optional(t.String()),
+});
 export type Address = Static<typeof AddressBase>;
 
 export const UpdateAddressBody = t.Partial(AddressBase);

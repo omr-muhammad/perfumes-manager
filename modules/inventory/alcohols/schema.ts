@@ -14,7 +14,7 @@ const BaseAlco = createInsertSchema(alcoholsTable, {
   concentration: t.Optional(t.Number({ minimum: 1, maximum: 100 })),
 });
 const AlcoLot = createInsertSchema(alcoholLotsTable, {
-  receivedAt: t.String(),
+  receivedAt: t.Optional(t.String()),
   costPerLiter: t.Number({ minimum: 0 }),
   baseSellPerLiter: t.Number({ minimum: 0 }),
   expiryDate: t.String(),
@@ -27,13 +27,26 @@ const Alcohol = t.Omit(BaseAlco, [
   "createdAt",
   "updatedAt",
 ]);
-const AlcoholLot = t.Omit(AlcoLot, [
-  "createdAt",
-  "updatedAt",
-  "alcoholId",
-  "remainingAmount",
+
+const AlcoholLot = t.Intersect([
+  t.Omit(AlcoLot, [
+    "createdAt",
+    "updatedAt",
+    "alcoholId",
+    "amountInMl",
+    "remainingAmount",
+  ]),
+  t.Object({ amountInLiter: t.Number({ minimum: 0 }) }),
 ]);
 export type AlcoholLot = Static<typeof AlcoholLot>;
+// const AlcoholLot = t.Omit(AlcoLot, [
+//   "createdAt",
+//   "updatedAt",
+//   "alcoholId",
+//   "amountInMl",
+//   "remainingAmount",
+// ]);
+// export type AlcoholLot = Static<typeof AlcoholLot>;
 
 const CreateAlcoBody = t.Object({
   alcohol: Alcohol,
@@ -46,8 +59,11 @@ const UpdateAlcoBody = t.Partial(Alcohol);
 export type UpdateAlcoBody = Static<typeof UpdateAlcoBody>;
 
 // -- Update lot
-const UpdateLotBody = t.Partial(AlcoholLot);
+const UpdateLotBody = t.Partial(t.Omit(AlcoholLot, ["amountInLiter"]));
 export type UpdateLotBody = Static<typeof UpdateLotBody>;
+
+const UpdateLotStock = t.Object({ amountInLiter: t.Number() });
+export type UpdateLotStock = Static<typeof UpdateLotStock>;
 
 // -------------- Query --------------
 const AlcoholsQueryFilters = t.Partial(
@@ -77,7 +93,7 @@ const AlcoParams = t.Object({
 });
 type AlcoParams = Static<typeof AlcoParams>;
 
-const AlcoLotParams = t.Object({
+export const AlcoLotParams = t.Object({
   shopId: ID,
   alcoholId: ID,
   lotId: ID,
@@ -111,6 +127,7 @@ export interface AlcoCTXs {
   // alco lots
   createAlcoLot: Ctx<AlcoholLot, AlcoParams>;
   updateAlcoLot: Ctx<UpdateLotBody, AlcoLotParams>;
+  updateLotStock: Ctx<UpdateLotStock, AlcoLotParams>;
   delAlcoLot: Ctx<unknown, AlcoLotParams>;
 
   // amount tier
@@ -128,8 +145,9 @@ export const AlcoSchema = {
   queryOne: { params: AlcoParams },
 
   // Alco Lots
-  createLot: { params: AlcoParams, body: AlcoLot },
+  createLot: { params: AlcoParams, body: AlcoholLot },
   updateLot: { params: AlcoLotParams, body: UpdateLotBody },
+  updateLotStock: { params: AlcoLotParams, body: UpdateLotStock },
   delLot: { params: AlcoLotParams },
 
   // Amount Tiers

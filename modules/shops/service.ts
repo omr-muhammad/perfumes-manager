@@ -71,7 +71,7 @@ export async function upsertShopAddress(
 
   const [shopAddress] = await db
     .insert(addressesTable)
-    .values(address)
+    .values({ ...address, shopId })
     .onConflictDoUpdate({
       target: addressesTable.shopId,
       set: {
@@ -140,22 +140,19 @@ export async function query(filters: ShopsQueryFilters, ownerId?: number) {
 }
 
 export async function queryById(shopId: number, ownerId?: number) {
-  if (ownerId) await assertOwnership(shopId, ownerId);
+  if (ownerId) return await assertOwnership(shopId, ownerId);
 
-  const cond = ownerId ? eq(shopsTable.ownerId, ownerId) : undefined;
   const [shop] = await db
     .select()
     .from(shopsTable)
-    .innerJoin(addressesTable, eq(addressesTable.shopId, shopsTable.id))
-    .where(and(eq(shopsTable.id, shopId), cond));
+    .leftJoin(addressesTable, eq(addressesTable.shopId, shopsTable.id))
+    .where(eq(shopsTable.id, shopId));
 
   if (!shop) throw new AppError(404, `Shop with id: ${shopId} not found.`);
 
-  const {
-    shops,
-    addresses: { shopId: adShopId, createdAt, updatedAt, ...others },
-  } = shop;
-  return { ...shops, ...others };
+  const { shops, addresses } = shop;
+
+  return { ...shops, address: addresses };
 }
 
 export async function handleActivation(shopId: number, active: boolean) {
@@ -208,26 +205,28 @@ export async function addStaff(
       })
       .returning();
 
-    if (!userStaff) tx.rollback();
+    console.debug("Created Staff: ", userStaff);
 
-    const [shopStaff] = await db
+    if (!userStaff) return tx.rollback();
+
+    const [shopStaff] = await tx
       .insert(shopsStaffTable)
       .values({
         shopId,
-        userId: userStaff!.id,
+        userId: userStaff.id,
         role: staffBody.role,
       })
       .returning();
 
-    if (!shopStaff) tx.rollback();
+    if (!shopStaff) return tx.rollback();
 
     return { userStaff, shopStaff };
   });
 
   return {
     shop,
-    user: userStaff!,
-    staffRole: shopStaff!.role,
+    user: userStaff,
+    shopStaff,
   };
 }
 

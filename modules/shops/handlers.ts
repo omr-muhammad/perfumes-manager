@@ -4,11 +4,15 @@ import * as shopsService from "./service";
 
 // ----------------- Admin & Owner -----------------
 export async function createNewShop(context: ShopsCTXs["CreateShop"]) {
-  const { body } = context;
+  const { body, authPayload } = context;
 
-  const shop = await shopsService.create(body.ownerId!, body, body.address);
+  const shop = await shopsService.create(
+    authPayload.userId,
+    body,
+    body.address,
+  );
 
-  if (body.address && !("address" in shop!))
+  if (body.address && !("address" in shop))
     return res.ok("Shop created successfully but failed to add address", {
       shop,
     });
@@ -105,18 +109,16 @@ export async function hideShop(context: ShopsCTXs["HideShop"]) {
 export async function createShopStaff(context: ShopStaffCTXs["CreateStaff"]) {
   const { params, body, authPayload } = context;
 
-  const result = await shopsService.addStaff(
+  const { shop, user, shopStaff } = await shopsService.addStaff(
     authPayload.userId,
     params.shopId,
     body,
   );
 
   return res.ok("Staff added.", {
-    shopName: result.shop.name,
-    staffEmail: result.user.email,
-    staffName: result.user.name,
-    shopRole: result.staffRole,
-    appRole: result.user.role,
+    ...shopStaff,
+    name: user.name,
+    email: user.email,
   });
 }
 
@@ -147,9 +149,13 @@ export async function getShopStaff(context: ShopStaffCTXs["QueryShopStaff"]) {
     staff: staff.map((s) => ({
       id: s.users.id,
       name: s.users.name,
+      username: s.users.username,
       email: s.users.email,
       appRole: s.users.role,
       shopRole: s.shop_staff.role,
+      createdAt: s.users.createdAt,
+      updatedAt: s.users.updatedAt,
+      joinedShopAt: s.shop_staff.createdAt,
     })),
   });
 }

@@ -25,23 +25,35 @@ export const bottlesLotsTable = pgTable(
       .references(() => bottlesTable.id, { onDelete: "cascade" }),
   },
   (lot) => [
-    unique("duplicate_lot").on(
+    unique("btls_lots_uq").on(
       lot.bottleId,
       lot.receivedAt,
       lot.costPrice,
       lot.stock,
     ),
     check(
-      "cost_price_must_be_lte_sell_price",
+      "btl_lots_price_pos_chk",
+      sql`
+        ${lot.costPrice} >= 0 AND ${lot.baseSellPrice} >= 0
+      `,
+    ),
+    check(
+      "btls_lots_cost_lte_sell_chk",
       sql`
         ${lot.costPrice} <= ${lot.baseSellPrice}
     `,
     ),
     check(
-      "remaining_stock_must_lte_base_stock",
+      "btls_lots_remaining_lte_stock_chk",
       sql`
             ${lot.remainingStock} <= ${lot.stock}
         `,
+    ),
+    check(
+      "bottles_lots_remaining_stock_pos_chk",
+      sql`
+        ${lot.remainingStock} >= 0
+      `,
     ),
   ],
 );

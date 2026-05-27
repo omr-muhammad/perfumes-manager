@@ -10,6 +10,8 @@ import {
 } from "../../../utils/globalSchema";
 import { compoundLotsTable } from "../../../db/schema/compoundLots";
 import type { InferSelectModel } from "drizzle-orm";
+import { enumToUnion } from "../../../utils/unionToLiteral";
+import { lotStatusEn } from "../../../db/schema/enums";
 
 export type CompoundLotSelect = InferSelectModel<typeof compoundLotsTable>;
 const AgingSchema = createInsertSchema(agingsTable, {
@@ -18,14 +20,14 @@ const AgingSchema = createInsertSchema(agingsTable, {
   endDate: t.String(),
 });
 
+const LotStatusUnion = t.Union(enumToUnion(lotStatusEn), {
+  error: `Status must be one of (${lotStatusEn.enumValues.join(", ")})`,
+});
+
 // ---------------- Create Compound ----------------
 const CreateCompoundLot = t.Object({
   receivedAt: t.Optional(t.String()),
-  status: t.Union([
-    t.Literal("inuse"),
-    t.Literal("ready"),
-    t.Literal("expired"),
-  ]),
+  status: LotStatusUnion,
   costPerKilo: t.Number({ minimum: 0 }),
   baseSellPerKilo: t.Number({ minimum: 0 }),
   oilAmountGm: t.Optional(t.Number({ minimum: 0 })),
@@ -33,7 +35,7 @@ const CreateCompoundLot = t.Object({
   concentration: t.Optional(t.Number({ minimum: 1, maximum: 100 })),
   alcoholId: t.Optional(ID),
 });
-export type CreateCompoundLot = Static<typeof CreateCompoundLot>;
+type CreateCompoundLot = Static<typeof CreateCompoundLot>;
 
 const CreateCompound = t.Object({
   perfumeId: ID,
@@ -41,7 +43,6 @@ const CreateCompound = t.Object({
   code: t.String(),
   density: t.Optional(t.Number()),
 });
-// export type CreateCompound = Static<typeof CreateCompound>;
 
 const CreateCompBody = t.Object({
   compound: CreateCompound,
@@ -50,12 +51,29 @@ const CreateCompBody = t.Object({
 });
 export type CreateCompBody = Static<typeof CreateCompBody>;
 
+const CreateCompLotBody = t.Object({
+  lot: CreateCompoundLot,
+  syncAlcohol: t.Boolean({ default: false }),
+});
+
+export type CreateCompLotBody = Static<typeof CreateCompLotBody>;
 // ---------------- Update Compound ----------------
 export const UpdateCompoundBody = t.Partial(CreateCompound);
 export type UpdateCompoundBody = Static<typeof UpdateCompoundBody>;
 
-const UpdateCompoundLot = t.Partial(CreateCompoundLot);
+const UpdateCompoundLot = t.Partial(
+  t.Omit(CreateCompoundLot, ["sprayAmountMl", "oilAmountGm"]),
+);
 export type UpdateCompoundLot = Static<typeof UpdateCompoundLot>;
+
+const UpdateCompLotStock = t.Partial(
+  t.Object({
+    newSprayAmountMl: t.Number({ minimum: 0 }),
+    newOilAmountGm: t.Number({ minimum: 0 }),
+  }),
+);
+export type UpdateCompLotStock = Static<typeof UpdateCompLotStock>;
+
 // ------------- Query -------------
 export const CompoundsQueryFilters = t.Partial(
   t.Object({
@@ -146,8 +164,9 @@ export interface CompCTXs {
   queryCompById: Ctx<unknown, CompParams>;
 
   // Lots
-  createCompLot: Ctx<CreateCompoundLot, CompParams>;
+  createCompLot: Ctx<CreateCompLotBody, CompParams>;
   updateCompoundLot: Ctx<UpdateCompoundLot, CompLotParams>;
+  updateLotStock: Ctx<UpdateCompLotStock, CompLotParams>;
   delCompoundLot: Ctx<unknown, CompLotParams>;
 
   // Agings
@@ -168,8 +187,9 @@ export const CompSchema = {
   delComp: { params: CompParams },
 
   // Lots
-  createCompLot: { params: CompParams, body: CreateCompoundLot },
+  createCompLot: { params: CompParams, body: CreateCompLotBody },
   updateCompLot: { params: CompLotParams, body: UpdateCompoundLot },
+  updateLotStock: { params: CompLotParams, body: UpdateCompLotStock },
   delCompLot: { params: CompLotParams },
 
   // Agings

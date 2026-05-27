@@ -12,20 +12,26 @@ import { enumToUnion } from "../../../utils/unionToLiteral";
 import { bottleCatgeroyEn, bottleTypeEn } from "../../../db/schema/enums";
 import { UpdateTier, CreateTier } from "../amountTiers/schema";
 
+const BottleType = t.Union(enumToUnion(bottleTypeEn), {
+  error: `Bottle Type must be one of (${bottleTypeEn.enumValues.join(", ")})`,
+});
+export type BottleType = Static<typeof BottleType>;
+
+const BottleCatg = t.Union(enumToUnion(bottleCatgeroyEn), {
+  error: `Bottle category must be one of (${bottleCatgeroyEn.enumValues.join(", ")})`,
+});
+export type BottleCatg = Static<typeof BottleCatg>;
+
 const BottleInsertSchema = createInsertSchema(bottlesTable, {
   size: t.Number({ minimum: 1 }),
+  type: BottleType,
+  category: BottleCatg,
 });
 const LotInsertSchema = createInsertSchema(bottlesLotsTable, {
   costPrice: t.Number({ minimum: 0 }),
   baseSellPrice: t.Number({ minimum: 0 }),
-  receivedAt: t.String(),
+  receivedAt: t.Optional(t.String()),
 });
-
-const BottleTypeUnion = enumToUnion(bottleTypeEn);
-export type BottleType = Static<typeof BottleTypeUnion>;
-
-const BottleCatgUnion = enumToUnion(bottleCatgeroyEn);
-export type BottleCatg = Static<typeof BottleCatgUnion>;
 
 // ------------- Create -------------
 const CreateBottle = t.Omit(BottleInsertSchema, [
@@ -53,16 +59,19 @@ export type CreateBottleBody = Static<typeof CreateBottleBody>;
 const UpdateBottleBody = t.Partial(CreateBottle);
 export type UpdateBottleBody = Static<typeof UpdateBottleBody>;
 
-const UpdateBottleLotBody = t.Partial(CreateBottleLot);
+const UpdateBottleLotBody = t.Partial(t.Omit(CreateBottleLot, ["stock"]));
 export type UpdateBottleLotBody = Static<typeof UpdateBottleLotBody>;
+
+const UpdateLotStock = t.Object({ newStock: t.Number({ minimum: 0 }) });
+export type UpdateLotStock = Static<typeof UpdateLotStock>;
 
 // ------------- Context Query -------------
 const BottlesQueryFilters = t.Partial(
   t.Object({
     search: t.String(),
     sku: t.String(),
-    type: BottleTypeUnion,
-    catg: BottleCatgUnion,
+    type: BottleType,
+    catg: BottleCatg,
     minStock: t.Number({ minimum: 0, default: 0 }),
     maxStock: t.Number({ minimum: 1 }),
     minPrice: t.Number({ minimum: 0 }),
@@ -110,6 +119,7 @@ export interface BottleCTXs {
   // lots
   createLot: Ctx<CreateBottleLot, BottleParams>;
   updateLot: Ctx<UpdateBottleLotBody, BottleLotParams>;
+  updateLotStock: Ctx<UpdateLotStock, BottleLotParams>;
   deleteLot: Ctx<unknown, BottleLotParams>;
 
   // amount tier
@@ -128,6 +138,7 @@ export const BottleSchema = {
   // lots
   createLot: { params: BottleParams, body: CreateBottleLot },
   updateLot: { params: BottleLotParams, body: UpdateBottleLotBody },
+  updateLotStock: { params: BottleLotParams, body: UpdateLotStock },
   deleteLot: { params: BottleLotParams },
 
   // Amount Tiers

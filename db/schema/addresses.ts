@@ -18,7 +18,7 @@ export const addressesTable = pgTable(
     city: varchar("city", { length: 50 }).notNull(),
     district: varchar("district", { length: 50 }).default(""),
     street: varchar("street", { length: 50 }).notNull(),
-    buildingNumber: smallint("building_number"),
+    buildingNumber: varchar("building_number"),
     notes: text("notes").default(""),
     shopId: integer("shop_id")
       .references(() => shopsTable.id, { onDelete: "cascade" })

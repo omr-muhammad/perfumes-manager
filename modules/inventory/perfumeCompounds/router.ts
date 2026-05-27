@@ -26,6 +26,11 @@ export const perfumesCompoundsRouter = new Elysia({ prefix: "/compounds" })
         app
           .patch("", handlers.updateCompLot, CompSchema.updateCompLot)
           .delete("", handlers.delCompLot, CompSchema.delCompLot)
+          .patch(
+            "/stock",
+            handlers.updateCompLotStock,
+            CompSchema.updateLotStock,
+          )
 
           // /:compId/lots/:lotId/amount-tiers
           .group("/amount-tiers", (app) => app.use(compAmountRouter))
@@ -54,14 +59,14 @@ function beforeHandleCreate({
   if ((lot.oilAmountGm || 0) <= 0 && (lot.sprayAmountMl || 0) <= 0)
     throw new AppError(
       422,
-      "amount for oil or spray must be given to create a compound.",
+      "Cannot create compound while oil and spray amounts are 0.",
     );
 
   if (lot.sprayAmountMl !== undefined && lot.sprayAmountMl > 0) {
     if (!lot.concentration)
       throw new AppError(
         422,
-        "Concentration is required when spray greater than 0.",
+        "Concentration is required when spray amount greater than 0.",
       );
 
     if (!lot.alcoholId)

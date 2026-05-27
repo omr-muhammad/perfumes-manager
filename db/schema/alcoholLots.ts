@@ -7,7 +7,7 @@ import {
   unique,
 } from "drizzle-orm/pg-core";
 import { lotStatusEn } from "./enums";
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { timestamps } from "../columns.helpers";
 import { alcoholsTable } from ".";
 
@@ -15,9 +15,9 @@ export const alcoholLotsTable = pgTable(
   "alcohol_lots",
   {
     id: integer("id").primaryKey().notNull().generatedAlwaysAsIdentity(),
-    receivedAt: timestamp().notNull().defaultNow(),
+    receivedAt: timestamp("received_at").notNull().defaultNow(),
     status: lotStatusEn("status").notNull(),
-    amount: integer("amount").notNull().default(0),
+    amountInMl: integer("amountInMl").notNull().default(0),
     remainingAmount: integer("remaining_amount").notNull(),
     expiryDate: timestamp("expiry_date").notNull(),
     costPerLiter: numeric("cost_per_liter", {
@@ -37,22 +37,35 @@ export const alcoholLotsTable = pgTable(
     ...timestamps,
   },
   (lot) => [
-    unique("lot_is_already_exist").on(
-      lot.amount,
+    unique("alcohol_lots_key").on(
+      lot.amountInMl,
       lot.receivedAt,
       lot.costPerLiter,
     ),
     check(
-      "cost_price_must_be_lte_selling_price",
+      "alcohol_lots_cost_per_liter_base_sell_per_liter_chk",
       sql`
     ${lot.costPerLiter} <=   ${lot.baseSellPerLiter}
   `,
     ),
     check(
-      `remaining_amount_cannot_exceed_main_amount`,
+      `alcohol_lots_amount_remaining_amount_chk`,
       sql`
-      ${lot.remainingAmount} <= ${lot.amount}  
+      ${lot.remainingAmount} <= ${lot.amountInMl}  
+    `,
+    ),
+    check(
+      `alcohol_lots_remaining_amount_chk`,
+      sql`
+      ${lot.remainingAmount} >= 0  
     `,
     ),
   ],
 );
+
+export const alcoLotRelations = relations(alcoholLotsTable, ({ one }) => ({
+  alcohol: one(alcoholsTable, {
+    fields: [alcoholLotsTable.alcoholId],
+    references: [alcoholsTable.id],
+  }),
+}));

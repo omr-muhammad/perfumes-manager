@@ -15,9 +15,9 @@ export const alcoholsRouter = new Elysia({ prefix: "/alcohols" })
   // /inventory/alcohols/:alcoholId
   .group("/:alcoholId", (app) =>
     app
+      .get("", handlers.getAlcoById, AlcoSchema.queryOne)
       .patch("", handlers.updateAlco, AlcoSchema.update)
       .delete("", handlers.deleteAlco, AlcoSchema.del)
-      .get("", handlers.getAlcoById, AlcoSchema.queryOne)
 
       // /inventory/alcohols/:alcoholId/lots
       .post("/lots", handlers.createAlcoLot, AlcoSchema.createLot)
@@ -27,6 +27,11 @@ export const alcoholsRouter = new Elysia({ prefix: "/alcohols" })
         app
           .patch("", handlers.updateAlcoLot, AlcoSchema.updateLot)
           .delete("", handlers.deleteAlcoLot, AlcoSchema.delLot)
+          .patch(
+            "/stock",
+            handlers.updateAlcoLotStock,
+            AlcoSchema.updateLotStock,
+          )
 
           // /inventory/alcohols/:alcoholId/lots/:lotId/amount-tiers
           .group("/amount-tiers", (app) => app.use(alcoAmountRouter)),

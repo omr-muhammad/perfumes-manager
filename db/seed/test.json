@@ -1,0 +1,30 @@
+{
+  "type": "validation",
+  "on": "params",
+  "value": { "id": "string" },
+  "property": "/id",
+  "message": "id must be a number",
+  "summary": "Property 'id' should be one of: 'numeric', 'number'",
+  "found": { "id": "string" },
+  "expected": { "id": 0 },
+  "errors": [
+    {
+      "type": 62,
+      "schema": {
+        "anyOf": [
+          {
+            "format": "numeric",
+            "default": 0,
+            "type": "string"
+          },
+          { "type": "number" }
+        ]
+      },
+      "path": "/id",
+      "value": "string",
+      "message": "Expected union value",
+      "errors": [{ "iterator": {} }, { "iterator": {} }],
+      "summary": "Property 'id' should be one of: 'numeric', 'number'"
+    }
+  ]
+}

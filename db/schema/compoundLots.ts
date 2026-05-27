@@ -39,7 +39,7 @@ export const compoundLotsTable = pgTable(
     remainingOilAmount: integer("remaining_oil_amount").default(0),
     remainingSprayAmount: integer("remaining_spray_amount").default(0),
     compoundId: integer("compound_id")
-      .references(() => perfumeCompoundsTable.id)
+      .references(() => perfumeCompoundsTable.id, { onDelete: "cascade" })
       .notNull(),
     alcoholId: integer("alcohol_id").references(() => alcoholsTable.id, {
       onDelete: "restrict",
@@ -47,22 +47,19 @@ export const compoundLotsTable = pgTable(
     ...timestamps,
   },
   (lot) => [
-    unique("perfume_compound_lot_must_be_unique").on(
-      lot.receivedAt,
-      lot.compoundId,
-    ),
+    unique("comp_lots_uq").on(lot.compoundId, lot.receivedAt, lot.costPerKilo),
     check(
-      "oil_or_spray_amount_must_be_available",
+      "comp_lots_oil_spray_amount_pos_chk",
       sql`
     ${lot.oilAmountGm} > 0 OR ${lot.sprayAmountMl} > 0  
   `,
     ),
     check(
-      "concentration_required_when_spray_amount_more_than_0",
+      "comp_lots_concentration_chk",
       sql`${lot.sprayAmountMl} = 0 OR ${lot.concentration} BETWEEN 1 AND 100`,
     ),
     check(
-      "alcohol_id_is_required_when_spray_amount_greater_than_0",
+      "comp_lots_alcohol_chk",
       sql`
         ${lot.sprayAmountMl} = 0
         OR
@@ -70,11 +67,20 @@ export const compoundLotsTable = pgTable(
       `,
     ),
     check(
-      "remaining_amount_cannot_go_over_base_amount",
+      "comp_lots_remaining_lte_amount_chk",
       sql`
         ${lot.remainingOilAmount} <= ${lot.oilAmountGm} 
         AND
         ${lot.remainingSprayAmount} <= ${lot.sprayAmountMl}
+      `,
+    ),
+    check(
+      "comp_lots_stock_gte_0_chk",
+      sql`
+        ${lot.oilAmountGm} >= 0 AND 
+        ${lot.remainingOilAmount} >= 0 AND
+        ${lot.sprayAmountMl} >= 0 AND
+        ${lot.remainingSprayAmount} >= 0
       `,
     ),
   ],

@@ -12,9 +12,10 @@ import type {
   CompoundsQueryFilters,
   CreateAgingBody,
   CreateCompBody,
-  CreateCompoundLot,
+  CreateCompLotBody,
   ServiceIDs,
   UpdateAgingBody,
+  UpdateCompLotStock,
   UpdateCompoundBody,
   UpdateCompoundLot,
 } from "./schema";
@@ -32,7 +33,7 @@ export async function createComp(
   const { compound: newComp, lot, syncAlcohol } = compData;
 
   const result = await db.transaction(async (tx) => {
-    const [compound] = await db
+    const [compound] = await tx
       .insert(perfumeCompoundsTable)
       .values({
         ...newComp,
@@ -43,8 +44,8 @@ export async function createComp(
 
     if (!compound) tx.rollback();
 
-    // The trigger will use `sync_alcohol` to run or skip
-    await tx.execute(sql`SET LOCAL app.sync_alcohol = ${syncAlcohol}`);
+    // The trigger will use `should_sync` to run or skip
+    await tx.execute(sql.raw(`SET LOCAL app.should_sync = ${!!syncAlcohol}`));
 
     const [compoundLot] = await tx
       .insert(compoundLotsTable)
@@ -129,19 +130,19 @@ export async function queryAll(
       lots: sql<CompoundLotSelect[]>`
           json_agg(
             jsonb_build_object(
-              'id': ${compoundLotsTable.id}
-              'receivedAt': ${compoundLotsTable.receivedAt}
-              'densitySnapshot': ${compoundLotsTable.densitySnapshot}
-              'status': ${compoundLotsTable.status}
-              'costPerKilo': ${compoundLotsTable.costPerKilo}
-              'baseSellPerKilo': ${compoundLotsTable.baseSellPerKilo}
-              'baseGmSell': ${compoundLotsTable.baseGmSell}
-              'oilAmountGm': ${compoundLotsTable.oilAmountGm}
-              'sprayAmountMl': ${compoundLotsTable.sprayAmountMl}
-              'concentration': ${compoundLotsTable.concentration}
-              'remainingOilAmount': ${compoundLotsTable.remainingOilAmount}
-              'remainingSprayAmount': ${compoundLotsTable.remainingSprayAmount}
-              'alcohol': alcohol_agg.data
+              'id', ${compoundLotsTable.id},
+              'receivedAt', ${compoundLotsTable.receivedAt},
+              'densitySnapshot', ${compoundLotsTable.densitySnapshot},
+              'status', ${compoundLotsTable.status},
+              'costPerKilo', ${compoundLotsTable.costPerKilo},
+              'baseSellPerKilo', ${compoundLotsTable.baseSellPerKilo},
+              'baseGmSell', ${compoundLotsTable.baseGmSell},
+              'oilAmountGm', ${compoundLotsTable.oilAmountGm},
+              'sprayAmountMl', ${compoundLotsTable.sprayAmountMl},
+              'concentration', ${compoundLotsTable.concentration},
+              'remainingOilAmount', ${compoundLotsTable.remainingOilAmount},
+              'remainingSprayAmount', ${compoundLotsTable.remainingSprayAmount},
+              'alcohol', alcohol_agg.data
             )
           )
         `,
@@ -220,11 +221,14 @@ export async function queryById(ids: ServiceIDs["extendsComp"]) {
 // LOT
 export async function createLot(
   ids: ServiceIDs["extendsComp"],
-  compLot: CreateCompoundLot,
+  data: CreateCompLotBody,
 ) {
   const { ownerId, shopId, compId } = ids;
 
   await assertOwnership(shopId, ownerId);
+
+  const { lot: compLot, syncAlcohol } = data;
+
   const [comp] = await db
     .select({ density: perfumeCompoundsTable.density })
     .from(perfumeCompoundsTable)
@@ -241,29 +245,33 @@ export async function createLot(
       `Cannot create new lot, compound with id: ${compId} not found.`,
     );
 
-  const [lot] = await db
-    .insert(compoundLotsTable)
-    .values({
-      ...compLot,
-      densitySnapshot: comp.density,
-      compoundId: compId,
-      ...(compLot.receivedAt
-        ? { receivedAt: new Date(compLot.receivedAt) }
-        : { receivedAt: new Date() }),
-      costPerKilo: compLot.costPerKilo.toFixed(4),
-      baseSellPerKilo: compLot.baseSellPerKilo.toFixed(4),
-      remainingOilAmount: compLot.oilAmountGm,
-      remainingSprayAmount: compLot.sprayAmountMl,
-    })
-    .returning();
+  const lot = await db.transaction(async (tx) => {
+    await tx.execute(sql.raw(`SET LOCAL app.should_sync = ${!!syncAlcohol}`));
 
-  if (!lot)
-    throw new AppError(
-      404,
-      `Cannot create new lot for compound with id: ${compId}`,
-    );
+    const [lot] = await tx
+      .insert(compoundLotsTable)
+      .values({
+        ...compLot,
+        densitySnapshot: comp.density,
+        compoundId: compId,
+        ...(compLot.receivedAt
+          ? { receivedAt: new Date(compLot.receivedAt) }
+          : { receivedAt: new Date() }),
+        costPerKilo: compLot.costPerKilo.toFixed(4),
+        baseSellPerKilo: compLot.baseSellPerKilo.toFixed(4),
+        remainingOilAmount: compLot.oilAmountGm,
+        remainingSprayAmount: compLot.sprayAmountMl,
+      })
+      .returning();
 
-  return lot;
+    if (!lot)
+      throw new AppError(
+        404,
+        `Cannot create new lot for compound with id: ${compId}`,
+      );
+
+    return lot;
+  });
 }
 
 export async function updateLot(
@@ -299,6 +307,75 @@ export async function updateLot(
     );
 
   return lot;
+}
+
+export async function updateLotStock(
+  ids: ServiceIDs["extendsCompLot"],
+  newStock: UpdateCompLotStock,
+) {
+  const { ownerId, shopId, compId, lotId } = ids;
+
+  await assertOwnership(shopId, ownerId);
+
+  const { newOilAmountGm, newSprayAmountMl } = newStock;
+  const [lot] = await db
+    .update(compoundLotsTable)
+    .set({
+      ...(newOilAmountGm && {
+        oilAmountGm: newOilAmountGm,
+        remainingOilAmount: sql`remaining_oil_amount - (oil_amount_gm - ${newOilAmountGm})`,
+      }),
+      ...(newSprayAmountMl && {
+        sprayAmountMl: newSprayAmountMl,
+        remainingSprayAmount: sql`remaining_spray_amount - (spray_amount_ml - ${newSprayAmountMl})`,
+      }),
+    })
+    .where(
+      and(
+        eq(compoundLotsTable.compoundId, compId),
+        eq(compoundLotsTable.id, lotId),
+        newSprayAmountMl
+          ? sql`spray_amount_ml - ${newSprayAmountMl} <= remaining_spray_amount`
+          : undefined,
+        newOilAmountGm
+          ? sql`oil_amount_gm - ${newOilAmountGm} <= remaining_oil_amount`
+          : undefined,
+      ),
+    )
+    .returning();
+
+  if (lot) return lot;
+
+  // Reasoning why update failed
+  const [found] = await db
+    .select()
+    .from(compoundLotsTable)
+    .where(
+      and(
+        eq(compoundLotsTable.compoundId, compId),
+        eq(compoundLotsTable.id, lotId),
+      ),
+    );
+
+  if (!found)
+    throw new AppError(
+      404,
+      `Lot with id: ${lotId} not found or not belong to compound with id: ${compId}`,
+    );
+
+  const takenSpray = found.sprayAmountMl! - found.remainingSprayAmount!;
+  const takenOil = found.oilAmountGm! - found.remainingOilAmount!;
+
+  const oilMsg =
+    newOilAmountGm && newOilAmountGm < takenOil
+      ? `Cannot set oil amount to ${newOilAmountGm}gm, while ${takenOil}gm was already taken.`
+      : "";
+  const sprayMsg =
+    newSprayAmountMl && newSprayAmountMl < takenSpray
+      ? `Cannot set spray amount to ${newSprayAmountMl}ml, while ${takenSpray}ml was already taken.`
+      : "";
+
+  throw new AppError(400, `${oilMsg}${oilMsg && " "}${sprayMsg}`);
 }
 
 export async function deleteLot(ids: ServiceIDs["extendsCompLot"]) {
@@ -337,7 +414,7 @@ export async function addAging(
   const { newAging, syncAlcohol } = agingBody;
 
   const result = await db.transaction(async (tx) => {
-    await tx.execute(sql`SET LOCAL app.sync_alcohol = ${syncAlcohol}`);
+    await tx.execute(sql.raw(`SET LOCAL app.should_sync = ${!!syncAlcohol}`));
     const [aging] = await tx
       .insert(agingsTable)
       .values({
@@ -370,8 +447,8 @@ export async function updateAging(
   const { updates, syncAlcohol } = updatesBody;
 
   const result = await db.transaction(async (tx) => {
-    await tx.execute(sql`SET LOCAL app.sync_alcohol = ${syncAlcohol}`);
-    const [aging] = await db
+    await tx.execute(sql.raw(`SET LOCAL app.should_sync = ${!!syncAlcohol}`));
+    const [aging] = await tx
       .update(agingsTable)
       .set({
         ...(updates.amount && { amount: updates.amount }),
@@ -404,7 +481,8 @@ export async function deleteAging(
   await assertOwnership(shopId, ownerId);
 
   const result = await db.transaction(async (tx) => {
-    await tx.execute(sql`SET LOCAL app.sync_alcohol = ${syncAlcohol}`);
+    await tx.execute(sql.raw(`SET LOCAL app.should_sync = ${!!syncAlcohol}`));
+
     const [aging] = await tx
       .delete(agingsTable)
       .where(and(eq(agingsTable.id, agingId), eq(agingsTable.lotId, lotId)))

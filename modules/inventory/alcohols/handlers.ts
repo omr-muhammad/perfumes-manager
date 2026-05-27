@@ -85,6 +85,17 @@ export async function updateAlcoLot(context: AlcoCTXs["updateAlcoLot"]) {
   return res.ok("Lot updated.", { alcoLot });
 }
 
+export async function updateAlcoLotStock(context: AlcoCTXs["updateLotStock"]) {
+  const { authPayload, body, params } = context;
+
+  const lot = await alcoService.updateLotStock(
+    { ...params, ownerId: authPayload.userId },
+    body.amountInLiter,
+  );
+
+  res.ok("Stock updated.", { newAmount: `${lot.amountInMl / 1000} L` });
+}
+
 export async function deleteAlcoLot(context: AlcoCTXs["delAlcoLot"]) {
   const {
     params,

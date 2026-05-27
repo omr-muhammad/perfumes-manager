@@ -7,10 +7,15 @@ import { AppError } from "./utils/AppError";
 import { handlePgError } from "./utils/pgErrorHandler";
 import { response as res } from "./utils/response";
 import { adminRouter } from "./modules/admin/router";
+import util from "node:util";
+import { handleValidation } from "./utils/validationErrorHandler";
 
 export const app = new Elysia({ prefix: "/api" })
-  .onError(({ code, error, set }) => {
-    console.log("Error: ", error);
+  .onError(({ code, error, set, cookie }) => {
+    // console.error(
+    //   `\n[${code}]`,
+    //   util.inspect(error, { depth: null, colors: true }),
+    // );
     const isDev = Bun.env.NODE_ENV === "development";
 
     if (error instanceof AppError) {
@@ -23,9 +28,11 @@ export const app = new Elysia({ prefix: "/api" })
 
     // Elysia Validation
     if (code === "VALIDATION") {
-      set.status = 400;
+      const errors = handleValidation(error);
+
+      set.status = error.status || 422;
       return res.fail("Invalid input data", {
-        details: error.all,
+        errors,
         ...(isDev && { error, stack: error.stack }),
       });
     }
@@ -40,8 +47,10 @@ export const app = new Elysia({ prefix: "/api" })
       });
     }
 
-    console.error("Unhandled Error: ", error);
-    console.error("Error Cause: ", (error as any).cause);
+    console.error(
+      `\nUnhandled Error: [${code}]`,
+      util.inspect(error, { depth: null, colors: true }),
+    );
 
     set.status = 500;
     return { success: false, message: "Internal server error" };
