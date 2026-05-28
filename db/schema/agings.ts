@@ -1,12 +1,13 @@
 import {
   check,
+  foreignKey,
   integer,
   pgTable,
   timestamp,
   unique,
 } from "drizzle-orm/pg-core";
 import { timestamps } from "../columns.helpers";
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { alcoholsTable, compoundLotsTable } from ".";
 
 export const agingsTable = pgTable(
@@ -25,24 +26,47 @@ export const agingsTable = pgTable(
       .references(() => alcoholsTable.id, { onDelete: "restrict" }),
     ...timestamps,
   },
-  (table) => [
-    unique("duplicate_entry").on(
-      table.amount,
-      table.startDate,
-      table.endDate,
-      table.lotId,
+  (aging) => [
+    unique("agings_uq").on(
+      aging.amount,
+      aging.startDate,
+      aging.endDate,
+      aging.lotId,
     ),
+    foreignKey({
+      name: "agings_lot_fk",
+      columns: [aging.lotId],
+      foreignColumns: [compoundLotsTable.id],
+    }).onDelete("cascade"),
+
+    foreignKey({
+      name: "agings_alcohol_fk",
+      columns: [aging.alcoholId],
+      foreignColumns: [alcoholsTable.id],
+    }).onDelete("restrict"),
+
     check(
-      "amount_must_be_positive",
+      "agings_amount_pos_chk",
       sql`
-        ${table.amount} > 0
+        ${aging.amount} > 0
       `,
     ),
     check(
-      "invalid_concnetration_range",
+      "agings_concentration_range_chk",
       sql`
-        ${table.concentration} BETWEEN 1 AND 100
+        ${aging.concentration} BETWEEN 1 AND 100
       `,
     ),
   ],
 );
+
+export const agingRelations = relations(agingsTable, ({ one }) => ({
+  compoundLot: one(compoundLotsTable, {
+    fields: [agingsTable.lotId],
+    references: [compoundLotsTable.id],
+  }),
+  alcohol: one(alcoholsTable, {
+    fields: [agingsTable.alcoholId],
+    references: [alcoholsTable.id],
+  }),
+}));

@@ -1,5 +1,6 @@
 import {
   check,
+  foreignKey,
   integer,
   numeric,
   pgTable,
@@ -7,7 +8,7 @@ import {
   unique,
 } from "drizzle-orm/pg-core";
 import { bottlesTable } from "./bottles";
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { lotStatusEn } from "./enums";
 
 export const bottlesLotsTable = pgTable(
@@ -20,9 +21,7 @@ export const bottlesLotsTable = pgTable(
     remainingStock: integer("remaining_stock").notNull(),
     costPrice: numeric("buy_price", { precision: 5, scale: 2 }).notNull(),
     baseSellPrice: numeric("price", { precision: 5, scale: 2 }).notNull(),
-    bottleId: integer("bottle_id")
-      .notNull()
-      .references(() => bottlesTable.id, { onDelete: "cascade" }),
+    bottleId: integer("bottle_id").notNull(),
   },
   (lot) => [
     unique("btls_lots_uq").on(
@@ -31,8 +30,13 @@ export const bottlesLotsTable = pgTable(
       lot.costPrice,
       lot.stock,
     ),
+    foreignKey({
+      name: "btls_lots_bottle_fk",
+      columns: [lot.bottleId],
+      foreignColumns: [bottlesTable.id],
+    }).onDelete("cascade"),
     check(
-      "btl_lots_price_pos_chk",
+      "btl_lots_price_nneg_chk",
       sql`
         ${lot.costPrice} >= 0 AND ${lot.baseSellPrice} >= 0
       `,
@@ -44,16 +48,23 @@ export const bottlesLotsTable = pgTable(
     `,
     ),
     check(
+      "bottles_lots_stocks_nneg_chk",
+      sql`
+        ${lot.stock} >= 0 AND ${lot.remainingStock} >= 0
+      `,
+    ),
+    check(
       "btls_lots_remaining_lte_stock_chk",
       sql`
             ${lot.remainingStock} <= ${lot.stock}
         `,
     ),
-    check(
-      "bottles_lots_remaining_stock_pos_chk",
-      sql`
-        ${lot.remainingStock} >= 0
-      `,
-    ),
   ],
 );
+
+export const btlLotsRelations = relations(bottlesLotsTable, ({ one }) => ({
+  bottle: one(bottlesTable, {
+    fields: [bottlesLotsTable.bottleId],
+    references: [bottlesTable.id],
+  }),
+}));

@@ -5,11 +5,12 @@ import {
   smallint,
   varchar,
   unique,
+  foreignKey,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 
 import { timestamps } from "../columns.helpers";
-import { alcoholLotsTable, shopsTable } from ".";
+import { agingsTable, alcoholLotsTable, shopsTable } from ".";
 
 export const alcoholsTable = pgTable(
   "alcohols",
@@ -18,21 +19,24 @@ export const alcoholsTable = pgTable(
     name: varchar("name", { length: 100 }).notNull(),
     type: varchar("type", { length: 50 }).notNull(),
     concentration: smallint("concentration").default(96),
-    shopId: integer("shop_id")
-      .notNull()
-      .references(() => shopsTable.id, { onDelete: "cascade" }),
+    shopId: integer("shop_id").notNull(),
     ...timestamps,
   },
-  (table) => [
-    unique("alcohol_must_be_unique").on(
-      table.name,
-      table.type,
-      table.concentration,
-      table.shopId,
+  (alco) => [
+    unique("alcohols_uq").on(
+      alco.name,
+      alco.type,
+      alco.concentration,
+      alco.shopId,
     ),
+    foreignKey({
+      name: "alcohols_shop_id_fk",
+      columns: [alco.shopId],
+      foreignColumns: [shopsTable.id],
+    }).onDelete("cascade"),
     check(
-      "concentration_must_be_between_1_and_100",
-      sql`${table.concentration} > 0 AND ${table.concentration} <= 100`,
+      "alcohols_concentration_range_chk",
+      sql`${alco.concentration} > 0 AND ${alco.concentration} <= 100`,
     ),
   ],
 );
@@ -42,5 +46,6 @@ export const alcoRelations = relations(alcoholsTable, ({ one, many }) => ({
     fields: [alcoholsTable.shopId],
     references: [shopsTable.id],
   }),
+  agings: many(agingsTable),
   lots: many(alcoholLotsTable),
 }));

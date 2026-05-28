@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   check,
@@ -7,10 +7,10 @@ import {
   unique,
   varchar,
   text,
-  union,
 } from "drizzle-orm/pg-core";
 import { timestamps } from "../columns.helpers";
 import { companyTypeEn } from "./enums";
+import { perfumeCompoundsTable } from "./perfumesCompounds";
 
 export const companiesTable = pgTable(
   "companies",
@@ -24,12 +24,9 @@ export const companiesTable = pgTable(
     ...timestamps,
   },
   (table) => [
-    unique("company_name_and_country_must_be_unique").on(
-      table.name,
-      table.country,
-    ),
+    unique("companies_uq").on(table.name, table.country),
     check(
-      "approved_required_completed_info",
+      "companies_approved_chk",
       sql`
       NOT ${table.approved}
         OR
@@ -38,3 +35,7 @@ export const companiesTable = pgTable(
     ),
   ],
 );
+
+export const companiesRelations = relations(companiesTable, ({ many }) => ({
+  compounds: many(perfumeCompoundsTable),
+}));

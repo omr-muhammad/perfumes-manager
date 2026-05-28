@@ -1,13 +1,13 @@
 import {
   check,
+  foreignKey,
   integer,
   pgTable,
-  smallint,
   text,
   varchar,
 } from "drizzle-orm/pg-core";
 import { timestamps } from "../columns.helpers";
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { shopsTable, usersTable } from ".";
 
 export const addressesTable = pgTable(
@@ -20,23 +20,40 @@ export const addressesTable = pgTable(
     street: varchar("street", { length: 50 }).notNull(),
     buildingNumber: varchar("building_number"),
     notes: text("notes").default(""),
-    shopId: integer("shop_id")
-      .references(() => shopsTable.id, { onDelete: "cascade" })
-      .unique(),
-    userId: integer("user_id")
-      .references(() => usersTable.id, { onDelete: "cascade" })
-      .unique(),
+    shopId: integer("shop_id").unique(),
+    userId: integer("user_id").unique(),
     ...timestamps,
   },
-  (table) => [
+  (address) => [
+    foreignKey({
+      name: "addresses_shop_id_fk",
+      columns: [address.shopId],
+      foreignColumns: [shopsTable.id],
+    }).onDelete("cascade"),
+    foreignKey({
+      name: "addresses_user_id_fk",
+      columns: [address.userId],
+      foreignColumns: [usersTable.id],
+    }).onDelete("cascade"),
     check(
-      "address_must_refer_to_shop_or_user",
+      "addresses_shop_or_user_fk",
       sql`
-      COALESCE(${table.userId}::BOOLEAN::INTEGER, 0) 
+      COALESCE(${address.userId}::BOOLEAN::INTEGER, 0) 
       +
-      COALESCE(${table.shopId}::BOOLEAN::INTEGER, 0) 
+      COALESCE(${address.shopId}::BOOLEAN::INTEGER, 0) 
       = 1
     `,
     ),
   ],
 );
+
+export const addressRelations = relations(addressesTable, ({ one }) => ({
+  shop: one(shopsTable, {
+    fields: [addressesTable.shopId],
+    references: [shopsTable.id],
+  }),
+  user: one(usersTable, {
+    fields: [addressesTable.userId],
+    references: [usersTable.id],
+  }),
+}));

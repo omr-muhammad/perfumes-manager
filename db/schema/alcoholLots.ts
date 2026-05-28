@@ -1,5 +1,6 @@
 import {
   check,
+  foreignKey,
   integer,
   numeric,
   pgTable,
@@ -31,34 +32,43 @@ export const alcoholLotsTable = pgTable(
     baseMlSell: numeric("base_ml_sell", { precision: 5, scale: 2 })
       .generatedAlwaysAs(sql`base_sell_per_liter / 1000`)
       .notNull(),
-    alcoholId: integer("alcohol_id")
-      .references(() => alcoholsTable.id, { onDelete: "cascade" })
-      .notNull(),
+    alcoholId: integer("alcohol_id").notNull(),
     ...timestamps,
   },
   (lot) => [
-    unique("alcohol_lots_key").on(
+    unique("alcohol_lots_uq").on(
       lot.amountInMl,
       lot.receivedAt,
       lot.costPerLiter,
     ),
+    foreignKey({
+      name: "alcohol_lots_fk",
+      columns: [lot.alcoholId],
+      foreignColumns: [alcoholsTable.id],
+    }).onDelete("cascade"),
     check(
-      "alcohol_lots_cost_per_liter_base_sell_per_liter_chk",
+      "alcohol_lots_cost_lte_base_chk",
       sql`
     ${lot.costPerLiter} <=   ${lot.baseSellPerLiter}
   `,
     ),
     check(
-      `alcohol_lots_amount_remaining_amount_chk`,
+      `alcohol_lots_amounts_nneg_chk`,
+      sql`
+      ${lot.remainingAmount} >= 0 AND ${lot.amountInMl} >= 0 
+    `,
+    ),
+    check(
+      `alcohol_lots_remaining_lte_amount_chk`,
       sql`
       ${lot.remainingAmount} <= ${lot.amountInMl}  
     `,
     ),
     check(
-      `alcohol_lots_remaining_amount_chk`,
+      `alcohol_lots_expiry_date_future_chk`,
       sql`
-      ${lot.remainingAmount} >= 0  
-    `,
+        ${lot.expiryDate} > NOW()
+      `,
     ),
   ],
 );

@@ -11,7 +11,6 @@ export const addAmountRangeConstraints = sql`
   ALTER TABLE amount_tiers
     ADD CONSTRAINT no_amount_ranges_overlapping
     EXCLUDE USING GIST (
-      shop_id WITH =,
       entity_id WITH =,
       entity_type WITH =,
       amount_range WITH &&

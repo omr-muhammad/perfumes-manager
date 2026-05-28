@@ -1,17 +1,17 @@
 import {
   check,
   integer,
-  numeric,
   pgTable,
   smallint,
   text,
   varchar,
   unique,
+  foreignKey,
 } from "drizzle-orm/pg-core";
 import { bottleCatgeroyEn, bottleTypeEn } from "./enums";
-import { shopsTable } from ".";
+import { bottlesLotsTable, shopsTable } from ".";
 import { timestamps } from "../columns.helpers";
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 export const bottlesTable = pgTable(
   "bottles",
@@ -23,18 +23,29 @@ export const bottlesTable = pgTable(
     sku: varchar("sku", { length: 100 }).notNull(),
     category: bottleCatgeroyEn("category").notNull(),
     img: text("img"),
-    shopId: integer("shop_id")
-      .references(() => shopsTable.id, { onDelete: "cascade" })
-      .notNull(),
+    shopId: integer("shop_id").notNull(),
     ...timestamps,
   },
   (bottle) => [
-    unique("duplicate_bottle").on(bottle.shopId, bottle.sku),
+    unique("bottles_uq").on(bottle.shopId, bottle.sku),
+    foreignKey({
+      name: "bottles_shop_id_fk",
+      columns: [bottle.shopId],
+      foreignColumns: [shopsTable.id],
+    }).onDelete("cascade"),
     check(
-      "bottle_size_must_be_positive",
+      "bottles_size_pos_chk",
       sql`
       ${bottle.size} > 0
     `,
     ),
   ],
 );
+
+export const bottlesRelations = relations(bottlesTable, ({ one, many }) => ({
+  shop: one(shopsTable, {
+    fields: [bottlesTable.shopId],
+    references: [shopsTable.id],
+  }),
+  lots: many(bottlesLotsTable),
+}));

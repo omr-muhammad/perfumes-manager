@@ -1,5 +1,4 @@
 import { check, integer, numeric, pgTable } from "drizzle-orm/pg-core";
-import { perfumeCompoundsTable, shopsTable } from ".";
 import { int4range, timestamps } from "../columns.helpers";
 import { discountTypeEn, entityTypeEn, pricingTypeEn } from "./enums";
 import { sql } from "drizzle-orm";
@@ -8,9 +7,6 @@ export const amountTiersTable = pgTable(
   "amount_tiers",
   {
     id: integer("id").notNull().generatedAlwaysAsIdentity(),
-    shopId: integer("shop_id")
-      .references(() => shopsTable.id, { onDelete: "cascade" })
-      .notNull(),
     entityId: integer("entity_id"),
     entityType: entityTypeEn("entity_type").notNull(),
     amountRange: int4range("amount_range").notNull(),
@@ -22,13 +18,13 @@ export const amountTiersTable = pgTable(
   },
   (tier) => [
     check(
-      "value_cannot_be_negative",
+      "amount_tiers_value_pos_chk",
       sql`
       ${tier.value} >= 0
     `,
     ),
     check(
-      "discount_fields_must_match_pricing_type",
+      "amount_tiers_discount_price_type_cons_chk",
       sql`
         (
           ${tier.pricingType} = 'fixed' AND 
@@ -40,7 +36,7 @@ export const amountTiersTable = pgTable(
       `,
     ),
     check(
-      "discount_percentage_cannot_go_over_100",
+      "amount_tiers_discount_percentage_range_chk",
       sql`
       ${tier.pricingType} != 'discount'
       OR
