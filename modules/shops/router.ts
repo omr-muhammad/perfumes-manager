@@ -6,7 +6,7 @@ import { protect, restrictTo } from "../../utils/auth";
 
 import { alcoholsRouter } from "../inventory/alcohols/router";
 import { bottlesRouter } from "../inventory/bottles/router";
-import { perfumesCompoundsRouter } from "../inventory/perfumeCompounds/router";
+import { perfumesCompoundsRouter } from "../inventory/shopCompounds/router";
 
 export const shopsRouter = new Elysia({ prefix: "/shops" })
   .use(protect)
