@@ -1,6 +1,6 @@
 // prettier-ignore
-import { foreignKey, integer, numeric, pgTable, unique, varchar } from "drizzle-orm/pg-core";
-import { perfumesTable, companiesTable, shopsTable } from ".";
+import { foreignKey, integer, numeric, pgTable, unique } from "drizzle-orm/pg-core";
+import { perfumesTable, companiesTable } from ".";
 import { timestamps } from "../columns.helpers";
 import { relations } from "drizzle-orm";
 
@@ -8,22 +8,15 @@ export const perfumeCompoundsTable = pgTable(
   "perfumes_compounds",
   {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    perfumeId: integer("perfume_id").notNull(),
+    companyId: integer("company_id").notNull(),
     density: numeric("density", { precision: 4, scale: 3 })
       .notNull()
       .default("0.9"),
-    code: varchar("code", { length: 50 }).notNull(),
-    perfumeId: integer("perfume_id").notNull(),
-    companyId: integer("company_id").notNull(),
-    shopId: integer("shop_id").notNull(),
     ...timestamps,
   },
   (pfComp) => [
-    unique("pc_uq").on(
-      pfComp.perfumeId,
-      pfComp.companyId,
-      pfComp.shopId,
-      pfComp.code,
-    ),
+    unique("pc_uq").on(pfComp.perfumeId, pfComp.companyId),
     foreignKey({
       name: "pc_perfume_fk",
       columns: [pfComp.perfumeId],
@@ -34,11 +27,6 @@ export const perfumeCompoundsTable = pgTable(
       columns: [pfComp.companyId],
       foreignColumns: [companiesTable.id],
     }).onDelete("restrict"),
-    foreignKey({
-      name: "pc_shop_fk",
-      columns: [pfComp.shopId],
-      foreignColumns: [shopsTable.id],
-    }).onDelete("cascade"),
   ],
 );
 

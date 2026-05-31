@@ -1,6 +1,7 @@
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   check,
+  foreignKey,
   integer,
   numeric,
   pgTable,
@@ -8,12 +9,12 @@ import {
   timestamp,
   unique,
 } from "drizzle-orm/pg-core";
-import { alcoholsTable, perfumeCompoundsTable } from ".";
+import { alcoholsTable, shopCompsTable } from ".";
 import { lotStatusEn } from "./enums";
 import { timestamps } from "../columns.helpers";
 
-export const compoundLotsTable = pgTable(
-  "compound_lots",
+export const shopCompLotsTable = pgTable(
+  "shop_compound_lots",
   {
     id: integer("id").primaryKey().notNull().generatedAlwaysAsIdentity(),
     receivedAt: timestamp("received_at").notNull().defaultNow(),
@@ -38,16 +39,26 @@ export const compoundLotsTable = pgTable(
     concentration: smallint("concentration"),
     remainingOilAmount: integer("remaining_oil_amount").default(0),
     remainingSprayAmount: integer("remaining_spray_amount").default(0),
-    compoundId: integer("compound_id")
-      .references(() => perfumeCompoundsTable.id, { onDelete: "cascade" })
-      .notNull(),
-    alcoholId: integer("alcohol_id").references(() => alcoholsTable.id, {
-      onDelete: "restrict",
-    }),
+    shopCompoundId: integer("shop_compound_id").notNull(),
+    alcoholId: integer("alcohol_id"),
     ...timestamps,
   },
   (lot) => [
-    unique("comp_lots_uq").on(lot.compoundId, lot.receivedAt, lot.costPerKilo),
+    unique("comp_lots_uq").on(
+      lot.shopCompoundId,
+      lot.receivedAt,
+      lot.costPerKilo,
+    ),
+    foreignKey({
+      name: "comp_lots_shop_comp_id_fk",
+      columns: [lot.shopCompoundId],
+      foreignColumns: [shopCompsTable.id],
+    }).onDelete("cascade"),
+    foreignKey({
+      name: "comp_lots_alcohol_id_fk",
+      columns: [lot.alcoholId],
+      foreignColumns: [alcoholsTable.id],
+    }).onDelete("cascade"),
     check(
       "comp_lots_oil_spray_amount_pos_chk",
       sql`
@@ -55,7 +66,7 @@ export const compoundLotsTable = pgTable(
   `,
     ),
     check(
-      "comp_lots_concentration_chk",
+      "comp_lots_concentration_range_chk",
       sql`${lot.sprayAmountMl} = 0 OR ${lot.concentration} BETWEEN 1 AND 100`,
     ),
     check(
@@ -85,3 +96,10 @@ export const compoundLotsTable = pgTable(
     ),
   ],
 );
+
+export const shopCompLotRelations = relations(shopCompLotsTable, ({ one }) => ({
+  shopCompound: one(shopCompsTable, {
+    fields: [shopCompLotsTable.shopCompoundId],
+    references: [shopCompsTable.id],
+  }),
+}));

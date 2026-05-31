@@ -8,7 +8,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { timestamps } from "../columns.helpers";
 import { relations, sql } from "drizzle-orm";
-import { alcoholsTable, compoundLotsTable } from ".";
+import { alcoholsTable, shopCompLotsTable } from ".";
 
 export const agingsTable = pgTable(
   "agings",
@@ -20,7 +20,7 @@ export const agingsTable = pgTable(
     endDate: timestamp("end_date").notNull(),
     lotId: integer("lot_id")
       .notNull()
-      .references(() => compoundLotsTable.id, { onDelete: "cascade" }),
+      .references(() => shopCompLotsTable.id, { onDelete: "cascade" }),
     alcoholId: integer("alcohol_id")
       .notNull()
       .references(() => alcoholsTable.id, { onDelete: "restrict" }),
@@ -36,7 +36,7 @@ export const agingsTable = pgTable(
     foreignKey({
       name: "agings_lot_fk",
       columns: [aging.lotId],
-      foreignColumns: [compoundLotsTable.id],
+      foreignColumns: [shopCompLotsTable.id],
     }).onDelete("cascade"),
 
     foreignKey({
@@ -61,9 +61,9 @@ export const agingsTable = pgTable(
 );
 
 export const agingRelations = relations(agingsTable, ({ one }) => ({
-  compoundLot: one(compoundLotsTable, {
+  compoundLot: one(shopCompLotsTable, {
     fields: [agingsTable.lotId],
-    references: [compoundLotsTable.id],
+    references: [shopCompLotsTable.id],
   }),
   alcohol: one(alcoholsTable, {
     fields: [agingsTable.alcoholId],

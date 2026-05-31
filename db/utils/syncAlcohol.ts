@@ -203,7 +203,7 @@ export const alcoholTrigs = sql.raw(`
   
   -- Attach to compound_lots table
   CREATE OR REPLACE TRIGGER trg_lot_alcohol_sync
-  AFTER INSERT OR UPDATE OR DELETE ON compound_lots
+  AFTER INSERT OR UPDATE OR DELETE ON shop_compound_lots
   FOR EACH ROW EXECUTE FUNCTION sync_alcohol();
 
   -- Attach to agings table

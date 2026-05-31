@@ -2,6 +2,8 @@
 export { perfumesTable } from "./perfumes";
 export { usersTable } from "./users";
 export { companiesTable } from "./companies";
+export { perfumeCompoundsTable } from "./perfumesCompounds";
+
 // ------------------------------
 
 // --------- Related to User ---------
@@ -12,8 +14,9 @@ export { addressesTable } from "./addresses";
 // --------- Related to Shop ---------
 export { shopsStaffTable } from "./shopStaff";
 export { alcoholsTable, alcoRelations } from "./alcohols";
-export { perfumeCompoundsTable } from "./perfumesCompounds";
 export { bottlesTable } from "./bottles";
+export { shopCompsTable } from "./shopCompounds";
+
 // -----------------------------------
 
 // --------- Related to Alcohols ---------
@@ -25,7 +28,7 @@ export { bottlesLotsTable } from "./bottlesLots";
 // --------------------------------------
 
 // --------- Related to Compounds ---------
-export { compoundLotsTable } from "./compoundLots";
+export { shopCompLotsTable } from "./compoundLots";
 export { agingsTable } from "./agings";
 // ----------------------------------------
 

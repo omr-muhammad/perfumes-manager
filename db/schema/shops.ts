@@ -11,7 +11,7 @@ import {
   addressesTable,
   alcoholsTable,
   bottlesTable,
-  perfumeCompoundsTable,
+  shopCompsTable,
   shopsStaffTable,
   usersTable,
 } from ".";
@@ -48,5 +48,5 @@ export const shopsRelations = relations(shopsTable, ({ one, many }) => ({
   // inventory
   alcohols: many(alcoholsTable),
   bottles: many(bottlesTable),
-  perfumeCompounds: many(perfumeCompoundsTable),
+  compounds: many(shopCompsTable),
 }));
