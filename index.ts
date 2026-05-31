@@ -9,6 +9,7 @@ import { response as res } from "./utils/response";
 import { adminRouter } from "./modules/admin/router";
 import util from "node:util";
 import { handleValidation } from "./utils/validationErrorHandler";
+import { pfCompRouter } from "./modules/perfumeCompounds/router";
 
 export const app = new Elysia({ prefix: "/api" })
   .onError(({ code, error, set, cookie }) => {
@@ -57,6 +58,7 @@ export const app = new Elysia({ prefix: "/api" })
   })
   .use(adminRouter)
   .use(perfumesRouter)
+  .use(pfCompRouter)
   .use(companiesRouter)
   .use(usersRouter)
   .use(shopsRouter)
