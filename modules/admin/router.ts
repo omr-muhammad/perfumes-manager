@@ -4,6 +4,7 @@ import { userAdminRouter } from "../users/userAdminRouter";
 import { shopsAdminRouter } from "../shops/shopsAdminRouter";
 import { companiesAdminRouter } from "../companies/companiesAdminRouter";
 import { perfumesAdminRouter } from "../perfumes/perfumeAdminRouter";
+import { compAdminRouter } from "../perfumeCompounds/compoundsAdminRouter";
 
 export const adminRouter = new Elysia({ prefix: "/admin" })
   .use(protect)
@@ -11,6 +12,7 @@ export const adminRouter = new Elysia({ prefix: "/admin" })
   // done
   .group("/companies", (app) => app.use(companiesAdminRouter))
   .group("/perfumes", (app) => app.use(perfumesAdminRouter))
+  .group("/compounds", (app) => app.use(compAdminRouter))
   .group("/shops", (app) => app.use(shopsAdminRouter))
   .group("/users", (app) => app.use(userAdminRouter));
 // progress...
