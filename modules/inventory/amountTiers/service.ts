@@ -1,13 +1,10 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../../db/config";
 import {
-  alcoholLotsTable,
   alcoholsTable,
   amountTiersTable,
-  bottlesLotsTable,
   bottlesTable,
-  compoundLotsTable,
-  shopsTable,
+  shopCompsTable,
 } from "../../../db/schema";
 import { AppError } from "../../../utils/AppError";
 import { assertOwnership } from "../../../utils/assertOwnership";
@@ -37,7 +34,6 @@ export async function create(
     .values({
       ...rest,
       ...meta,
-      shopId,
       amountRange: `[${minAmount}, ${maxAmount})`,
       value: newAmountTier.value.toFixed(4),
     })
@@ -118,27 +114,27 @@ export async function remove(ids: ExtendedIDs, meta: AmountTierMeta) {
 }
 
 async function validateEntity(
-  meta: AmountTierMeta,
+  { entityId, entityType }: AmountTierMeta,
   priceType?: CreateTier["pricingType"],
   value?: number,
 ) {
   const tablesMap = {
-    alcohol: alcoholLotsTable,
-    bottle: bottlesLotsTable,
-    compound: compoundLotsTable,
+    alcohol: alcoholsTable,
+    bottle: bottlesTable,
+    shop_compound: shopCompsTable,
   };
 
   // Validate FK Ref
-  const entTable = tablesMap[meta.entityType];
+  const entTable = tablesMap[entityType];
   const [entity] = await db
     .select()
     .from(entTable)
-    .where(eq(entTable.id, meta.entityId));
+    .where(eq(entTable.id, entityId));
 
   if (!entity)
     throw new AppError(
       404,
-      `${meta.entityId} is not a valid ${meta.entityType} reference, Record not found.`,
+      `${entityId} is not a valid ${entityType.replace("_", " ")} reference, Record not found.`,
     );
 
   // Validate Price
@@ -153,6 +149,6 @@ async function validateEntity(
   if (priceType === "fixed" && value >= basePrice)
     throw new AppError(
       400,
-      `Amount Tier price value must be less than base price in ${meta.entityType} lot, got ${value} expected to be less than ${basePrice}`,
+      `Tier price value must be less than base price in, ${value} is not less than or equal ${basePrice}.`,
     );
 }

@@ -7,6 +7,9 @@ import {
 import { ID, type Ctx } from "../../../utils/globalSchema";
 import { enumToUnion } from "../../../utils/unionToLiteral";
 
+const entityTypeUnion = t.Union(enumToUnion(entityTypeEn), {
+  error: `Entity type can only be one of (${entityTypeEn.enumValues.join(", ")})`,
+});
 const PricingType = t.Union(enumToUnion(pricingTypeEn), {
   error: `pricing type can only be one of (${pricingTypeEn.enumValues.join(", ")})`,
 });
@@ -36,12 +39,7 @@ export type ExtendedIDs = { tierId: number } & BaseIDs;
 // -------------- Meta --------------
 const MetaSchema = t.Object({
   entityId: ID,
-  entityType: t.Union(
-    [t.Literal("alcohol"), t.Literal("bottle"), t.Literal("compound")],
-    {
-      error: `Entity type can only be one of (${entityTypeEn.enumValues.join(", ")})`,
-    },
-  ),
+  entityType: entityTypeUnion,
 });
 export type AmountTierMeta = Static<typeof MetaSchema>;
 type CtxMeta = { meta: AmountTierMeta };

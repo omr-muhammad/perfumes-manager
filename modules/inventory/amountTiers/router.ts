@@ -4,7 +4,7 @@ import type { AlcoLotParams } from "../alcohols/schema";
 import * as handlers from "./handlers";
 import { TierSchema, type TierCTXs } from "./schema";
 import type { BottleLotParams } from "../bottles/schema";
-import type { CompLotParams } from "../perfumeCompounds/schema";
+import type { CompLotParams } from "../shopCompounds/schema";
 import { AppError } from "../../../utils/AppError";
 import { discountTypeEn } from "../../../db/schema/enums";
 
@@ -45,7 +45,7 @@ export const compAmountRouter = new Elysia()
   .use(protect)
   .resolve(({ params }: { params: CompLotParams }) => ({
     meta: {
-      entityType: "bottle" as const,
+      entityType: "shop_compound" as const,
       entityId: params.compId,
     },
   }))
