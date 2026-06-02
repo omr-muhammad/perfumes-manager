@@ -1,11 +1,19 @@
 import { Cookie, status, t, type Static } from "elysia";
 import { authJWTPlugin } from "./jwtPlugin";
 import type { db } from "../db/config";
-import type { InferSelectModel } from "drizzle-orm";
-import { addressesTable, usersTable, type shopsStaffTable } from "../db/schema";
+import { usersTable } from "../db/schema";
 import { createInsertSchema } from "drizzle-typebox";
+import { langEn, roleEn, staffEn } from "../db/schema/enums";
+import { enumToUnion } from "./unionToLiteral";
 
 // ------------------- GLOBALS -------------------
+type AuthId = { ownerId: number };
+export type WithAuth<T> = T & AuthId;
+export interface InvAuth {
+  ownerId: number;
+  shopId: number;
+}
+
 export const ID = t.Number({
   minimum: 1,
   error: "Invalid id, expected a positive number",
@@ -19,18 +27,20 @@ export const Url = t.String({
   error: "Invalid format, please provide a valid URL",
 });
 
-export const AppLanguage = t.Union([t.Literal("ar"), t.Literal("en")]);
+export const AppLanguage = t.Union(enumToUnion(langEn), {
+  error: `Language value must be one of (${langEn.enumValues.join(", ")})`,
+});
+export type AppLanguage = Static<typeof AppLanguage>;
 
-export const AppRole = t.Union([
-  t.Literal("admin"),
-  t.Literal("owner"),
-  t.Literal("staff"),
-  t.Literal("customer"),
-]);
-export type AppRole = InferSelectModel<typeof usersTable>["role"];
+export const AppRole = t.Union(enumToUnion(roleEn), {
+  error: `Language value must be one of (${roleEn.enumValues.join(", ")})`,
+});
+export type AppRole = Static<typeof AppRole>;
 
-export const ShopRole = t.Union([t.Literal("manager"), t.Literal("cashier")]);
-export type ShopRole = InferSelectModel<typeof shopsStaffTable>["role"];
+export const ShopRole = t.Union(enumToUnion(staffEn), {
+  error: `Language value must be one of (${staffEn.enumValues.join(", ")})`,
+});
+export type ShopRole = Static<typeof ShopRole>;
 
 export const User = createInsertSchema(usersTable, {
   email: Email,
@@ -38,23 +48,16 @@ export const User = createInsertSchema(usersTable, {
 export const UserStaff = createInsertSchema(usersTable, {
   role: ShopRole,
 });
-// t.Object({
-//   country: t.String(),
-//   city: t.String(),
-//   district: t.Optional(t.String()),
-//   street: t.String(),
-//   buildingNumber: t.Optional(t.Number()),
-//   notes: t.Optional(t.String()),
-// });
 
 // ------------------- Address -------------------
-const addressSchema = createInsertSchema(addressesTable);
-export const AddressBase = t.Omit(addressSchema, [
-  "updatedAt",
-  "createdAt",
-  "shopId",
-  "userId",
-]);
+export const AddressBase = t.Object({
+  country: t.String(),
+  city: t.String(),
+  street: t.String(),
+  district: t.Optional(t.String()),
+  buildingNumber: t.Optional(t.String()),
+  notes: t.Optional(t.String()),
+});
 export type Address = Static<typeof AddressBase>;
 
 export const UpdateAddressBody = t.Partial(AddressBase);

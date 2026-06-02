@@ -1,10 +1,37 @@
-export { perfumes as perfumesTable } from "./perfumes";
-export { users as usersTable } from "./users";
-export { companies as companiesTable } from "./companies";
-export { shops as shopsTable } from "./shops";
-export { shopStaff as shopsStaffTable } from "./shopStaff";
-export { alcohols as alcoholsTable } from "./alcohols";
-export { perfumesCompounds as perfumesCompoundsTable } from "./perfumesCompounds";
-export { bottles as bottlesTable } from "./bottles";
-export { aging as agingTable } from "./aging";
-export { addresses as addressesTable } from "./addresses";
+// --------- Standalone ---------
+export { perfumesTable } from "./perfumes";
+export { usersTable } from "./users";
+export { companiesTable } from "./companies";
+export { perfumeCompoundsTable } from "./perfumesCompounds";
+
+// ------------------------------
+
+// --------- Related to User ---------
+export { shopsTable, shopsRelations } from "./shops";
+export { addressesTable } from "./addresses";
+// -----------------------------------
+
+// --------- Related to Shop ---------
+export { shopsStaffTable } from "./shopStaff";
+export { alcoholsTable, alcoRelations } from "./alcohols";
+export { bottlesTable } from "./bottles";
+export { shopCompsTable } from "./shopCompounds";
+
+// -----------------------------------
+
+// --------- Related to Alcohols ---------
+export { alcoholLotsTable, alcoLotRelations } from "./alcoholLots";
+// ---------------------------------------
+
+// --------- Related to Bottles ---------
+export { bottlesLotsTable } from "./bottlesLots";
+// --------------------------------------
+
+// --------- Related to Compounds ---------
+export { shopCompLotsTable } from "./shopCompoundLots";
+export { agingsTable } from "./agings";
+// ----------------------------------------
+
+// --------- Related to Inventory Entities ---------
+export { amountTiersTable } from "./amountTiers";
+// -------------------------------------------------

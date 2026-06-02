@@ -2,16 +2,19 @@ import { createInsertSchema } from "drizzle-typebox";
 import { t, type Static } from "elysia";
 import { companiesTable } from "../../db/schema";
 import { ID, QueriesMeta, type Ctx } from "../../utils/globalSchema";
+import { enumToUnion } from "../../utils/unionToLiteral";
+import { companyTypeEn } from "../../db/schema/enums";
 
-const CoClass = t.Union([t.Literal("global"), t.Literal("custom")], {
-  error: "Compnay type is either (global) or (custom)",
+const CoClass = enumToUnion(companyTypeEn);
+const CompanyType = t.Union(CoClass, {
+  error: `Company type must be one of (${companyTypeEn.enumValues.join(", ")})`,
 });
 
 const insertSchema = createInsertSchema(companiesTable, {
   country: t.String({
     error: "Country name is required",
   }),
-  type: CoClass,
+  type: CompanyType,
 });
 
 // ------------ Create ------------
@@ -30,7 +33,7 @@ export type UpdateCompanyBody = Static<typeof UpdateCompanyBody>;
 const CompaniesQueryFilters = t.Object({
   search: t.Optional(t.String()),
   country: t.Optional(t.String()),
-  type: t.Optional(CoClass),
+  type: t.Optional(CompanyType),
   approved: t.Optional(t.BooleanString({ default: true })),
   ...QueriesMeta,
 });

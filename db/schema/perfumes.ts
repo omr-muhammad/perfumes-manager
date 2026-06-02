@@ -2,23 +2,23 @@ import {
   pgTable,
   integer,
   varchar,
-  pgEnum,
   boolean,
   text,
   check,
 } from "drizzle-orm/pg-core";
 import { timestamps } from "../columns.helpers";
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { seasonsEn, sexEn } from "./enums";
+import { perfumeCompoundsTable } from "./perfumesCompounds";
 
 // later for better structure
 // export const familiesEn = pgEnum("families", ["fresh", "aromatic", "citrus", "water", "green", "fruity", "floral", "soft floral", "oriental(Amber)", "floral oriental", "soft oriental", "woody oriental", "woody", "woods", "mossy woods", "dry woods"])
 
-export const perfumes = pgTable(
+export const perfumesTable = pgTable(
   "perfumes",
   {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar("name", { length: 100 }).unique().notNull(),
+    name: varchar("name", { length: 100 }).unique("perfumes_uq").notNull(),
     seasons: seasonsEn("seasons").array(),
     sex: sexEn("sex"),
     description: text("description").default(""),
@@ -27,7 +27,7 @@ export const perfumes = pgTable(
   },
   (table) => [
     check(
-      "approved_requires_completed_info",
+      "perfumes_approved_chk",
       sql`
       NOT ${table.approved}
       OR (
@@ -39,7 +39,7 @@ export const perfumes = pgTable(
     `,
     ),
     check(
-      "seasons_array_cannot_exceed_four",
+      "perfumes_seasons_limit_chk",
       sql`
         NOT ${table.approved}
         OR
@@ -48,3 +48,7 @@ export const perfumes = pgTable(
     ),
   ],
 );
+
+export const perfumesRelations = relations(perfumesTable, ({ many }) => ({
+  compounds: many(perfumeCompoundsTable),
+}));
