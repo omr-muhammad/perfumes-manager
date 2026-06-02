@@ -29,3 +29,38 @@ export const entityTypeEn = pgEnum("entity_type", [
   "bottle",
   "alcohol",
 ]);
+
+// orders
+export const orderTypeEn = pgEnum("order_type", ["onhand", "online"]);
+export const orderStatusEn = pgEnum("order_status", [
+  "pending",
+  "processing",
+  "shipped",
+  "delivered",
+  "cancelled",
+]);
+export const paymentStatusEn = pgEnum("payment_status", [
+  "pending",
+  "paid",
+  "failed",
+  "refunded",
+]);
+export const paymentMethodEn = pgEnum("payment_method", [
+  "cash",
+  "card",
+  "wallet",
+]);
+export const occasionEn = pgEnum("occasion", [
+  "none",
+  "gift",
+  "apology",
+  "compensation",
+  "others",
+]);
+export const fulfillmentMethodEn = pgEnum("fulfillment_method", [
+  "pickup",
+  "delivery  ",
+]);
+
+// orderBottleIngredients
+export const amountTypeEn = pgEnum("amount_type", ["spray", "oil"]);

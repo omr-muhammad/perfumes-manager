@@ -16,6 +16,7 @@ export { shopsStaffTable } from "./shopStaff";
 export { alcoholsTable, alcoRelations } from "./alcohols";
 export { bottlesTable } from "./bottles";
 export { shopCompsTable } from "./shopCompounds";
+export { ordersTable } from "./orders";
 
 // -----------------------------------
 
@@ -34,4 +35,9 @@ export { agingsTable } from "./agings";
 
 // --------- Related to Inventory Entities ---------
 export { amountTiersTable } from "./amountTiers";
+// -------------------------------------------------
+
+// --------- Related to Orders ---------
+export { orderBottlesTable } from "./orderBottles";
+export { orderBottleIngredientsTable } from "./orderBottleIngredients";
 // -------------------------------------------------
