@@ -17,7 +17,7 @@ import type {
   UpdateShopComp,
 } from "./schema";
 import { AppError } from "../../../utils/AppError";
-import { shopCompLotsTable } from "../../../db/schema/compoundLots";
+import { shopCompLotsTable } from "../../../db/schema/shopCompoundLots";
 
 export async function createShopComp(
   ids: ServiceIDs["base"],

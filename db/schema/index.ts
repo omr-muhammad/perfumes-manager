@@ -28,7 +28,7 @@ export { bottlesLotsTable } from "./bottlesLots";
 // --------------------------------------
 
 // --------- Related to Compounds ---------
-export { shopCompLotsTable } from "./compoundLots";
+export { shopCompLotsTable } from "./shopCompoundLots";
 export { agingsTable } from "./agings";
 // ----------------------------------------
 

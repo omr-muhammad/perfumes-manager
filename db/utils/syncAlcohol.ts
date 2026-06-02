@@ -163,17 +163,29 @@ const alcoholFuncs = `
   CREATE OR REPLACE FUNCTION sync_alcohol()
   RETURNS TRIGGER LANGUAGE plpgsql AS $$
   DECLARE 
-    should_sync BOOLEAN;
+    v_user_choice BOOLEAN;
+    v_should_sync BOOLEAN;
     old_amount INT;
     new_amount INT;
   BEGIN
     -- NULLIF(a, b) returns NULL if the a === b;
-    should_sync := COALESCE(NULLIF(current_setting('app.should_sync', true), '')::BOOLEAN, true);
+    v_user_choice := NULLIF(current_setting('app.should_sync', true), '')::BOOLEAN
 
-    IF NOT should_sync THEN RETURN NEW;
+    -- 
+    -- Cannot decrease spray amount unless should_sync is specified by user not default to true
+    -- 
+    IF TG_TABLE_NAME = 'shop_compound_lots' AND TG_OP = 'UPDATE' THEN
+      IF OLD.spray_amount_ml > NEW.spray_amount_ml AND v_user_choice IS NULL THEN
+        RAISE EXCEPTION 'User must determine to sync alcohol or not while decreasing spray amount.' USING ERRCODE = 'U0001';
+      END IF;
     END IF;
 
-    IF TG_TABLE_NAME = 'compound_lots' THEN
+    v_should_sync := COALESCE(v_user_choice, true);
+
+    IF NOT v_should_sync THEN RETURN NEW;
+    END IF;
+
+    IF TG_TABLE_NAME = 'shop_compound_lots' THEN
       old_amount := OLD.spray_amount_ml;
       new_amount := NEW.spray_amount_ml;
     ELSIF TG_TABLE_NAME = 'agings' THEN

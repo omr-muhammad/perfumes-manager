@@ -6,7 +6,7 @@ import {
   decreaseCompoundsStock,
 } from "./utils/handleStock";
 import { addAmountRangeConstraints } from "./utils/validateOverlapping";
-import { amountTiersTriggers } from "./utils/validateTierEntityId";
+import { amountTiersTriggers } from "./utils/cascadeTier";
 
 async function main() {
   await migrate(db, { migrationsFolder: "./db/migrations" });
