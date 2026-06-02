@@ -169,11 +169,9 @@ const alcoholFuncs = `
     new_amount INT;
   BEGIN
     -- NULLIF(a, b) returns NULL if the a === b;
-    v_user_choice := NULLIF(current_setting('app.should_sync', true), '')::BOOLEAN
+    v_user_choice := NULLIF(current_setting('app.should_sync', true), '')::BOOLEAN;
 
-    -- 
     -- Cannot decrease spray amount unless should_sync is specified by user not default to true
-    -- 
     IF TG_TABLE_NAME = 'shop_compound_lots' AND TG_OP = 'UPDATE' THEN
       IF OLD.spray_amount_ml > NEW.spray_amount_ml AND v_user_choice IS NULL THEN
         RAISE EXCEPTION 'User must determine to sync alcohol or not while decreasing spray amount.' USING ERRCODE = 'U0001';
