@@ -32,6 +32,10 @@ export const entityTypeEn = pgEnum("entity_type", [
 
 // orders
 export const orderTypeEn = pgEnum("order_type", ["onhand", "online"]);
+export const fulfillmentMethodEn = pgEnum("fulfillment_method", [
+  "pickup",
+  "delivery",
+]);
 export const orderStatusEn = pgEnum("order_status", [
   "pending",
   "processing",
@@ -56,10 +60,6 @@ export const occasionEn = pgEnum("occasion", [
   "apology",
   "compensation",
   "others",
-]);
-export const fulfillmentMethodEn = pgEnum("fulfillment_method", [
-  "pickup",
-  "delivery  ",
 ]);
 
 // orderBottleIngredients
