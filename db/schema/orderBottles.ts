@@ -35,7 +35,7 @@ export const orderBottlesTable = pgTable(
       name: "order_bottles_order_id_fk",
       columns: [t.orderId],
       foreignColumns: [ordersTable.id],
-    }),
+    }).onDelete("cascade"),
 
     // ─── non-negative / positive ─────────────────────────────────────────
     check("order_bottles_bottle_price_nneg_chk", sql`${t.bottlePrice} >= 0`),

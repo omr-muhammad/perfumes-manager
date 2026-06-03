@@ -15,6 +15,13 @@
       "when": 1780439000887,
       "tag": "0001_robust_network",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780499034156,
+      "tag": "0002_violet_sasquatch",
+      "breakpoints": true
     }
   ]
 }
