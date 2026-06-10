@@ -46,7 +46,7 @@ export const compAmountRouter = new Elysia()
   .resolve(({ params }: { params: CompLotParams }) => ({
     meta: {
       entityType: "shop_compound" as const,
-      entityId: params.compId,
+      entityId: params.shopCompId,
     },
   }))
   .post("", handlers.addAmountTier, {
@@ -59,13 +59,6 @@ export const compAmountRouter = new Elysia()
 // Validate create tier body
 function beforeHandle({ body }: TierCTXs["create"]) {
   if (body.pricingType === "discount") {
-    const allowedDiscountType = discountTypeEn.enumValues;
-    if (!allowedDiscountType.includes(body.discountType!))
-      throw new AppError(
-        422,
-        `Discount Type can only be one of (${allowedDiscountType.join(", ")}) when pricing type set to 'discount'`,
-      );
-
     if (body.value < 0 || body.value > 100)
       throw new AppError(422, `Discount percentage must be between 1 and 100.`);
   }

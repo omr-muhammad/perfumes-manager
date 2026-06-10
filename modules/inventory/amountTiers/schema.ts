@@ -13,9 +13,6 @@ const entityTypeUnion = t.Union(enumToUnion(entityTypeEn), {
 const PricingType = t.Union(enumToUnion(pricingTypeEn), {
   error: `pricing type can only be one of (${pricingTypeEn.enumValues.join(", ")})`,
 });
-const DiscountType = t.Union(enumToUnion(discountTypeEn), {
-  error: `discount type can only be one of (${discountTypeEn.enumValues.join(", ")})`,
-});
 
 // -------------- Create --------------
 export const CreateTier = t.Object({
@@ -23,7 +20,6 @@ export const CreateTier = t.Object({
   maxAmount: t.Optional(t.Number({ minimum: 1 })),
   pricingType: PricingType,
   value: t.Number({ minimum: 0 }),
-  discountType: t.Optional(DiscountType),
   maxDiscountAmount: t.Optional(t.Number({ minimum: 0 })),
 });
 export type CreateTier = Static<typeof CreateTier>;
