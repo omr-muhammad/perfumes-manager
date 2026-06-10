@@ -15,8 +15,8 @@ const BaseAlco = createInsertSchema(alcoholsTable, {
 });
 const AlcoLot = createInsertSchema(alcoholLotsTable, {
   receivedAt: t.Optional(t.String()),
-  costPerLiter: t.Number({ minimum: 0 }),
-  baseSellPerLiter: t.Number({ minimum: 0 }),
+  literCost: t.Number({ minimum: 0 }),
+  literPrice: t.Number({ minimum: 0 }),
   expiryDate: t.String(),
 });
 

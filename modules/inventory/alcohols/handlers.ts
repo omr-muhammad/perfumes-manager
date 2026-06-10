@@ -93,7 +93,7 @@ export async function updateAlcoLotStock(context: AlcoCTXs["updateLotStock"]) {
     body.amountInLiter,
   );
 
-  res.ok("Stock updated.", { newAmount: `${lot.amountInMl / 1000} L` });
+  res.ok("Stock updated.", { newAmount: `${Number(lot.amountInMl) / 1000} L` });
 }
 
 export async function deleteAlcoLot(context: AlcoCTXs["delAlcoLot"]) {

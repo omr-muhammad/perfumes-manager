@@ -22,7 +22,14 @@ export async function createAlco(
 
   const {
     alcohol,
-    alcoholLot: { receivedAt, ...rest },
+    alcoholLot: {
+      receivedAt,
+      literCost,
+      literPrice,
+      expiryDate,
+      amountInLiter,
+      status,
+    },
   } = newAlco;
   const result = db.transaction(async (tx) => {
     const [alco] = await tx
@@ -39,21 +46,21 @@ export async function createAlco(
         `Cannot create new alcohol for shop: ${shop.name}`,
       );
 
-    const amountInMl = (rest?.amountInLiter ?? 0) * 1000;
+    const amountInMl = ((amountInLiter ?? 0) * 1000).toFixed(3);
 
     const [alcoLot] = await tx
       .insert(alcoholLotsTable)
       .values({
-        ...rest,
-        costPerLiter: rest.costPerLiter.toFixed(3),
-        baseSellPerLiter: rest.baseSellPerLiter.toFixed(3),
-        ...(receivedAt && {
-          receivedAt: new Date(receivedAt),
-        }),
-        expiryDate: new Date(rest.expiryDate),
+        status,
+        expiryDate: new Date(expiryDate),
         alcoholId: alco.id,
         amountInMl,
         remainingAmount: amountInMl,
+        literCost: literCost.toFixed(3),
+        literPrice: literPrice.toFixed(3),
+        ...(receivedAt && {
+          receivedAt: new Date(receivedAt),
+        }),
       })
       .returning();
 
@@ -161,31 +168,32 @@ export async function queryById(ids: ServiceIDs["ExtendedAlcoIDs"]) {
   return alcohol;
 }
 
-export async function decreaseStock(
-  amounts: { alcoholId: number; amountInMl: number }[],
-  higherTx?: DbTx,
-) {
-  const _db = higherTx ?? db;
-  await _db.transaction(async (tx) => {
-    const decrementsTable = sql.join(
-      amounts.map(
-        (obj) => sql`(${obj.alcoholId}, ${Math.abs(obj.amountInMl)})`,
-      ),
-      sql`, `,
-    );
+// export async function decreaseStock(
+//   amounts: { alcoholId: number; amountInMl: number }[],
+//   higherTx?: DbTx,
+// ) {
+//   const _db = higherTx ?? db;
+//   await _db.transaction(async (tx) => {
+//     const decrementsTable = sql.join(
+//       amounts.map(
+//         (obj) => sql`(${obj.alcoholId}, ${Math.abs(obj.amountInMl)})`,
+//       ),
+//       sql`, `,
+//     );
 
-    const rows = await tx.execute(sql`
-        SELECT 
-          _deduct_alcohol_lots(
-            decs.alco_id::integer,
-            decs.amount::integer
-          ) 
-        FROM (VALUES ${decrementsTable}) AS decs(alco_id, amount)
-      `);
-  });
-}
+//     const rows = await tx.execute(sql`
+//         SELECT
+//           _deduct_alcohol_lots(
+//             decs.alco_id::integer,
+//             decs.amount::integer
+//           )
+//         FROM (VALUES ${decrementsTable}) AS decs(alco_id, amount)
+//       `);
+//   });
+// }
 
 // ---------- Lots ----------
+
 export async function createLot(
   ids: ServiceIDs["ExtendedAlcoIDs"],
   newLot: AlcoholLot,
@@ -194,18 +202,25 @@ export async function createLot(
 
   await assertOwnership(shopId, ownerId);
 
-  const { receivedAt, ...rest } = newLot;
-  const amountInMl = rest.amountInLiter ? rest.amountInLiter * 1000 : 0;
+  const {
+    receivedAt,
+    literCost,
+    literPrice,
+    expiryDate,
+    amountInLiter,
+    status,
+  } = newLot;
+  const amountInMl = (amountInLiter ? amountInLiter * 1000 : 0).toFixed(3);
 
   const [lot] = await db
     .insert(alcoholLotsTable)
     .values({
-      ...rest,
+      status,
       alcoholId,
-      costPerLiter: rest.costPerLiter.toFixed(3),
-      baseSellPerLiter: rest.baseSellPerLiter.toFixed(3),
+      literCost: literCost.toFixed(3),
+      literPrice: literPrice.toFixed(3),
       ...(receivedAt && { receivedAt: new Date(receivedAt) }),
-      expiryDate: new Date(rest.expiryDate),
+      expiryDate: new Date(expiryDate),
       amountInMl,
       remainingAmount: amountInMl,
     })
@@ -228,14 +243,14 @@ export async function updateLot(
 
   await assertOwnership(shopId, ownerId);
 
-  const { baseSellPerLiter, costPerLiter, expiryDate, receivedAt } = updates;
+  const { literPrice, literCost, expiryDate, receivedAt } = updates;
   const [lot] = await db
     .update(alcoholLotsTable)
     .set({
-      ...(baseSellPerLiter && {
-        baseSellPerLiter: baseSellPerLiter.toFixed(3),
+      ...(literPrice && {
+        literPrice: literPrice.toFixed(3),
       }),
-      ...(costPerLiter && { costPerLiter: costPerLiter.toFixed(3) }),
+      ...(literCost && { literCost: literCost.toFixed(3) }),
       ...(expiryDate && { expiryDate: new Date(expiryDate) }),
       ...(receivedAt && { receivedAt: new Date(receivedAt) }),
     })
@@ -260,7 +275,7 @@ export async function updateLotStock(
 
   await assertOwnership(shopId, ownerId);
 
-  const amountInMl = newAmountInLiter * 1000;
+  const amountInMl = (newAmountInLiter * 1000).toFixed(3);
   const [lot] = await db
     .update(alcoholLotsTable)
     .set({
@@ -295,7 +310,7 @@ export async function updateLotStock(
       `Lot with id ${lot} cannot be found or not belong to alcohol with id ${alcoholId}.`,
     );
 
-  const takenAmount = found.amountInMl - found.remainingAmount;
+  const takenAmount = Number(found.amountInMl) - Number(found.remainingAmount);
   throw new AppError(
     400,
     `Cannot set amount to ${amountInMl} ml because ${takenAmount} ml was already taken.`,
@@ -345,13 +360,9 @@ function prepareAlcoFilters(filters: AlcoholQueryFilters) {
   if (minInMl) conditions.push(gte(alcoholLotsTable.remainingAmount, minInMl));
   if (maxInMl) conditions.push(lte(alcoholLotsTable.remainingAmount, maxInMl));
   if (minLtPrice)
-    conditions.push(
-      gte(alcoholLotsTable.baseSellPerLiter, minLtPrice.toFixed(2)),
-    );
+    conditions.push(gte(alcoholLotsTable.literPrice, minLtPrice.toFixed(2)));
   if (maxLtPrice)
-    conditions.push(
-      lte(alcoholLotsTable.baseSellPerLiter, maxLtPrice.toFixed(2)),
-    );
+    conditions.push(lte(alcoholLotsTable.literPrice, maxLtPrice.toFixed(2)));
   if (minConcentration)
     conditions.push(gte(alcoholsTable.concentration, minConcentration));
   if (maxConcentration)
