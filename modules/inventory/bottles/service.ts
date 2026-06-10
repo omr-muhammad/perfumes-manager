@@ -39,7 +39,7 @@ export async function createBottle(
       .values({
         ...lotBody,
         costPrice: lotBody.costPrice.toFixed(3),
-        baseSellPrice: lotBody.baseSellPrice.toFixed(3),
+        sellPrice: lotBody.sellPrice.toFixed(3),
         receivedAt: new Date(lotBody.receivedAt || ""),
         remainingStock: lotBody.stock || 0,
         bottleId: bottle.id,
@@ -162,7 +162,7 @@ export async function createBtlLot(
     .values({
       ...lotBody,
       costPrice: lotBody.costPrice.toFixed(3),
-      baseSellPrice: lotBody.baseSellPrice.toFixed(3),
+      sellPrice: lotBody.sellPrice.toFixed(3),
       receivedAt: new Date(lotBody.receivedAt || ""),
       remainingStock: lotBody.stock || 0,
       bottleId,
@@ -186,7 +186,7 @@ export async function updateBtlLot(
 
   await assertOwnership(shopId, ownerId);
 
-  const { costPrice, baseSellPrice, receivedAt, status } = updates;
+  const { costPrice, sellPrice: baseSellPrice, receivedAt, status } = updates;
   const [lot] = await db
     .update(bottlesLotsTable)
     .set({
@@ -297,9 +297,9 @@ function prepareBottlesFilters(filters: BottlesQueryFilters) {
   if (catg) conditions.push(eq(bottlesTable.category, catg as BottleCatg));
   if (sku) conditions.push(ilike(bottlesTable.sku, `%${sku}%`));
   if (minPrice)
-    conditions.push(gte(bottlesLotsTable.baseSellPrice, minPrice.toFixed(2)));
+    conditions.push(gte(bottlesLotsTable.sellPrice, minPrice.toFixed(2)));
   if (maxPrice)
-    conditions.push(lte(bottlesLotsTable.baseSellPrice, maxPrice.toFixed(2)));
+    conditions.push(lte(bottlesLotsTable.sellPrice, maxPrice.toFixed(2)));
   if (minStock) conditions.push(gte(bottlesLotsTable.stock, minStock));
   if (maxStock) conditions.push(lte(bottlesLotsTable.stock, maxStock));
 

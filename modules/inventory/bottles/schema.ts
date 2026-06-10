@@ -29,7 +29,7 @@ const BottleInsertSchema = createInsertSchema(bottlesTable, {
 });
 const LotInsertSchema = createInsertSchema(bottlesLotsTable, {
   costPrice: t.Number({ minimum: 0 }),
-  baseSellPrice: t.Number({ minimum: 0 }),
+  sellPrice: t.Number({ minimum: 0 }),
   receivedAt: t.Optional(t.String()),
 });
 
