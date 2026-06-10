@@ -52,20 +52,21 @@ export async function createShopComp(
     // No AppError to get the actual error made creation failed
     if (!shopCompound) return tx.rollback();
 
+    const { kiloCost, kiloPrice, oilAmountGm, sprayAmountMl, ...rest } = lot;
     // NOTE: Trigger auto decrease alcohol amount if spray amount provided
     const [compoundLot] = await tx
       .insert(shopCompLotsTable)
       .values({
-        ...lot,
+        ...rest,
         densitySnapshot: pfCompound.density,
         shopCompoundId: shopCompound.id,
         ...(lot.receivedAt
           ? { receivedAt: new Date(lot.receivedAt) }
           : { receivedAt: new Date() }),
-        costPerKilo: lot.costPerKilo.toFixed(4),
-        baseSellPerKilo: lot.baseSellPerKilo.toFixed(4),
-        remainingOilAmount: lot.oilAmountGm,
-        remainingSprayAmount: lot.sprayAmountMl,
+        kiloCost: lot.kiloCost.toFixed(4),
+        kiloPrice: lot.kiloPrice.toFixed(4),
+        remainingOilAmount: lot.oilAmountGm?.toFixed(3),
+        remainingSprayAmount: lot.sprayAmountMl?.toFixed(3),
       })
       .returning();
 
@@ -138,6 +139,8 @@ export async function removeComp(ids: ServiceIDs["extendsComp"]) {
 
     throw new AppError(401, `Shop Compound does not belong to this shop.`);
   });
+
+  return result;
 }
 
 export async function queryById(ids: ServiceIDs["extendsComp"]) {
@@ -186,20 +189,22 @@ export async function createLot(
       `Cannot create new lot, compound with id: ${shopCompId} not found.`,
     );
 
+  const { kiloCost, kiloPrice, oilAmountGm, sprayAmountMl, ...rest } =
+    shopCompLot;
   const compLot = await db.transaction(async (tx) => {
     const [lot] = await tx
       .insert(shopCompLotsTable)
       .values({
-        ...shopCompLot,
+        ...rest,
         densitySnapshot: pfComp.density,
         shopCompoundId: shopCompId,
         ...(shopCompLot.receivedAt
           ? { receivedAt: new Date(shopCompLot.receivedAt) }
           : { receivedAt: new Date() }),
-        costPerKilo: shopCompLot.costPerKilo.toFixed(4),
-        baseSellPerKilo: shopCompLot.baseSellPerKilo.toFixed(4),
-        remainingOilAmount: shopCompLot.oilAmountGm,
-        remainingSprayAmount: shopCompLot.sprayAmountMl,
+        kiloCost: shopCompLot.kiloCost.toFixed(4),
+        kiloPrice: shopCompLot.kiloPrice.toFixed(4),
+        remainingOilAmount: shopCompLot.oilAmountGm?.toFixed(3),
+        remainingSprayAmount: shopCompLot.sprayAmountMl?.toFixed(3),
       })
       .returning();
 
@@ -223,15 +228,15 @@ export async function updateLot(
 
   await assertOwnership(shopId, ownerId);
 
-  const { receivedAt, costPerKilo, baseSellPerKilo, ...rest } = updates;
+  const { receivedAt, kiloCost, kiloPrice, ...rest } = updates;
 
   const [lot] = await db
     .update(shopCompLotsTable)
     .set({
       ...rest,
       ...(receivedAt && { receivedAt: new Date(receivedAt) }),
-      ...(costPerKilo && { costPerKilo: costPerKilo.toFixed(3) }),
-      ...(baseSellPerKilo && { baseSellPerKilo: baseSellPerKilo.toFixed(3) }),
+      ...(kiloCost && { kiloCost: kiloCost.toFixed(3) }),
+      ...(kiloPrice && { kiloPrice: kiloPrice.toFixed(3) }),
     })
     .where(
       and(
@@ -278,11 +283,11 @@ export async function updateLotStock(
       .update(shopCompLotsTable)
       .set({
         ...(newOilAmountGm && {
-          oilAmountGm: newOilAmountGm,
+          oilAmountGm: newOilAmountGm.toFixed(3),
           remainingOilAmount: sql`remaining_oil_amount - (oil_amount_gm - ${newOilAmountGm})`,
         }),
         ...(newSprayAmountMl && {
-          sprayAmountMl: newSprayAmountMl,
+          sprayAmountMl: newSprayAmountMl.toFixed(3),
           remainingSprayAmount: sql`remaining_spray_amount - (spray_amount_ml - ${newSprayAmountMl})`,
         }),
       })
@@ -312,8 +317,10 @@ export async function updateLotStock(
     if (found.shopCompoundId !== shopCompId)
       throw new AppError(401, `Shop Compound does not belong to this shop.`);
 
-    const takenSpray = found.sprayAmountMl! - found.remainingSprayAmount!;
-    const takenOil = found.oilAmountGm! - found.remainingOilAmount!;
+    const takenSpray =
+      Number(found.sprayAmountMl!) - Number(found.remainingSprayAmount!);
+    const takenOil =
+      Number(found.oilAmountGm!) - Number(found.remainingOilAmount!);
 
     const oilMsg =
       newOilAmountGm && newOilAmountGm < takenOil

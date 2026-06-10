@@ -32,8 +32,8 @@ const ShopComp = t.Object({
 const ShopCompLot = t.Object({
   receivedAt: t.Optional(t.String()),
   status: LotStatusUnion,
-  costPerKilo: t.Number({ minimum: 0 }),
-  baseSellPerKilo: t.Number({ minimum: 0 }),
+  kiloCost: t.Number({ minimum: 0 }),
+  kiloPrice: t.Number({ minimum: 0 }),
   oilAmountGm: t.Optional(t.Number({ minimum: 0 })),
   sprayAmountMl: t.Optional(t.Number({ minimum: 0 })),
   concentration: t.Optional(t.Number({ minimum: 1, maximum: 100 })),
