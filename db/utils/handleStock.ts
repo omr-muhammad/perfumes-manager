@@ -35,7 +35,7 @@ export const decreaseBottlesStock = sql`
                   remaining_stock = remaining_stock - v_take,
                   status = 
                       CASE 
-                          WHEN remaining_amount <= 0 THEN 'depleted'
+                          WHEN remaining_stock <= 0 THEN 'depleted'
                           WHEN status = 'ready' THEN 'inuse'
                           ELSE status
                       END
@@ -53,24 +53,30 @@ export const decreaseBottlesStock = sql`
 `;
 
 export const decreaseCompoundsStock = sql`
-  CREATE OR REPLACE FUNCTION _deduct_compound_lots(
+  CREATE OR REPLACE FUNCTION _deduct_shop_compound_lots(
     p_compound_id INT,
-    p_oil_to_deduct INT,
-    p_spray_to_deduct INT
+    p_gm_oil_to_deduct NUMERIC,
+    p_ml_oil_to_deduct NUMERIC,
+    p_spray_to_deduct NUMERIC
   )
   RETURNS VOID
   LANGUAGE plpgsql
   AS $$
       DECLARE
-        v_remaining_oil_to_deduct INT := p_oil_to_deduct;
-        v_remaining_spray_to_deduct INT := p_spray_to_deduct;
-        v_oil_take INT;
-        v_spray_take INT;
+        v_rm_gm_oil NUMERIC := p_gm_oil_to_deduct;
+        v_rm_ml_oil NUMERIC :=  p_ml_oil_to_deduct;
+        v_rm_spray NUMERIC := p_spray_to_deduct;
+        v_total_gm NUMERIC;
+        v_ml_to_gm NUMERIC;
+        v_oil_take NUMERIC;
+        v_gm_take NUMERIC;
+        v_ml_take NUMERIC;
+        v_spray_take NUMERIC;
         v_lot RECORD;
       BEGIN
         FOR v_lot IN
-        SELECT id, remaining_oil_amount, remaining_spray_amount
-        FROM compound_lots AS lots
+        SELECT id, remaining_oil_amount, remaining_spray_amount, density_snapshot
+        FROM shop_compound_lots AS lots
         WHERE 
             lots.compound_id = p_compound_id
             AND status IN('inuse', 'ready')
@@ -81,13 +87,29 @@ export const decreaseCompoundsStock = sql`
         FOR UPDATE
 
         LOOP
-          EXIT WHEN 
-            v_remaining_oil_to_deduct <= 0 AND v_remaining_spray_to_deduct <= 0;
+          EXIT 
+            WHEN v_rm_gm_oil <= 0 AND v_rm_ml_oil <= 0 AND v_rm_spray <= 0;
           
-          v_oil_take := LEAST(v_remaining_oil_to_deduct, v_lot.remaining_oil_amount);
-          v_spray_take := LEAST(v_remaining_spray_to_deduct, v_lot.remaining_spray_amount);
+          -- Sum all oil deduction in gm
+          v_ml_to_gm := v_rm_ml_oil * v_lot.density_snapshot;
+          v_total_gm := v_ml_to_gm + v_rm_gm_oil;
 
-          UPDATE compound_lots
+          -- Get what to deduct
+          v_oil_take := LEAST(v_total_gm, v_lot.remaining_oil_amount);
+
+          -- Split what we take from gm first then portion from ml
+          v_gm_take := LEAST(v_oil_take, v_rm_oil_to_deduct);
+          v_ml_take := (v_oil_take - v_gm_take) / v_lot.density_snapshot;
+
+          -- Decrease each with actual taken
+          v_rm_gm_oil := v_rm_gm_oil - v_gm_take;
+          v_rm_ml_oil := v_rm_ml_oil - v_ml_take;
+
+          -- Spray
+          v_spray_take := LEAST(v_rm_spray, v_lot.remaining_spray_amount);
+          v_rm_spray := v_rm_spray - v_spray_take;
+
+          UPDATE shop_compound_lots
           SET 
             remaining_oil_amount = remaining_oil_amount - v_oil_take,
             remaining_spray_amount = remaining_spray_amount - v_spray_take,
@@ -97,19 +119,17 @@ export const decreaseCompoundsStock = sql`
                         (remaining_oil_amount - v_oil_take) <= 0 
                         AND (remaining_spray_amount - v_spray_take) <= 0 
                         THEN 'depleted'
-                    WHEN 'ready' THEN 'inuse'
+                    WHEN status = 'ready' THEN 'inuse'
                     ELSE status
                 END
           WHERE id = v_lot.id;
-
-          v_remaining_oil_to_deduct := v_remaining_oil_to_deduct - v_oil_take;
-          v_remaining_spray_to_deduct := v_remaining_spray_to_deduct - v_spray_take;
         END LOOP;
 
-
         -- Throw error if loops end while remaining to deduct
-        IF v_remaining_oil_to_deduct > 0 OR v_remaining_spray_to_deduct > 0 THEN
-          RAISE EXCEPTION 'Not enough compound stock. Short by % ml oil & Short by % ml spray', v_remaining_oil_to_deduct, v_remaining_spray_to_deduct;
+        IF v_rm_gm_oil > 0 OR v_rm_ml_oil > 0 OR v_rm_spray > 0 THEN
+          RAISE EXCEPTION 
+            'Not enough compound stock. Short by % gm oil & Short by % ml oil & Short by % ml spray', 
+            v_rm_gm_oil, v_rm_ml_oil, v_rm_spray;
         END IF;
       END;
   $$;

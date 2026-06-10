@@ -25,7 +25,11 @@ export const orderBottleIngredientsTable = pgTable(
     }).default("0"),
     amount: numeric("amount", { precision: 7, scale: 3 }).notNull(),
     amountType: amountTypeEn("amount_type").notNull(),
-    oilUnitPrice: numeric("oil_unit_price", {
+    unitPrice: numeric("unit_price", {
+      precision: 5,
+      scale: 2,
+    }).notNull(),
+    unitCost: numeric("unit_cost", {
       precision: 5,
       scale: 2,
     }).notNull(),
@@ -48,7 +52,7 @@ export const orderBottleIngredientsTable = pgTable(
     ),
     check(
       "order_bottle_ingredients_oil_unit_price_nneg_chk",
-      sql`${t.oilUnitPrice} >= 0`,
+      sql`${t.unitPrice} >= 0`,
     ),
     check(
       "order_bottle_ingredients_subtotal_nneg_chk",

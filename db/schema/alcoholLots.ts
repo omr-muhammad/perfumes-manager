@@ -18,29 +18,32 @@ export const alcoholLotsTable = pgTable(
     id: integer("id").primaryKey().notNull().generatedAlwaysAsIdentity(),
     receivedAt: timestamp("received_at").notNull().defaultNow(),
     status: lotStatusEn("status").notNull(),
-    amountInMl: integer("amountInMl").notNull().default(0),
-    remainingAmount: integer("remaining_amount").notNull(),
+    amountInMl: numeric("amountInMl", { precision: 15, scale: 4 })
+      .notNull()
+      .default("0"),
+    remainingAmount: numeric("remaining_amount", { precision: 15, scale: 4 })
+      .notNull()
+      .default("0"),
     expiryDate: timestamp("expiry_date").notNull(),
-    costPerLiter: numeric("cost_per_liter", {
+    literCost: numeric("liter_cost", {
       precision: 10,
       scale: 3,
     }).notNull(),
-    baseSellPerLiter: numeric("base_sell_per_liter", {
+    literPrice: numeric("liter_price", {
       precision: 10,
       scale: 3,
     }).notNull(),
-    baseMlSell: numeric("base_ml_sell", { precision: 5, scale: 2 })
-      .generatedAlwaysAs(sql`base_sell_per_liter / 1000`)
+    mlCost: numeric("ml_cost", { precision: 5, scale: 2 })
+      .generatedAlwaysAs(sql`liter_cost / 1000`)
+      .notNull(),
+    mlPrice: numeric("ml_price", { precision: 5, scale: 2 })
+      .generatedAlwaysAs(sql`liter_price / 1000`)
       .notNull(),
     alcoholId: integer("alcohol_id").notNull(),
     ...timestamps,
   },
   (lot) => [
-    unique("alcohol_lots_uq").on(
-      lot.amountInMl,
-      lot.receivedAt,
-      lot.costPerLiter,
-    ),
+    unique("alcohol_lots_uq").on(lot.amountInMl, lot.receivedAt, lot.literCost),
     foreignKey({
       name: "alcohol_lots_fk",
       columns: [lot.alcoholId],
@@ -49,7 +52,7 @@ export const alcoholLotsTable = pgTable(
     check(
       "alcohol_lots_cost_lte_base_chk",
       sql`
-    ${lot.costPerLiter} <=   ${lot.baseSellPerLiter}
+    ${lot.literCost} <=   ${lot.literPrice}
   `,
     ),
     check(

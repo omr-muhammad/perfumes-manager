@@ -10,6 +10,7 @@ import {
 import { bottlesTable } from "./bottles";
 import { relations, sql } from "drizzle-orm";
 import { lotStatusEn } from "./enums";
+import { timestamps } from "../columns.helpers";
 
 export const bottlesLotsTable = pgTable(
   "bottles_lots",
@@ -20,8 +21,9 @@ export const bottlesLotsTable = pgTable(
     stock: integer("stock").notNull().default(0),
     remainingStock: integer("remaining_stock").notNull(),
     costPrice: numeric("buy_price", { precision: 5, scale: 2 }).notNull(),
-    baseSellPrice: numeric("price", { precision: 5, scale: 2 }).notNull(),
+    sellPrice: numeric("price", { precision: 5, scale: 2 }).notNull(),
     bottleId: integer("bottle_id").notNull(),
+    ...timestamps,
   },
   (lot) => [
     unique("btls_lots_uq").on(
@@ -38,13 +40,13 @@ export const bottlesLotsTable = pgTable(
     check(
       "btl_lots_price_nneg_chk",
       sql`
-        ${lot.costPrice} >= 0 AND ${lot.baseSellPrice} >= 0
+        ${lot.costPrice} >= 0 AND ${lot.sellPrice} >= 0
       `,
     ),
     check(
       "btls_lots_cost_lte_sell_chk",
       sql`
-        ${lot.costPrice} <= ${lot.baseSellPrice}
+        ${lot.costPrice} <= ${lot.sellPrice}
     `,
     ),
     check(

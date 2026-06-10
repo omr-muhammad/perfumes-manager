@@ -23,32 +23,52 @@ export const shopCompLotsTable = pgTable(
       scale: 3,
     }).notNull(),
     status: lotStatusEn("status").notNull(),
-    costPerKilo: numeric("cost_per_kilo", {
+    kiloCost: numeric("kilo_cost", {
       precision: 10,
       scale: 4,
     }).notNull(),
-    baseSellPerKilo: numeric("base_sell_per_kilo", {
+    kiloPrice: numeric("kilo_price", {
       precision: 10,
       scale: 4,
     }).notNull(),
-    baseGmSell: numeric("base_gm_sell", { precision: 10, scale: 4 })
+    gmCost: numeric("gm_cost", { precision: 10, scale: 4 })
       .notNull()
-      .generatedAlwaysAs(sql`base_sell_per_kilo / 1000`),
-    oilAmountGm: integer("oil_amount_gm").default(0),
-    sprayAmountMl: integer("spray_amount_ml").default(0),
+      .generatedAlwaysAs(sql`kilo_cost / 1000.0`),
+    gmPrice: numeric("gm_price", { precision: 10, scale: 4 })
+      .notNull()
+      .generatedAlwaysAs(sql`kilo_price / 1000.0`),
+    mlCost: numeric("ml_cost", { precision: 10, scale: 4 })
+      .notNull()
+      .generatedAlwaysAs(
+        sql`concentration / 100.0 * density_snapshot * (kilo_cost / 1000)`,
+      ),
+    mlPrice: numeric("ml_price", { precision: 10, scale: 4 })
+      .notNull()
+      .generatedAlwaysAs(
+        sql`concentration / 100.0 * density_snapshot * (kilo_price / 1000)`,
+      ),
+    oilAmountGm: numeric("oil_amount_gm", { precision: 10, scale: 4 }).default(
+      "0",
+    ),
+    sprayAmountMl: numeric("spray_amount_ml", {
+      precision: 10,
+      scale: 4,
+    }).default("0"),
     concentration: smallint("concentration"),
-    remainingOilAmount: integer("remaining_oil_amount").default(0),
-    remainingSprayAmount: integer("remaining_spray_amount").default(0),
+    remainingOilAmount: numeric("remaining_oil_amount", {
+      precision: 10,
+      scale: 4,
+    }).default("0"),
+    remainingSprayAmount: numeric("remaining_spray_amount", {
+      precision: 10,
+      scale: 4,
+    }).default("0"),
     shopCompoundId: integer("shop_compound_id").notNull(),
     alcoholId: integer("alcohol_id"),
     ...timestamps,
   },
   (lot) => [
-    unique("comp_lots_uq").on(
-      lot.shopCompoundId,
-      lot.receivedAt,
-      lot.costPerKilo,
-    ),
+    unique("comp_lots_uq").on(lot.shopCompoundId, lot.receivedAt, lot.kiloCost),
     foreignKey({
       name: "comp_lots_shop_comp_id_fk",
       columns: [lot.shopCompoundId],

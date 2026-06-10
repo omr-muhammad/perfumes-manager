@@ -4,15 +4,15 @@ import { sql } from "drizzle-orm";
 const _deductAlcoholLots = `
   CREATE OR REPLACE FUNCTION _deduct_alcohol_lots(
     p_alcohol_id INT,
-    p_amount_to_deduct INT
+    p_amount_to_deduct NUMERIC
   )
   RETURNS VOID
   LANGUAGE plpgsql
   AS $$
   DECLARE  
     v_alco_lot RECORD;
-    v_remaining_to_deduct INT := p_amount_to_deduct;
-    v_take INT;
+    v_remaining_to_deduct NUMERIC := p_amount_to_deduct;
+    v_take NUMERIC;
     
   BEGIN
     FOR v_alco_lot IN
@@ -21,6 +21,7 @@ const _deductAlcoholLots = `
       WHERE alcohol_id = p_alcohol_id 
         AND status IN ('inuse', 'ready') 
         AND remaining_amount > 0
+        AND expiry_date > NOW()
       ORDER BY CASE status WHEN 'inuse' THEN 0 ELSE 1 END, received_at ASC
       FOR UPDATE -- lock selected until finish
       LOOP
@@ -34,7 +35,7 @@ const _deductAlcoholLots = `
           status = 
             CASE 
               WHEN remaining_amount - v_take <= 0 THEN 'depleted'
-              WHEN status = 'ready'      THEN 'inuse'
+              WHEN status = 'ready' THEN 'inuse'
               ELSE status
             END
         WHERE id = v_alco_lot.id;
@@ -97,8 +98,8 @@ const _returnAlcoholLots = `
 const _applyAlcoholSync = `
   CREATE OR REPLACE FUNCTION _apply_alcohol_sync(
     tg_op TEXT,
-    old_amount INT,
-    new_amount INT,
+    old_amount NUMERIC,
+    new_amount NUMERIC,
     old_con INT,
     new_con INT,
     old_alcohol_id INT,
@@ -108,18 +109,18 @@ const _applyAlcoholSync = `
   LANGUAGE plpgsql
   AS $$
   DECLARE
-    old_actual_alcohol INT;
-    new_actual_alcohol INT;
-    net_diff INT;
+    old_actual_alcohol NUMERIC;
+    new_actual_alcohol NUMERIC;
+    net_diff NUMERIC;
 
   BEGIN
 
     IF tg_op = 'INSERT' THEN
-      new_actual_alcohol := ROUND(new_amount * (1 - new_con / 100.0))::INT;
+      new_actual_alcohol := new_amount * (1 - new_con / 100.0);
       PERFORM _deduct_alcohol_lots(new_alcohol_id, new_actual_alcohol);
 
     ELSIF tg_op = 'DELETE' THEN
-      old_actual_alcohol := ROUND(old_amount * (1 - old_con / 100.0))::INT;
+      old_actual_alcohol := old_amount * (1 - old_con / 100.0);
       PERFORM _return_alcohol_lots(old_alcohol_id, old_actual_alcohol);
 
     ELSIF tg_op = 'UPDATE' THEN
@@ -130,8 +131,8 @@ const _applyAlcoholSync = `
       THEN RETURN;
       END IF;
 
-      old_actual_alcohol := ROUND(old_amount * (1 - old_con / 100.0))::INT;
-      new_actual_alcohol := ROUND(new_amount * (1 - new_con / 100.0))::INT;
+      old_actual_alcohol := old_amount * (1 - old_con / 100.0);
+      new_actual_alcohol := new_amount * (1 - new_con / 100.0);
 
       IF old_alcohol_id = new_alcohol_id THEN
         net_diff := new_actual_alcohol - old_actual_alcohol;
@@ -165,8 +166,8 @@ const alcoholFuncs = `
   DECLARE 
     v_user_choice BOOLEAN;
     v_should_sync BOOLEAN;
-    old_amount INT;
-    new_amount INT;
+    old_amount NUMERIC;
+    new_amount NUMERIC;
   BEGIN
     -- NULLIF(a, b) returns NULL if the a === b;
     v_user_choice := NULLIF(current_setting('app.should_sync', true), '')::BOOLEAN;
