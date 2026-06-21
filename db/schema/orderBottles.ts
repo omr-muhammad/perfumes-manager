@@ -50,7 +50,7 @@ export const orderBottlesTable = pgTable(
       name: "order_bottles_order_id_fk",
       columns: [t.orderId],
       foreignColumns: [ordersTable.id],
-    }).onDelete("cascade"),
+    }).onDelete("restrict"),
 
     // ─── non-negative / positive ─────────────────────────────────────────
     check(

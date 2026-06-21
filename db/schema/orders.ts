@@ -53,7 +53,7 @@ export const ordersTable = pgTable(
       name: "orders_shop_id_fk",
       columns: [order.shopId],
       foreignColumns: [shopsTable.id],
-    }),
+    }).onDelete("restrict"),
 
     // ─── non-negative / positive ─────────────────────────────────────────
     check("orders_subtotal_nneg_chk", sql`${order.subtotal} >= 0`),
@@ -103,5 +103,9 @@ export const ordersTable = pgTable(
 );
 
 export const ordersRelations = relations(ordersTable, ({ one, many }) => ({
+  shop: one(shopsTable, {
+    fields: [ordersTable.shopId],
+    references: [shopsTable.id],
+  }),
   orderBottles: many(orderBottlesTable),
 }));
