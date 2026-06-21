@@ -1,4 +1,4 @@
-import { and, eq, gt, inArray, sql } from "drizzle-orm";
+import { and, eq, gt, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db/config";
 import {
   alcoholLotsTable,
@@ -14,7 +14,16 @@ import {
   shopCompsTable,
 } from "../../db/schema";
 import { assertOwnership } from "../../utils/assertOwnership";
-import type { IDs, Order, OrderBottles } from "./schema";
+import type {
+  IDs,
+  Order,
+  OrderBottles,
+  OrderStatus,
+  PaymentStatus,
+  UpdateFulfillment,
+  UpdateOrder,
+  UpdateShipping,
+} from "./schema";
 import { AppError } from "../../utils/AppError";
 import type { DbTx } from "../../utils/globalSchema";
 
@@ -631,4 +640,195 @@ export async function create(ids: IDs["base"], newOrder: Order) {
   });
 
   return result;
+}
+
+export async function update(ids: IDs["extended"], updates: UpdateOrder) {
+  const { shopId, ownerId, orderId } = ids;
+
+  const shop = await assertOwnership(shopId, ownerId);
+
+  const [order] = await db
+    .update(ordersTable)
+    .set(updates)
+    .where(and(eq(ordersTable.shopId, shopId), eq(ordersTable.id, orderId)))
+    .returning();
+
+  if (order) return order;
+
+  const [found] = await db
+    .select()
+    .from(ordersTable)
+    .where(eq(ordersTable.id, orderId));
+
+  if (found)
+    throw new AppError(
+      403,
+      `Order with id: ${orderId} does not belong to ${shop.name} shop.`,
+    );
+
+  throw new AppError(404, `Order with id: ${orderId} not found.`);
+}
+
+export async function updateOrderStatus(
+  ids: IDs["extended"],
+  newStatus: OrderStatus,
+) {
+  const { ownerId, shopId, orderId } = ids;
+
+  const shop = await assertOwnership(shopId, ownerId);
+
+  const [order] = await db
+    .update(ordersTable)
+    .set({
+      orderStatus: newStatus,
+    })
+    .where(and(eq(ordersTable.shopId, shopId), eq(ordersTable.id, orderId)))
+    .returning();
+
+  if (order) return order;
+
+  const [found] = await db
+    .select()
+    .from(ordersTable)
+    .where(eq(ordersTable.id, orderId));
+
+  if (found)
+    throw new AppError(
+      403,
+      `Order with id: ${orderId} does not belong to ${shop.name} shop.`,
+    );
+
+  throw new AppError(404, `Order with id: ${orderId} not found.`);
+}
+
+export async function updatePaymentStatus(
+  ids: IDs["extended"],
+  newMethod: PaymentStatus,
+) {
+  const { ownerId, shopId, orderId } = ids;
+
+  const shop = await assertOwnership(shopId, ownerId);
+
+  const [order] = await db
+    .update(ordersTable)
+    .set({
+      paymentStatus: newMethod,
+    })
+    .where(and(eq(ordersTable.shopId, shopId), eq(ordersTable.id, orderId)))
+    .returning();
+
+  if (order) return order;
+
+  const [found] = await db
+    .select()
+    .from(ordersTable)
+    .where(eq(ordersTable.id, orderId));
+
+  if (found)
+    throw new AppError(
+      403,
+      `Order with id: ${orderId} does not belong to ${shop.name} shop.`,
+    );
+
+  throw new AppError(404, `Order with id: ${orderId} not found.`);
+}
+
+export async function updateShipping(
+  ids: IDs["extended"],
+  shipping: UpdateShipping,
+) {
+  const { ownerId, shopId, orderId } = ids;
+
+  const shop = await assertOwnership(shopId, ownerId);
+
+  const { country, city, street, cost } = shipping;
+  const [order] = await db
+    .update(ordersTable)
+    .set({
+      ...(country && { shippingCountry: country }),
+      ...(city && { shippingCity: city }),
+      ...(street && { shippingStreet: street }),
+      ...(cost && {
+        shippingCost: cost,
+        total: sql`${ordersTable.subtotal} - ${ordersTable.discountAmount} + ${cost}`,
+      }),
+    })
+    .where(
+      and(
+        eq(ordersTable.shopId, shopId),
+        eq(ordersTable.id, orderId),
+        eq(ordersTable.fulfillmentMethod, "delivery"),
+      ),
+    )
+    .returning();
+
+  if (order) return order;
+
+  const [found] = await db
+    .select()
+    .from(ordersTable)
+    .where(eq(ordersTable.id, orderId));
+
+  if (found) {
+    if (found.fulfillmentMethod !== "delivery")
+      throw new AppError(400, `Shipping is only allowed for delivered orders.`);
+
+    // If not the fulfillment so it's the shop
+    throw new AppError(
+      403,
+      `Order with id: ${orderId} does not belong to ${shop.name} shop.`,
+    );
+  }
+
+  throw new AppError(404, `Order with id: ${orderId} not found.`);
+}
+
+export async function updateFulfillmentMethod(
+  ids: IDs["extended"],
+  updates: UpdateFulfillment,
+) {
+  const { ownerId, shopId, orderId } = ids;
+
+  const shop = await assertOwnership(shopId, ownerId);
+
+  const { newMethod, shipping } = updates;
+
+  if (newMethod === "delivery" && !shipping)
+    throw new AppError(
+      400,
+      `Shipping is required when setting fulfillment method to 'delivery'`,
+    );
+
+  const [order] = await db
+    .update(ordersTable)
+    .set({
+      fulfillmentMethod: newMethod,
+      ...(newMethod === "delivery" &&
+        shipping && {
+          ...(shipping.country && { shippingCountry: shipping.country }),
+          ...(shipping.city && { shippingCity: shipping.city }),
+          ...(shipping.street && { shippingStreet: shipping.street }),
+          ...(shipping.cost && {
+            shippingCost: shipping.cost,
+            total: sql`${ordersTable.subtotal} - ${ordersTable.discountAmount} + ${shipping.cost}`,
+          }),
+        }),
+    })
+    .where(and(eq(ordersTable.shopId, shopId), eq(ordersTable.id, orderId)))
+    .returning();
+
+  if (order) return order;
+
+  const [found] = await db
+    .select()
+    .from(ordersTable)
+    .where(eq(ordersTable.id, orderId));
+
+  if (found)
+    throw new AppError(
+      403,
+      `Order with id: ${orderId} does not belong to ${shop.name} shop.`,
+    );
+
+  throw new AppError(404, `Order with id: ${orderId} not found.`);
 }
