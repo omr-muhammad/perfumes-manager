@@ -235,7 +235,10 @@ export const orderQuerySchema = z
 export type OrderQuery = z.infer<typeof orderQuerySchema>;
 
 // ------------------- URL Params -------------------
-const OrderParams = { shopId: z.number().min(1), orderId: z.number().min(1) };
+const OrderParams = z.object({
+  shopId: z.coerce.number().positive(),
+  orderId: z.coerce.number().positive(),
+});
 type OrderParams = z.infer<typeof OrderParams>;
 // --------------------------------------------------
 
@@ -249,19 +252,29 @@ export interface IDs {
 // ------------------- Context Types -------------------
 export interface OrderCtx {
   create: Ctx<Order, ShopParams>;
+
   update: Ctx<UpdateOrder, OrderParams>;
   updateStatus: Ctx<UpdateStatus, OrderParams>;
-  updatePaymentMethod: Ctx<UpdatePaymentStatus, OrderParams>;
+  updatePaymentStatus: Ctx<UpdatePaymentStatus, OrderParams>;
   updateShipping: Ctx<UpdateShipping, OrderParams>;
   updateFulfillmentMethod: Ctx<UpdateFulfillment, OrderParams>;
+
+  query: Ctx<unknown, ShopParams, OrderQuery>;
+
+  del: Ctx<unknown, OrderParams>;
 }
 // ------------------- Context Schema -------------------
 export const Schema = {
   create: { body: Order, params: ShopParams },
+
   update: { body: UpdateOrder, params: OrderParams },
   updateStatus: { body: UpdateStatus, params: OrderParams },
   updatePaymentStatus: { body: UpdatePaymentStatus, params: OrderParams },
   updateShipping: { body: UpdateShipping, params: OrderParams },
   updateFulfillmentMethod: { body: UpdateFulfillment, params: OrderParams },
+
+  query: { params: ShopParams, query: orderQuerySchema },
+
+  del: { params: OrderParams },
 };
 // ------------------------------------------------------
