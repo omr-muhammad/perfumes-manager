@@ -882,6 +882,35 @@ export async function queryAll(ids: IDs["base"], query: OrderQuery) {
 }
 // --------------------------------------------------------------------
 
+// --------------------------- DELETE ORDER (soft) ---------------------------
+export async function softDel(ids: IDs["extended"]) {
+  const { ownerId, shopId, orderId } = ids;
+
+  const shop = await assertOwnership(shopId, ownerId);
+
+  const [order] = await db
+    .update(ordersTable)
+    .set({ deletedAt: new Date() })
+    .where(and(eq(ordersTable.shopId, shopId), eq(ordersTable.id, orderId)))
+    .returning();
+
+  if (order) return order;
+
+  const [found] = await db
+    .select()
+    .from(ordersTable)
+    .where(eq(ordersTable.id, orderId));
+
+  if (found)
+    throw new AppError(
+      403,
+      `Order with id: ${orderId} does not belong to ${shop.name} shop.`,
+    );
+
+  throw new AppError(404, `Order with id: ${orderId} not found.`);
+}
+
+// ---------------------------------------------------------------------------
 //
 export function buildOrderConditions(query: OrderQuery) {
   const conditions = [];
