@@ -1,0 +1,2527 @@
+{
+  "id": "90994608-31f0-4524-8647-e0f54a8be46e",
+  "prevId": "c686ec50-84aa-4827-915f-6b3f906339ca",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.addresses": {
+      "name": "addresses",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "addresses_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "country": {
+          "name": "country",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "city": {
+          "name": "city",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "district": {
+          "name": "district",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "street": {
+          "name": "street",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "building_number": {
+          "name": "building_number",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "shop_id": {
+          "name": "shop_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "addresses_shop_id_fk": {
+          "name": "addresses_shop_id_fk",
+          "tableFrom": "addresses",
+          "tableTo": "shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "addresses_user_id_fk": {
+          "name": "addresses_user_id_fk",
+          "tableFrom": "addresses",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "addresses_shop_id_unique": {
+          "name": "addresses_shop_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "shop_id"
+          ]
+        },
+        "addresses_user_id_unique": {
+          "name": "addresses_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "addresses_shop_or_user_fk": {
+          "name": "addresses_shop_or_user_fk",
+          "value": "\n      COALESCE(\"addresses\".\"user_id\"::BOOLEAN::INTEGER, 0) \n      +\n      COALESCE(\"addresses\".\"shop_id\"::BOOLEAN::INTEGER, 0) \n      = 1\n    "
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.agings": {
+      "name": "agings",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "agings_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "amount": {
+          "name": "amount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "concentration": {
+          "name": "concentration",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lot_id": {
+          "name": "lot_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "alcohol_id": {
+          "name": "alcohol_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "agings_lot_id_shop_compound_lots_id_fk": {
+          "name": "agings_lot_id_shop_compound_lots_id_fk",
+          "tableFrom": "agings",
+          "tableTo": "shop_compound_lots",
+          "columnsFrom": [
+            "lot_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "agings_alcohol_id_alcohols_id_fk": {
+          "name": "agings_alcohol_id_alcohols_id_fk",
+          "tableFrom": "agings",
+          "tableTo": "alcohols",
+          "columnsFrom": [
+            "alcohol_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "agings_lot_fk": {
+          "name": "agings_lot_fk",
+          "tableFrom": "agings",
+          "tableTo": "shop_compound_lots",
+          "columnsFrom": [
+            "lot_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "agings_alcohol_fk": {
+          "name": "agings_alcohol_fk",
+          "tableFrom": "agings",
+          "tableTo": "alcohols",
+          "columnsFrom": [
+            "alcohol_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "agings_uq": {
+          "name": "agings_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "amount",
+            "start_date",
+            "end_date",
+            "lot_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "agings_amount_pos_chk": {
+          "name": "agings_amount_pos_chk",
+          "value": "\n        \"agings\".\"amount\" > 0\n      "
+        },
+        "agings_concentration_range_chk": {
+          "name": "agings_concentration_range_chk",
+          "value": "\n        \"agings\".\"concentration\" BETWEEN 1 AND 100\n      "
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.alcohol_lots": {
+      "name": "alcohol_lots",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "alcohol_lots_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "received_at": {
+          "name": "received_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "status": {
+          "name": "status",
+          "type": "lot_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amountInMl": {
+          "name": "amountInMl",
+          "type": "numeric(15, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "remaining_amount": {
+          "name": "remaining_amount",
+          "type": "numeric(15, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "expiry_date": {
+          "name": "expiry_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "liter_cost": {
+          "name": "liter_cost",
+          "type": "numeric(10, 3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "liter_price": {
+          "name": "liter_price",
+          "type": "numeric(10, 3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ml_cost": {
+          "name": "ml_cost",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "generated": {
+            "as": "liter_cost / 1000",
+            "type": "stored"
+          }
+        },
+        "ml_price": {
+          "name": "ml_price",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "generated": {
+            "as": "liter_price / 1000",
+            "type": "stored"
+          }
+        },
+        "alcohol_id": {
+          "name": "alcohol_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "alcohol_lots_fk": {
+          "name": "alcohol_lots_fk",
+          "tableFrom": "alcohol_lots",
+          "tableTo": "alcohols",
+          "columnsFrom": [
+            "alcohol_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "alcohol_lots_uq": {
+          "name": "alcohol_lots_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "amountInMl",
+            "received_at",
+            "liter_cost"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "alcohol_lots_cost_lte_base_chk": {
+          "name": "alcohol_lots_cost_lte_base_chk",
+          "value": "\n    \"alcohol_lots\".\"liter_cost\" <=   \"alcohol_lots\".\"liter_price\"\n  "
+        },
+        "alcohol_lots_amounts_nneg_chk": {
+          "name": "alcohol_lots_amounts_nneg_chk",
+          "value": "\n      \"alcohol_lots\".\"remaining_amount\" >= 0 AND \"alcohol_lots\".\"amountInMl\" >= 0 \n    "
+        },
+        "alcohol_lots_remaining_lte_amount_chk": {
+          "name": "alcohol_lots_remaining_lte_amount_chk",
+          "value": "\n      \"alcohol_lots\".\"remaining_amount\" <= \"alcohol_lots\".\"amountInMl\"  \n    "
+        },
+        "alcohol_lots_expiry_date_future_chk": {
+          "name": "alcohol_lots_expiry_date_future_chk",
+          "value": "\n        \"alcohol_lots\".\"expiry_date\" > NOW()\n      "
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.alcohols": {
+      "name": "alcohols",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "alcohols_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "concentration": {
+          "name": "concentration",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 96
+        },
+        "shop_id": {
+          "name": "shop_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "alcohols_shop_id_fk": {
+          "name": "alcohols_shop_id_fk",
+          "tableFrom": "alcohols",
+          "tableTo": "shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "alcohols_uq": {
+          "name": "alcohols_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name",
+            "type",
+            "concentration",
+            "shop_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "alcohols_concentration_range_chk": {
+          "name": "alcohols_concentration_range_chk",
+          "value": "\"alcohols\".\"concentration\" > 0 AND \"alcohols\".\"concentration\" <= 100"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.amount_tiers": {
+      "name": "amount_tiers",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "amount_tiers_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "entity_id": {
+          "name": "entity_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "entity_type": {
+          "name": "entity_type",
+          "type": "entity_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount_range": {
+          "name": "amount_range",
+          "type": "int4range",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pricing_type": {
+          "name": "pricing_type",
+          "type": "pricing_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "max_amount": {
+          "name": "max_amount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "amount_tiers_value_nneg_chk": {
+          "name": "amount_tiers_value_nneg_chk",
+          "value": "\n      \"amount_tiers\".\"value\" >= 0\n    "
+        },
+        "amount_tiers_discount_percentage_range_chk": {
+          "name": "amount_tiers_discount_percentage_range_chk",
+          "value": "\n      \"amount_tiers\".\"pricing_type\" != 'discount'\n      OR\n      \"amount_tiers\".\"value\" BETWEEN 0 AND 100 -- pricing type is discount and discount type is percentage\n    "
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.bottles": {
+      "name": "bottles",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "bottles_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "bottle_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "size": {
+          "name": "size",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sku": {
+          "name": "sku",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "bottle_category",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "img": {
+          "name": "img",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "shop_id": {
+          "name": "shop_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bottles_shop_id_fk": {
+          "name": "bottles_shop_id_fk",
+          "tableFrom": "bottles",
+          "tableTo": "shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "bottles_uq": {
+          "name": "bottles_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "shop_id",
+            "sku"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "bottles_size_pos_chk": {
+          "name": "bottles_size_pos_chk",
+          "value": "\n      \"bottles\".\"size\" > 0\n    "
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.bottles_lots": {
+      "name": "bottles_lots",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "bottles_lots_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "received_at": {
+          "name": "received_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "status": {
+          "name": "status",
+          "type": "lot_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stock": {
+          "name": "stock",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "remaining_stock": {
+          "name": "remaining_stock",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "buy_price": {
+          "name": "buy_price",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "price": {
+          "name": "price",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bottle_id": {
+          "name": "bottle_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "btls_lots_bottle_fk": {
+          "name": "btls_lots_bottle_fk",
+          "tableFrom": "bottles_lots",
+          "tableTo": "bottles",
+          "columnsFrom": [
+            "bottle_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "btls_lots_uq": {
+          "name": "btls_lots_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "bottle_id",
+            "received_at",
+            "buy_price",
+            "stock"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "btl_lots_price_nneg_chk": {
+          "name": "btl_lots_price_nneg_chk",
+          "value": "\n        \"bottles_lots\".\"buy_price\" >= 0 AND \"bottles_lots\".\"price\" >= 0\n      "
+        },
+        "btls_lots_cost_lte_sell_chk": {
+          "name": "btls_lots_cost_lte_sell_chk",
+          "value": "\n        \"bottles_lots\".\"buy_price\" <= \"bottles_lots\".\"price\"\n    "
+        },
+        "bottles_lots_stocks_nneg_chk": {
+          "name": "bottles_lots_stocks_nneg_chk",
+          "value": "\n        \"bottles_lots\".\"stock\" >= 0 AND \"bottles_lots\".\"remaining_stock\" >= 0\n      "
+        },
+        "btls_lots_remaining_lte_stock_chk": {
+          "name": "btls_lots_remaining_lte_stock_chk",
+          "value": "\n            \"bottles_lots\".\"remaining_stock\" <= \"bottles_lots\".\"stock\"\n        "
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.companies": {
+      "name": "companies",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "companies_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "country": {
+          "name": "country",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "approved": {
+          "name": "approved",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "logo": {
+          "name": "logo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "type": {
+          "name": "type",
+          "type": "type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'global'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "companies_uq": {
+          "name": "companies_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name",
+            "country"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "companies_approved_chk": {
+          "name": "companies_approved_chk",
+          "value": "\n      NOT \"companies\".\"approved\"\n        OR\n      \"companies\".\"country\" IS NOT NULL\n    "
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.order_bottle_ingredients": {
+      "name": "order_bottle_ingredients",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "order_bottle_ingredients_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "order_bottle_id": {
+          "name": "order_bottle_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "perfume_compound_name": {
+          "name": "perfume_compound_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "shop_compound_code": {
+          "name": "shop_compound_code",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "discount_amount": {
+          "name": "discount_amount",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'0'"
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(7, 3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount_type": {
+          "name": "amount_type",
+          "type": "amount_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "unit_price": {
+          "name": "unit_price",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "unit_cost": {
+          "name": "unit_cost",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subtotal": {
+          "name": "subtotal",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total": {
+          "name": "total",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "order_bottle_ingredients_order_bottle_id_fk": {
+          "name": "order_bottle_ingredients_order_bottle_id_fk",
+          "tableFrom": "order_bottle_ingredients",
+          "tableTo": "order_bottles",
+          "columnsFrom": [
+            "order_bottle_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "order_bottle_ingredients_discount_nneg_chk": {
+          "name": "order_bottle_ingredients_discount_nneg_chk",
+          "value": "\"order_bottle_ingredients\".\"discount_amount\" >= 0"
+        },
+        "order_bottle_ingredients_oil_unit_price_nneg_chk": {
+          "name": "order_bottle_ingredients_oil_unit_price_nneg_chk",
+          "value": "\"order_bottle_ingredients\".\"unit_price\" >= 0"
+        },
+        "order_bottle_ingredients_subtotal_nneg_chk": {
+          "name": "order_bottle_ingredients_subtotal_nneg_chk",
+          "value": "\"order_bottle_ingredients\".\"subtotal\" >= 0"
+        },
+        "order_bottle_ingredients_total_nneg_chk": {
+          "name": "order_bottle_ingredients_total_nneg_chk",
+          "value": "\"order_bottle_ingredients\".\"total\" >= 0"
+        },
+        "order_bottle_ingredients_amount_pos_chk": {
+          "name": "order_bottle_ingredients_amount_pos_chk",
+          "value": "\"order_bottle_ingredients\".\"amount\" > 0"
+        },
+        "order_bottle_ingredients_discount_lte_subtotal_chk": {
+          "name": "order_bottle_ingredients_discount_lte_subtotal_chk",
+          "value": "\"order_bottle_ingredients\".\"discount_amount\" <= \"order_bottle_ingredients\".\"subtotal\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.order_bottles": {
+      "name": "order_bottles",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "order_bottles_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "order_id": {
+          "name": "order_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "alcohol_amount": {
+          "name": "alcohol_amount",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'0'"
+        },
+        "ml_price_at_purchase": {
+          "name": "ml_price_at_purchase",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ml_cost_at_purchase": {
+          "name": "ml_cost_at_purchase",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bottle_type": {
+          "name": "bottle_type",
+          "type": "bottle_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bottle_catg": {
+          "name": "bottle_catg",
+          "type": "bottle_category",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'normal'"
+        },
+        "bottle_size": {
+          "name": "bottle_size",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bottle_price_at_purchase": {
+          "name": "bottle_price_at_purchase",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bottle_cost_at_purchase": {
+          "name": "bottle_cost_at_purchase",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "qty": {
+          "name": "qty",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "total": {
+          "name": "total",
+          "type": "numeric(9, 3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "order_bottles_order_id_fk": {
+          "name": "order_bottles_order_id_fk",
+          "tableFrom": "order_bottles",
+          "tableTo": "orders",
+          "columnsFrom": [
+            "order_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "order_bottles_bottle_price_nneg_chk": {
+          "name": "order_bottles_bottle_price_nneg_chk",
+          "value": "\"order_bottles\".\"bottle_price_at_purchase\" >= 0"
+        },
+        "order_bottles_bottle_cost_nneg_chk": {
+          "name": "order_bottles_bottle_cost_nneg_chk",
+          "value": "\"order_bottles\".\"bottle_cost_at_purchase\" >= 0"
+        },
+        "order_bottles_total_nneg_chk": {
+          "name": "order_bottles_total_nneg_chk",
+          "value": "\"order_bottles\".\"total\" >= 0"
+        },
+        "order_bottles_bottle_size_pos_chk": {
+          "name": "order_bottles_bottle_size_pos_chk",
+          "value": "\"order_bottles\".\"bottle_size\" > 0"
+        },
+        "order_bottles_qty_min_chk": {
+          "name": "order_bottles_qty_min_chk",
+          "value": "\"order_bottles\".\"qty\" >= 1"
+        },
+        "order_bottles_bottle_type_alcohol_cons_chk": {
+          "name": "order_bottles_bottle_type_alcohol_cons_chk",
+          "value": "\"order_bottles\".\"bottle_type\" = 'oil' OR (\n        \"order_bottles\".\"alcohol_amount\" IS NULL AND\n        \"order_bottles\".\"ml_price_at_purchase\" IS NULL AND\n        \"order_bottles\".\"ml_cost_at_purchase\" IS NULL\n      )"
+        },
+        "order_bottles_alcohol_nonoil_pos_chk": {
+          "name": "order_bottles_alcohol_nonoil_pos_chk",
+          "value": "\"order_bottles\".\"bottle_type\" = 'oil' OR (\n        \"order_bottles\".\"alcohol_amount\" > 0\n      )"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.orders": {
+      "name": "orders",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "orders_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "order_type": {
+          "name": "order_type",
+          "type": "order_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "order_status": {
+          "name": "order_status",
+          "type": "order_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "fulfillment_method": {
+          "name": "fulfillment_method",
+          "type": "fulfillment_method",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payment_status": {
+          "name": "payment_status",
+          "type": "payment_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'pending'"
+        },
+        "payment_method": {
+          "name": "payment_method",
+          "type": "payment_method",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "customer_name": {
+          "name": "customer_name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "customer_phone": {
+          "name": "customer_phone",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "shipping_country": {
+          "name": "shipping_country",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "shipping_city": {
+          "name": "shipping_city",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "shipping_street": {
+          "name": "shipping_street",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "shipping_cost": {
+          "name": "shipping_cost",
+          "type": "numeric(6, 3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "occasion": {
+          "name": "occasion",
+          "type": "occasion",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'none'"
+        },
+        "occasion_note": {
+          "name": "occasion_note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "subtotal": {
+          "name": "subtotal",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "discount_amount": {
+          "name": "discount_amount",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'0'"
+        },
+        "discount_reason": {
+          "name": "discount_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total": {
+          "name": "total",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "shop_id": {
+          "name": "shop_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "orders_shop_id_fk": {
+          "name": "orders_shop_id_fk",
+          "tableFrom": "orders",
+          "tableTo": "shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "orders_subtotal_nneg_chk": {
+          "name": "orders_subtotal_nneg_chk",
+          "value": "\"orders\".\"subtotal\" >= 0"
+        },
+        "orders_total_nneg_chk": {
+          "name": "orders_total_nneg_chk",
+          "value": "\"orders\".\"total\" >= 0"
+        },
+        "orders_discount_amount_nneg_chk": {
+          "name": "orders_discount_amount_nneg_chk",
+          "value": "\"orders\".\"discount_amount\" >= 0"
+        },
+        "orders_shipping_cost_nneg_chk": {
+          "name": "orders_shipping_cost_nneg_chk",
+          "value": "\"orders\".\"shipping_cost\" >= 0"
+        },
+        "orders_discount_lte_subtotal_chk": {
+          "name": "orders_discount_lte_subtotal_chk",
+          "value": "\"orders\".\"discount_amount\" <= \"orders\".\"subtotal\""
+        },
+        "orders_discount_reason_req_chk": {
+          "name": "orders_discount_reason_req_chk",
+          "value": "\"orders\".\"discount_amount\" = 0 OR \"orders\".\"discount_reason\" IS NOT NULL"
+        },
+        "orders_occasion_note_req_chk": {
+          "name": "orders_occasion_note_req_chk",
+          "value": "\"orders\".\"occasion\" != 'others' OR \"orders\".\"occasion_note\" IS NOT NULL"
+        },
+        "orders_shipping_req_chk": {
+          "name": "orders_shipping_req_chk",
+          "value": "\"orders\".\"fulfillment_method\" != 'delivery' OR (\n        \"orders\".\"shipping_country\" IS NOT NULL AND\n        \"orders\".\"shipping_city\"    IS NOT NULL AND\n        \"orders\".\"shipping_street\"  IS NOT NULL\n      )"
+        },
+        "orders_payment_refund_chk": {
+          "name": "orders_payment_refund_chk",
+          "value": "\"orders\".\"payment_status\" != 'refunded' OR \"orders\".\"order_status\" = 'delivered'"
+        },
+        "orders_order_status_fulfillment_cons_chk": {
+          "name": "orders_order_status_fulfillment_cons_chk",
+          "value": "\"orders\".\"order_status\" != 'shipped' OR \"orders\".\"fulfillment_method\" = 'delivery'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.perfumes_compounds": {
+      "name": "perfumes_compounds",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "perfumes_compounds_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "perfume_id": {
+          "name": "perfume_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "company_id": {
+          "name": "company_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "density": {
+          "name": "density",
+          "type": "numeric(4, 3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.9'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "pc_perfume_fk": {
+          "name": "pc_perfume_fk",
+          "tableFrom": "perfumes_compounds",
+          "tableTo": "perfumes",
+          "columnsFrom": [
+            "perfume_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "pc_company_fk": {
+          "name": "pc_company_fk",
+          "tableFrom": "perfumes_compounds",
+          "tableTo": "companies",
+          "columnsFrom": [
+            "company_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "pc_uq": {
+          "name": "pc_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "perfume_id",
+            "company_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.perfumes": {
+      "name": "perfumes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "perfumes_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "seasons": {
+          "name": "seasons",
+          "type": "seasons[]",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sex": {
+          "name": "sex",
+          "type": "sex",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "approved": {
+          "name": "approved",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "perfumes_uq": {
+          "name": "perfumes_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "perfumes_approved_chk": {
+          "name": "perfumes_approved_chk",
+          "value": "\n      NOT \"perfumes\".\"approved\"\n      OR (\n        \"perfumes\".\"seasons\" IS NOT NULL\n        AND array_length(\"perfumes\".\"seasons\", 1) > 0\n        AND \"perfumes\".\"sex\" IS NOT NULL\n        AND \"perfumes\".\"description\" != ''\n      )\n    "
+        },
+        "perfumes_seasons_limit_chk": {
+          "name": "perfumes_seasons_limit_chk",
+          "value": "\n        NOT \"perfumes\".\"approved\"\n        OR\n        array_length(\"perfumes\".\"seasons\", 1) <= 4\n      "
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.shop_compound_lots": {
+      "name": "shop_compound_lots",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "shop_compound_lots_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "received_at": {
+          "name": "received_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "density_snapshot": {
+          "name": "density_snapshot",
+          "type": "numeric(4, 3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "lot_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kilo_cost": {
+          "name": "kilo_cost",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kilo_price": {
+          "name": "kilo_price",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gm_cost": {
+          "name": "gm_cost",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "generated": {
+            "as": "kilo_cost / 1000.0",
+            "type": "stored"
+          }
+        },
+        "gm_price": {
+          "name": "gm_price",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "generated": {
+            "as": "kilo_price / 1000.0",
+            "type": "stored"
+          }
+        },
+        "ml_cost": {
+          "name": "ml_cost",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "generated": {
+            "as": "concentration / 100.0 * density_snapshot * (kilo_cost / 1000)",
+            "type": "stored"
+          }
+        },
+        "ml_price": {
+          "name": "ml_price",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "generated": {
+            "as": "concentration / 100.0 * density_snapshot * (kilo_price / 1000)",
+            "type": "stored"
+          }
+        },
+        "oil_amount_gm": {
+          "name": "oil_amount_gm",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'0'"
+        },
+        "spray_amount_ml": {
+          "name": "spray_amount_ml",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'0'"
+        },
+        "concentration": {
+          "name": "concentration",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "remaining_oil_amount": {
+          "name": "remaining_oil_amount",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'0'"
+        },
+        "remaining_spray_amount": {
+          "name": "remaining_spray_amount",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'0'"
+        },
+        "shop_compound_id": {
+          "name": "shop_compound_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "alcohol_id": {
+          "name": "alcohol_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "comp_lots_shop_comp_id_fk": {
+          "name": "comp_lots_shop_comp_id_fk",
+          "tableFrom": "shop_compound_lots",
+          "tableTo": "shop_compounds",
+          "columnsFrom": [
+            "shop_compound_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "comp_lots_alcohol_id_fk": {
+          "name": "comp_lots_alcohol_id_fk",
+          "tableFrom": "shop_compound_lots",
+          "tableTo": "alcohols",
+          "columnsFrom": [
+            "alcohol_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "comp_lots_uq": {
+          "name": "comp_lots_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "shop_compound_id",
+            "received_at",
+            "kilo_cost"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "comp_lots_oil_spray_amount_pos_chk": {
+          "name": "comp_lots_oil_spray_amount_pos_chk",
+          "value": "\n    \"shop_compound_lots\".\"oil_amount_gm\" > 0 OR \"shop_compound_lots\".\"spray_amount_ml\" > 0  \n  "
+        },
+        "comp_lots_concentration_range_chk": {
+          "name": "comp_lots_concentration_range_chk",
+          "value": "\"shop_compound_lots\".\"spray_amount_ml\" = 0 OR \"shop_compound_lots\".\"concentration\" BETWEEN 1 AND 100"
+        },
+        "comp_lots_alcohol_chk": {
+          "name": "comp_lots_alcohol_chk",
+          "value": "\n        \"shop_compound_lots\".\"spray_amount_ml\" = 0\n        OR\n        \"shop_compound_lots\".\"alcohol_id\" IS NOT NULL\n      "
+        },
+        "comp_lots_remaining_lte_amount_chk": {
+          "name": "comp_lots_remaining_lte_amount_chk",
+          "value": "\n        \"shop_compound_lots\".\"remaining_oil_amount\" <= \"shop_compound_lots\".\"oil_amount_gm\" \n        AND\n        \"shop_compound_lots\".\"remaining_spray_amount\" <= \"shop_compound_lots\".\"spray_amount_ml\"\n      "
+        },
+        "comp_lots_stock_gte_0_chk": {
+          "name": "comp_lots_stock_gte_0_chk",
+          "value": "\n        \"shop_compound_lots\".\"oil_amount_gm\" >= 0 AND \n        \"shop_compound_lots\".\"remaining_oil_amount\" >= 0 AND\n        \"shop_compound_lots\".\"spray_amount_ml\" >= 0 AND\n        \"shop_compound_lots\".\"remaining_spray_amount\" >= 0\n      "
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.shop_compounds": {
+      "name": "shop_compounds",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "shop_compounds_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "compound_id": {
+          "name": "compound_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "shop_id": {
+          "name": "shop_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "shop_comps_compound_shop_uq": {
+          "name": "shop_comps_compound_shop_uq",
+          "columns": [
+            {
+              "expression": "compound_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "shop_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "shop_comps_compound_fk": {
+          "name": "shop_comps_compound_fk",
+          "tableFrom": "shop_compounds",
+          "tableTo": "perfumes_compounds",
+          "columnsFrom": [
+            "compound_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "shop_comps_shop_fk": {
+          "name": "shop_comps_shop_fk",
+          "tableFrom": "shop_compounds",
+          "tableTo": "shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.shop_staff": {
+      "name": "shop_staff",
+      "schema": "",
+      "columns": {
+        "shop_id": {
+          "name": "shop_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "staff_role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "shops_staff_shop_id_fk": {
+          "name": "shops_staff_shop_id_fk",
+          "tableFrom": "shop_staff",
+          "tableTo": "shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "shops_staff_user_id_fk": {
+          "name": "shops_staff_user_id_fk",
+          "tableFrom": "shop_staff",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "shops_staff_shop_user_pk": {
+          "name": "shops_staff_shop_user_pk",
+          "columns": [
+            "shop_id",
+            "user_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.shops": {
+      "name": "shops",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "shops_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "logo": {
+          "name": "logo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "active": {
+          "name": "active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "hidden": {
+          "name": "hidden",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "shops_owner_id_fk": {
+          "name": "shops_owner_id_fk",
+          "tableFrom": "shops",
+          "tableTo": "users",
+          "columnsFrom": [
+            "owner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "shops_name_uq": {
+          "name": "shops_name_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "users_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "username": {
+          "name": "username",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'customer'"
+        },
+        "language": {
+          "name": "language",
+          "type": "language",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'ar'"
+        },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "active": {
+          "name": "active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "token_version": {
+          "name": "token_version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_username_uq": {
+          "name": "users_username_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "username"
+          ]
+        },
+        "users_email_uq": {
+          "name": "users_email_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        },
+        "users_phone_uq": {
+          "name": "users_phone_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "phone"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.amount_type": {
+      "name": "amount_type",
+      "schema": "public",
+      "values": [
+        "spray",
+        "oil"
+      ]
+    },
+    "public.bottle_category": {
+      "name": "bottle_category",
+      "schema": "public",
+      "values": [
+        "normal",
+        "elegant"
+      ]
+    },
+    "public.bottle_type": {
+      "name": "bottle_type",
+      "schema": "public",
+      "values": [
+        "spray",
+        "oil",
+        "tester"
+      ]
+    },
+    "public.type": {
+      "name": "type",
+      "schema": "public",
+      "values": [
+        "global",
+        "local"
+      ]
+    },
+    "public.discount_type": {
+      "name": "discount_type",
+      "schema": "public",
+      "values": [
+        "percentage",
+        "fixed"
+      ]
+    },
+    "public.entity_type": {
+      "name": "entity_type",
+      "schema": "public",
+      "values": [
+        "shop_compound",
+        "bottle",
+        "alcohol"
+      ]
+    },
+    "public.fulfillment_method": {
+      "name": "fulfillment_method",
+      "schema": "public",
+      "values": [
+        "pickup",
+        "delivery"
+      ]
+    },
+    "public.language": {
+      "name": "language",
+      "schema": "public",
+      "values": [
+        "ar",
+        "en"
+      ]
+    },
+    "public.lot_status": {
+      "name": "lot_status",
+      "schema": "public",
+      "values": [
+        "inuse",
+        "ready",
+        "depleted",
+        "expired"
+      ]
+    },
+    "public.occasion": {
+      "name": "occasion",
+      "schema": "public",
+      "values": [
+        "none",
+        "gift",
+        "apology",
+        "compensation",
+        "others"
+      ]
+    },
+    "public.order_status": {
+      "name": "order_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "processing",
+        "shipped",
+        "delivered",
+        "cancelled"
+      ]
+    },
+    "public.order_type": {
+      "name": "order_type",
+      "schema": "public",
+      "values": [
+        "onshop",
+        "online"
+      ]
+    },
+    "public.payment_method": {
+      "name": "payment_method",
+      "schema": "public",
+      "values": [
+        "cash",
+        "card",
+        "wallet"
+      ]
+    },
+    "public.payment_status": {
+      "name": "payment_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "paid",
+        "failed",
+        "refunded"
+      ]
+    },
+    "public.pricing_type": {
+      "name": "pricing_type",
+      "schema": "public",
+      "values": [
+        "discount",
+        "fixed"
+      ]
+    },
+    "public.role": {
+      "name": "role",
+      "schema": "public",
+      "values": [
+        "admin",
+        "owner",
+        "staff",
+        "customer"
+      ]
+    },
+    "public.seasons": {
+      "name": "seasons",
+      "schema": "public",
+      "values": [
+        "winter",
+        "spring",
+        "summer",
+        "fall"
+      ]
+    },
+    "public.sex": {
+      "name": "sex",
+      "schema": "public",
+      "values": [
+        "male",
+        "female",
+        "unisex"
+      ]
+    },
+    "public.staff_role": {
+      "name": "staff_role",
+      "schema": "public",
+      "values": [
+        "manager",
+        "cashier"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

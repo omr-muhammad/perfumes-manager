@@ -5,6 +5,7 @@ import {
   numeric,
   pgTable,
   text,
+  timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
@@ -45,6 +46,7 @@ export const ordersTable = pgTable(
     total: numeric("total", { precision: 8, scale: 2 }).notNull(),
     // ⚑ added notNull — an order must always belong to a shop
     shopId: integer("shop_id").notNull(),
+    deletedAt: timestamp("deleted_at"),
     ...timestamps,
   },
   (order) => [
@@ -96,8 +98,8 @@ export const ordersTable = pgTable(
     // ─── onhand can never reach "shipped" ────────────────────────────────
     // trigger that compares OLD vs NEW values.
     check(
-      "orders_onhand_noshipped_chk",
-      sql`${order.orderType} != 'onhand' OR ${order.orderStatus} != 'shipped'`,
+      "orders_order_status_fulfillment_cons_chk",
+      sql`${order.orderStatus} != 'shipped' OR ${order.fulfillmentMethod} = 'delivery'`,
     ),
   ],
 );

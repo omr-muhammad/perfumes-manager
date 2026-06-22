@@ -31,7 +31,7 @@ export const entityTypeEn = pgEnum("entity_type", [
 ]);
 
 // orders
-export const orderTypeEn = pgEnum("order_type", ["onhand", "online"]);
+export const orderTypeEn = pgEnum("order_type", ["onshop", "online"]);
 export const fulfillmentMethodEn = pgEnum("fulfillment_method", [
   "pickup",
   "delivery",

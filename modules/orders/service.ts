@@ -861,7 +861,7 @@ export async function queryAll(ids: IDs["base"], query: OrderQuery) {
       totalCount: sql<number>`count(*) over()`.as("total_count"),
     })
     .from(ordersTable)
-    .where(conditions.length ? and(...conditions) : undefined)
+    .where(and(...conditions, sql`${ordersTable.deletedAt} IS NULL`))
     .orderBy(orderBy)
     .limit(query.limit)
     .offset(offset);
