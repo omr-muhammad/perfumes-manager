@@ -1,4 +1,16 @@
-import { and, eq, gt, inArray, or, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  getTableColumns,
+  gt,
+  gte,
+  ilike,
+  inArray,
+  lte,
+  sql,
+} from "drizzle-orm";
 import { db } from "../../db/config";
 import {
   alcoholLotsTable,
@@ -18,6 +30,7 @@ import type {
   IDs,
   Order,
   OrderBottles,
+  OrderQuery,
   OrderStatus,
   PaymentStatus,
   UpdateFulfillment,
@@ -642,6 +655,7 @@ export async function create(ids: IDs["base"], newOrder: Order) {
   return result;
 }
 
+// --------------------------- UPDATE ORDER ---------------------------
 export async function update(ids: IDs["extended"], updates: UpdateOrder) {
   const { shopId, ownerId, orderId } = ids;
 
@@ -831,4 +845,78 @@ export async function updateFulfillmentMethod(
     );
 
   throw new AppError(404, `Order with id: ${orderId} not found.`);
+}
+// --------------------------------------------------------------------
+
+// --------------------------- QUERY ORDER ---------------------------
+export async function queryAll(ids: IDs["base"], query: OrderQuery) {
+  const conditions = buildOrderConditions(query);
+  const sortColumn = ordersTable[query.sortBy];
+  const orderBy = query.sortDir === "asc" ? asc(sortColumn) : desc(sortColumn);
+  const offset = (query.page - 1) * query.limit;
+
+  const rows = await db
+    .select({
+      ...getTableColumns(ordersTable),
+      totalCount: sql<number>`count(*) over()`.as("total_count"),
+    })
+    .from(ordersTable)
+    .where(conditions.length ? and(...conditions) : undefined)
+    .orderBy(orderBy)
+    .limit(query.limit)
+    .offset(offset);
+
+  const total = rows[0]?.totalCount ?? 0;
+  const data = rows.map(({ totalCount, ...row }) => row);
+
+  return {
+    data,
+    pagination: {
+      page: query.page,
+      limit: query.limit,
+      total,
+      totalPages: Math.ceil(total / query.limit),
+      hasNextPage: query.page * query.limit < total,
+    },
+  };
+}
+// --------------------------------------------------------------------
+
+//
+export function buildOrderConditions(query: OrderQuery) {
+  const conditions = [];
+
+  if (query.orderType)
+    conditions.push(eq(ordersTable.orderType, query.orderType));
+  if (query.orderStatus)
+    conditions.push(eq(ordersTable.orderStatus, query.orderStatus));
+  if (query.fulfillmentMethod)
+    conditions.push(eq(ordersTable.fulfillmentMethod, query.fulfillmentMethod));
+  if (query.paymentStatus)
+    conditions.push(eq(ordersTable.paymentStatus, query.paymentStatus));
+  if (query.paymentMethod)
+    conditions.push(eq(ordersTable.paymentMethod, query.paymentMethod));
+  if (query.occasion) conditions.push(eq(ordersTable.occasion, query.occasion));
+
+  if (query.shopId) conditions.push(eq(ordersTable.shopId, query.shopId));
+
+  if (query.customerName)
+    conditions.push(ilike(ordersTable.customerName, `%${query.customerName}%`));
+  if (query.customerPhone)
+    conditions.push(
+      ilike(ordersTable.customerPhone, `%${query.customerPhone}%`),
+    );
+
+  if (query.createdFrom)
+    conditions.push(gte(ordersTable.createdAt, query.createdFrom));
+  if (query.createdTo)
+    conditions.push(lte(ordersTable.createdAt, query.createdTo));
+
+  // numeric columns come back as strings from drizzle/pg — compare as strings, not numbers
+  if (query.minTotal !== undefined)
+    conditions.push(gte(ordersTable.total, String(query.minTotal)));
+  if (query.maxTotal !== undefined)
+    conditions.push(lte(ordersTable.total, String(query.maxTotal)));
+
+  return conditions;
 }

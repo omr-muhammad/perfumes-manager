@@ -194,6 +194,46 @@ const UpdateFulfillment = z
 export type UpdateFulfillment = z.infer<typeof UpdateFulfillment>;
 // ----------------------------------------------------
 
+export const orderQuerySchema = z
+  .object({
+    orderType: z.enum(orderTypeEn.enumValues).optional(),
+    orderStatus: z.enum(orderStatusEn.enumValues).optional(),
+    fulfillmentMethod: z.enum(fulfillmentMethodEn.enumValues).optional(),
+    paymentStatus: z.enum(paymentStatusEn.enumValues).optional(),
+    paymentMethod: z.enum(paymentMethodEn.enumValues).optional(),
+    occasion: z.enum(occasionEn.enumValues).optional(),
+
+    shopId: z.coerce.number().int().positive().optional(),
+
+    customerName: z.string().trim().min(1).max(50).optional(),
+    customerPhone: z.string().trim().min(1).max(50).optional(),
+
+    createdFrom: z.coerce.date().optional(),
+    createdTo: z.coerce.date().optional(),
+
+    minTotal: z.coerce.number().nonnegative().optional(),
+    maxTotal: z.coerce.number().nonnegative().optional(),
+
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(20),
+
+    sortBy: z.enum(["createdAt", "total", "customerName"]).default("createdAt"),
+    sortDir: z.enum(["asc", "desc"]).default("desc"),
+  })
+  .refine(
+    (q) => !q.createdFrom || !q.createdTo || q.createdFrom <= q.createdTo,
+    { message: "createdFrom must be before createdTo", path: ["createdFrom"] },
+  )
+  .refine(
+    (q) =>
+      q.minTotal === undefined ||
+      q.maxTotal === undefined ||
+      q.minTotal <= q.maxTotal,
+    { message: "minTotal must be ≤ maxTotal", path: ["minTotal"] },
+  );
+
+export type OrderQuery = z.infer<typeof orderQuerySchema>;
+
 // ------------------- URL Params -------------------
 const OrderParams = { shopId: z.number().min(1), orderId: z.number().min(1) };
 type OrderParams = z.infer<typeof OrderParams>;
