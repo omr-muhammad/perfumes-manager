@@ -264,7 +264,7 @@ export interface OrderCtx {
   del: Ctx<unknown, OrderParams>;
 }
 // ------------------- Context Schema -------------------
-export const Schema = {
+export const CtxSchema = {
   create: { body: Order, params: ShopParams },
 
   update: { body: UpdateOrder, params: OrderParams },

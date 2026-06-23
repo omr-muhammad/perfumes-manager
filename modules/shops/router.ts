@@ -7,6 +7,7 @@ import { protect, restrictTo } from "../../utils/auth";
 import { alcoholsRouter } from "../inventory/alcohols/router";
 import { bottlesRouter } from "../inventory/bottles/router";
 import { perfumesCompoundsRouter } from "../inventory/shopCompounds/router";
+import { orderRouter } from "../orders/router";
 
 export const shopsRouter = new Elysia({ prefix: "/shops" })
   .use(protect)
@@ -22,6 +23,9 @@ export const shopsRouter = new Elysia({ prefix: "/shops" })
       .delete("", handlers.deleteShopById, ShopSchema.DelShop)
       .put("/address", handlers.upsertShopAddress, ShopSchema.UpsertShopAddress)
       .patch("/visible", handlers.hideShop, ShopSchema.Visibility)
+
+      // /api/shops/:shopId/orders
+      .use(orderRouter)
 
       // /api/shops/:shopId/staff/
       .group("/staff", (app) =>
