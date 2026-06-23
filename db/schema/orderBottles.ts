@@ -69,19 +69,12 @@ export const orderBottlesTable = pgTable(
     // oil   → both must be exactly 0
     check(
       "order_bottles_bottle_type_alcohol_cons_chk",
-      sql`${t.bottleType} = 'oil' OR (
-        ${t.alcoholAmount} > 0 AND
-        ${t.mlPriceAtPurchase} >= 0 AND
-        ${t.mlCostAtPurchase} >= 0
+      sql`${t.bottleType} != 'oil' OR (
+        ${t.alcoholAmount} IS NULL AND
+        ${t.mlPriceAtPurchase} IS NULL AND
+        ${t.mlCostAtPurchase} IS NULL
       )`,
     ),
-    // spray / tester → both must be present and > 0
-    // check(
-    //   "order_bottles_alcohol_nonoil_pos_chk",
-    //   sql`${t.bottleType} = 'oil' OR (
-    //     ${t.alcoholAmount} > 0
-    //   )`,
-    // ),
   ],
 );
 
