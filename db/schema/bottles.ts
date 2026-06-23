@@ -12,6 +12,7 @@ import { bottleCatgeroyEn, bottleTypeEn } from "./enums";
 import { bottlesLotsTable, shopsTable } from ".";
 import { timestamps } from "../columns.helpers";
 import { relations, sql } from "drizzle-orm";
+import { BT_SHOP_FK, BT_SIZE_POS_CHK, BT_UQ } from "../../utils/errorMap";
 
 export const bottlesTable = pgTable(
   "bottles",
@@ -27,14 +28,14 @@ export const bottlesTable = pgTable(
     ...timestamps,
   },
   (bottle) => [
-    unique("bottles_uq").on(bottle.shopId, bottle.sku),
+    unique(BT_UQ).on(bottle.shopId, bottle.sku),
     foreignKey({
-      name: "bottles_shop_id_fk",
+      name: BT_SHOP_FK,
       columns: [bottle.shopId],
       foreignColumns: [shopsTable.id],
     }).onDelete("cascade"),
     check(
-      "bottles_size_pos_chk",
+      BT_SIZE_POS_CHK,
       sql`
       ${bottle.size} > 0
     `,

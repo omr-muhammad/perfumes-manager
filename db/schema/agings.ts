@@ -9,6 +9,13 @@ import {
 import { timestamps } from "../columns.helpers";
 import { relations, sql } from "drizzle-orm";
 import { alcoholsTable, shopCompLotsTable } from ".";
+import {
+  AG_ALCOHOL_FK,
+  AG_AMOUNT_POS_CHK,
+  AG_CONCENTRATION_RANGE_CHK,
+  AG_LOT_FK,
+  AG_UQ,
+} from "../../utils/errorMap";
 
 export const agingsTable = pgTable(
   "agings",
@@ -27,32 +34,27 @@ export const agingsTable = pgTable(
     ...timestamps,
   },
   (aging) => [
-    unique("agings_uq").on(
-      aging.amount,
-      aging.startDate,
-      aging.endDate,
-      aging.lotId,
-    ),
+    unique(AG_UQ).on(aging.amount, aging.startDate, aging.endDate, aging.lotId),
     foreignKey({
-      name: "agings_lot_fk",
+      name: AG_LOT_FK,
       columns: [aging.lotId],
       foreignColumns: [shopCompLotsTable.id],
     }).onDelete("cascade"),
 
     foreignKey({
-      name: "agings_alcohol_fk",
+      name: AG_ALCOHOL_FK,
       columns: [aging.alcoholId],
       foreignColumns: [alcoholsTable.id],
     }).onDelete("restrict"),
 
     check(
-      "agings_amount_pos_chk",
+      AG_AMOUNT_POS_CHK,
       sql`
         ${aging.amount} > 0
       `,
     ),
     check(
-      "agings_concentration_range_chk",
+      AG_CONCENTRATION_RANGE_CHK,
       sql`
         ${aging.concentration} BETWEEN 1 AND 100
       `,

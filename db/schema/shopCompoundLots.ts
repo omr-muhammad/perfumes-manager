@@ -12,6 +12,16 @@ import {
 import { alcoholsTable, shopCompsTable } from ".";
 import { lotStatusEn } from "./enums";
 import { timestamps } from "../columns.helpers";
+import {
+  CL_ALCOHOL_CHK,
+  CL_ALCOHOL_FK,
+  CL_CONCENTRATION_RANGE_CHK,
+  CL_OIL_SPRAY_AMOUNT_POS_CHK,
+  CL_REMAINING_LTE_AMOUNT_CHK,
+  CL_SHOP_COMP_FK,
+  CL_STOCK_GTE_0_CHK,
+  CL_UQ,
+} from "../../utils/errorMap";
 
 export const shopCompLotsTable = pgTable(
   "shop_compound_lots",
@@ -68,29 +78,29 @@ export const shopCompLotsTable = pgTable(
     ...timestamps,
   },
   (lot) => [
-    unique("comp_lots_uq").on(lot.shopCompoundId, lot.receivedAt, lot.kiloCost),
+    unique(CL_UQ).on(lot.shopCompoundId, lot.receivedAt, lot.kiloCost),
     foreignKey({
-      name: "comp_lots_shop_comp_id_fk",
+      name: CL_SHOP_COMP_FK,
       columns: [lot.shopCompoundId],
       foreignColumns: [shopCompsTable.id],
     }).onDelete("cascade"),
     foreignKey({
-      name: "comp_lots_alcohol_id_fk",
+      name: CL_ALCOHOL_FK,
       columns: [lot.alcoholId],
       foreignColumns: [alcoholsTable.id],
     }).onDelete("cascade"),
     check(
-      "comp_lots_oil_spray_amount_pos_chk",
+      CL_OIL_SPRAY_AMOUNT_POS_CHK,
       sql`
     ${lot.oilAmountGm} > 0 OR ${lot.sprayAmountMl} > 0  
   `,
     ),
     check(
-      "comp_lots_concentration_range_chk",
+      CL_CONCENTRATION_RANGE_CHK,
       sql`${lot.sprayAmountMl} = 0 OR ${lot.concentration} BETWEEN 1 AND 100`,
     ),
     check(
-      "comp_lots_alcohol_chk",
+      CL_ALCOHOL_CHK,
       sql`
         ${lot.sprayAmountMl} = 0
         OR
@@ -98,7 +108,7 @@ export const shopCompLotsTable = pgTable(
       `,
     ),
     check(
-      "comp_lots_remaining_lte_amount_chk",
+      CL_REMAINING_LTE_AMOUNT_CHK,
       sql`
         ${lot.remainingOilAmount} <= ${lot.oilAmountGm} 
         AND
@@ -106,7 +116,7 @@ export const shopCompLotsTable = pgTable(
       `,
     ),
     check(
-      "comp_lots_stock_gte_0_chk",
+      CL_STOCK_GTE_0_CHK,
       sql`
         ${lot.oilAmountGm} >= 0 AND 
         ${lot.remainingOilAmount} >= 0 AND

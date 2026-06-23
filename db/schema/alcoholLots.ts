@@ -11,6 +11,14 @@ import { lotStatusEn } from "./enums";
 import { relations, sql } from "drizzle-orm";
 import { timestamps } from "../columns.helpers";
 import { alcoholsTable } from ".";
+import {
+  ALL_AMOUNTS_NNEG_CHK,
+  ALL_COST_LTE_BASE_CHK,
+  ALL_EXPIRY_DATE_FUTURE_CHK,
+  ALL_FK,
+  ALL_REMAINING_LTE_AMOUNT_CHK,
+  ALL_UQ,
+} from "../../utils/errorMap";
 
 export const alcoholLotsTable = pgTable(
   "alcohol_lots",
@@ -43,32 +51,32 @@ export const alcoholLotsTable = pgTable(
     ...timestamps,
   },
   (lot) => [
-    unique("alcohol_lots_uq").on(lot.amountInMl, lot.receivedAt, lot.literCost),
+    unique(ALL_UQ).on(lot.amountInMl, lot.receivedAt, lot.literCost),
     foreignKey({
-      name: "alcohol_lots_fk",
+      name: ALL_FK,
       columns: [lot.alcoholId],
       foreignColumns: [alcoholsTable.id],
     }).onDelete("cascade"),
     check(
-      "alcohol_lots_cost_lte_base_chk",
+      ALL_COST_LTE_BASE_CHK,
       sql`
     ${lot.literCost} <=   ${lot.literPrice}
   `,
     ),
     check(
-      `alcohol_lots_amounts_nneg_chk`,
+      ALL_AMOUNTS_NNEG_CHK,
       sql`
       ${lot.remainingAmount} >= 0 AND ${lot.amountInMl} >= 0 
     `,
     ),
     check(
-      `alcohol_lots_remaining_lte_amount_chk`,
+      ALL_REMAINING_LTE_AMOUNT_CHK,
       sql`
       ${lot.remainingAmount} <= ${lot.amountInMl}  
     `,
     ),
     check(
-      `alcohol_lots_expiry_date_future_chk`,
+      ALL_EXPIRY_DATE_FUTURE_CHK,
       sql`
         ${lot.expiryDate} > NOW()
       `,

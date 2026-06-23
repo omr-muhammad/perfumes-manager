@@ -9,6 +9,11 @@ import {
 import { timestamps } from "../columns.helpers";
 import { relations, sql } from "drizzle-orm";
 import { shopsTable, usersTable } from ".";
+import {
+  AD_SHOP_FK,
+  AD_SHOP_OR_USER_FK,
+  AD_USER_FK,
+} from "../../utils/errorMap";
 
 export const addressesTable = pgTable(
   "addresses",
@@ -26,17 +31,17 @@ export const addressesTable = pgTable(
   },
   (address) => [
     foreignKey({
-      name: "addresses_shop_id_fk",
+      name: AD_SHOP_FK,
       columns: [address.shopId],
       foreignColumns: [shopsTable.id],
     }).onDelete("cascade"),
     foreignKey({
-      name: "addresses_user_id_fk",
+      name: AD_USER_FK,
       columns: [address.userId],
       foreignColumns: [usersTable.id],
     }).onDelete("cascade"),
     check(
-      "addresses_shop_or_user_fk",
+      AD_SHOP_OR_USER_FK,
       sql`
       COALESCE(${address.userId}::BOOLEAN::INTEGER, 0) 
       +

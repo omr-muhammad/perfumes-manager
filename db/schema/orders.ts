@@ -19,6 +19,19 @@ import {
 } from "./enums";
 import { timestamps } from "../columns.helpers";
 import { orderBottlesTable, shopsTable } from ".";
+import {
+  OR_DISCOUNT_AMOUNT_NNEG_CHK,
+  OR_DISCOUNT_LTE_SUBTOTAL_CHK,
+  OR_DISCOUNT_REASON_REQ_CHK,
+  OR_OCCASION_NOTE_REQ_CHK,
+  OR_PAYMENT_REFUND_CHK,
+  OR_SHIPPING_COST_NNEG_CHK,
+  OR_SHIPPING_REQ_CHK,
+  OR_SHOP_FK,
+  OR_STATUS_FULFILLMENT_CONS_CHK,
+  OR_SUBTOTAL_NNEG_CHK,
+  OR_TOTAL_NNEG_CHK,
+} from "../../utils/errorMap";
 
 export const ordersTable = pgTable(
   "orders",
@@ -52,36 +65,36 @@ export const ordersTable = pgTable(
   (order) => [
     // ─── foreign keys ────────────────────────────────────────────────────
     foreignKey({
-      name: "orders_shop_id_fk",
+      name: OR_SHOP_FK,
       columns: [order.shopId],
       foreignColumns: [shopsTable.id],
     }).onDelete("restrict"),
 
     // ─── non-negative / positive ─────────────────────────────────────────
-    check("orders_subtotal_nneg_chk", sql`${order.subtotal} >= 0`),
-    check("orders_total_nneg_chk", sql`${order.total} >= 0`),
-    check("orders_discount_amount_nneg_chk", sql`${order.discountAmount} >= 0`),
-    check("orders_shipping_cost_nneg_chk", sql`${order.shippingCost} >= 0`),
+    check(OR_SUBTOTAL_NNEG_CHK, sql`${order.subtotal} >= 0`),
+    check(OR_TOTAL_NNEG_CHK, sql`${order.total} >= 0`),
+    check(OR_DISCOUNT_AMOUNT_NNEG_CHK, sql`${order.discountAmount} >= 0`),
+    check(OR_SHIPPING_COST_NNEG_CHK, sql`${order.shippingCost} >= 0`),
 
     // ─── discount rules ──────────────────────────────────────────────────
     check(
-      "orders_discount_lte_subtotal_chk",
+      OR_DISCOUNT_LTE_SUBTOTAL_CHK,
       sql`${order.discountAmount} <= ${order.subtotal}`,
     ),
     check(
-      "orders_discount_reason_req_chk",
+      OR_DISCOUNT_REASON_REQ_CHK,
       sql`${order.discountAmount} = 0 OR ${order.discountReason} IS NOT NULL`,
     ),
 
     // ─── occasion ────────────────────────────────────────────────────────
     check(
-      "orders_occasion_note_req_chk",
+      OR_OCCASION_NOTE_REQ_CHK,
       sql`${order.occasion} != 'others' OR ${order.occasionNote} IS NOT NULL`,
     ),
 
     // ─── shipping required for delivery ──────────────────────────────────
     check(
-      "orders_shipping_req_chk",
+      OR_SHIPPING_REQ_CHK,
       sql`${order.fulfillmentMethod} != 'delivery' OR (
         ${order.shippingCountry} IS NOT NULL AND
         ${order.shippingCity}    IS NOT NULL AND
@@ -91,14 +104,14 @@ export const ordersTable = pgTable(
 
     // ─── payment: refund only when delivered ─────────────────────────────
     check(
-      "orders_payment_refund_chk",
+      OR_PAYMENT_REFUND_CHK,
       sql`${order.paymentStatus} != 'refunded' OR ${order.orderStatus} = 'delivered'`,
     ),
 
     // ─── onhand can never reach "shipped" ────────────────────────────────
     // trigger that compares OLD vs NEW values.
     check(
-      "orders_order_status_fulfillment_cons_chk",
+      OR_STATUS_FULFILLMENT_CONS_CHK,
       sql`${order.orderStatus} != 'shipped' OR ${order.fulfillmentMethod} = 'delivery'`,
     ),
   ],

@@ -10,6 +10,11 @@ import { timestamps } from "../columns.helpers";
 import { relations, sql } from "drizzle-orm";
 import { seasonsEn, sexEn } from "./enums";
 import { perfumeCompoundsTable } from "./perfumesCompounds";
+import {
+  PF_APPROVED_CHK,
+  PF_SEASONS_LIMIT_CHK,
+  PF_UQ,
+} from "../../utils/errorMap";
 
 // later for better structure
 // export const familiesEn = pgEnum("families", ["fresh", "aromatic", "citrus", "water", "green", "fruity", "floral", "soft floral", "oriental(Amber)", "floral oriental", "soft oriental", "woody oriental", "woody", "woods", "mossy woods", "dry woods"])
@@ -18,7 +23,7 @@ export const perfumesTable = pgTable(
   "perfumes",
   {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar("name", { length: 100 }).unique("perfumes_uq").notNull(),
+    name: varchar("name", { length: 100 }).unique(PF_UQ).notNull(),
     seasons: seasonsEn("seasons").array(),
     sex: sexEn("sex"),
     description: text("description").default(""),
@@ -27,7 +32,7 @@ export const perfumesTable = pgTable(
   },
   (table) => [
     check(
-      "perfumes_approved_chk",
+      PF_APPROVED_CHK,
       sql`
       NOT ${table.approved}
       OR (
@@ -39,7 +44,7 @@ export const perfumesTable = pgTable(
     `,
     ),
     check(
-      "perfumes_seasons_limit_chk",
+      PF_SEASONS_LIMIT_CHK,
       sql`
         NOT ${table.approved}
         OR

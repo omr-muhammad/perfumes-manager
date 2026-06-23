@@ -11,6 +11,15 @@ import { relations, sql } from "drizzle-orm";
 import { amountTypeEn } from "./enums";
 import { timestamps } from "../columns.helpers";
 import { orderBottlesTable } from ".";
+import {
+  OBI_AMOUNT_POS_CHK,
+  OBI_DISCOUNT_LTE_SUBTOTAL_CHK,
+  OBI_DISCOUNT_NNEG_CHK,
+  OBI_OIL_UNIT_PRICE_NNEG_CHK,
+  OBI_ORDER_BOTTLE_FK,
+  OBI_SUBTOTAL_NNEG_CHK,
+  OBI_TOTAL_NNEG_CHK,
+} from "../../utils/errorMap";
 
 export const orderBottleIngredientsTable = pgTable(
   "order_bottle_ingredients",
@@ -40,30 +49,21 @@ export const orderBottleIngredientsTable = pgTable(
   (t) => [
     // ─── foreign keys ────────────────────────────────────────────────────
     foreignKey({
-      name: "order_bottle_ingredients_order_bottle_id_fk",
+      name: OBI_ORDER_BOTTLE_FK,
       columns: [t.orderBottleId],
       foreignColumns: [orderBottlesTable.id],
     }).onDelete("restrict"),
 
     // ─── non-negative / positive ─────────────────────────────────────────
-    check(
-      "order_bottle_ingredients_discount_nneg_chk",
-      sql`${t.discountAmount} >= 0`,
-    ),
-    check(
-      "order_bottle_ingredients_oil_unit_price_nneg_chk",
-      sql`${t.unitPrice} >= 0`,
-    ),
-    check(
-      "order_bottle_ingredients_subtotal_nneg_chk",
-      sql`${t.subtotal} >= 0`,
-    ),
-    check("order_bottle_ingredients_total_nneg_chk", sql`${t.total} >= 0`),
-    check("order_bottle_ingredients_amount_pos_chk", sql`${t.amount} > 0`),
+    check(OBI_DISCOUNT_NNEG_CHK, sql`${t.discountAmount} >= 0`),
+    check(OBI_OIL_UNIT_PRICE_NNEG_CHK, sql`${t.unitPrice} >= 0`),
+    check(OBI_SUBTOTAL_NNEG_CHK, sql`${t.subtotal} >= 0`),
+    check(OBI_TOTAL_NNEG_CHK, sql`${t.total} >= 0`),
+    check(OBI_AMOUNT_POS_CHK, sql`${t.amount} > 0`),
 
     // ─── discount rules ──────────────────────────────────────────────────
     check(
-      "order_bottle_ingredients_discount_lte_subtotal_chk",
+      OBI_DISCOUNT_LTE_SUBTOTAL_CHK,
       sql`${t.discountAmount} <= ${t.subtotal}`,
     ),
   ],

@@ -11,6 +11,15 @@ import { bottleCatgeroyEn, bottleTypeEn } from "./enums";
 import { timestamps } from "../columns.helpers";
 import { ordersTable } from ".";
 import { orderBottleIngredientsTable } from "./orderBottleIngredients";
+import {
+  OB_COST_NNEG_CHK,
+  OB_ORDER_FK,
+  OB_PRICE_NNEG_CHK,
+  OB_QTY_MIN_CHK,
+  OB_SIZE_POS_CHK,
+  OB_TOTAL_NNEG_CHK,
+  OB_TYPE_ALCOHOL_CONS_CHK,
+} from "../../utils/errorMap";
 
 export const orderBottlesTable = pgTable(
   "order_bottles",
@@ -47,28 +56,22 @@ export const orderBottlesTable = pgTable(
   (t) => [
     // ─── foreign keys ────────────────────────────────────────────────────
     foreignKey({
-      name: "order_bottles_order_id_fk",
+      name: OB_ORDER_FK,
       columns: [t.orderId],
       foreignColumns: [ordersTable.id],
     }).onDelete("restrict"),
 
     // ─── non-negative / positive ─────────────────────────────────────────
-    check(
-      "order_bottles_bottle_price_nneg_chk",
-      sql`${t.bottlePriceAtPurchase} >= 0`,
-    ),
-    check(
-      "order_bottles_bottle_cost_nneg_chk",
-      sql`${t.bottleCostAtPurchase} >= 0`,
-    ),
-    check("order_bottles_total_nneg_chk", sql`${t.total} >= 0`),
-    check("order_bottles_bottle_size_pos_chk", sql`${t.bottleSize} > 0`),
-    check("order_bottles_qty_min_chk", sql`${t.qty} >= 1`),
+    check(OB_PRICE_NNEG_CHK, sql`${t.bottlePriceAtPurchase} >= 0`),
+    check(OB_COST_NNEG_CHK, sql`${t.bottleCostAtPurchase} >= 0`),
+    check(OB_TOTAL_NNEG_CHK, sql`${t.total} >= 0`),
+    check(OB_SIZE_POS_CHK, sql`${t.bottleSize} > 0`),
+    check(OB_QTY_MIN_CHK, sql`${t.qty} >= 1`),
 
     // ─── alcohol rules ───────────────────────────────────────────────────
     // oil   → both must be exactly 0
     check(
-      "order_bottles_bottle_type_alcohol_cons_chk",
+      OB_TYPE_ALCOHOL_CONS_CHK,
       sql`${t.bottleType} != 'oil' OR (
         ${t.alcoholAmount} IS NULL AND
         ${t.mlPriceAtPurchase} IS NULL AND

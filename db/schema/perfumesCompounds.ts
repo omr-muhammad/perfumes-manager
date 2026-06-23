@@ -3,6 +3,7 @@ import { foreignKey, integer, numeric, pgTable, unique } from "drizzle-orm/pg-co
 import { perfumesTable, companiesTable } from ".";
 import { timestamps } from "../columns.helpers";
 import { relations } from "drizzle-orm";
+import { PC_COMPANY_FK, PC_PERFUME_FK, PC_UQ } from "../../utils/errorMap";
 
 export const perfumeCompoundsTable = pgTable(
   "perfumes_compounds",
@@ -16,14 +17,14 @@ export const perfumeCompoundsTable = pgTable(
     ...timestamps,
   },
   (pfComp) => [
-    unique("pc_uq").on(pfComp.perfumeId, pfComp.companyId),
+    unique(PC_UQ).on(pfComp.perfumeId, pfComp.companyId),
     foreignKey({
-      name: "pc_perfume_fk",
+      name: PC_PERFUME_FK,
       columns: [pfComp.perfumeId],
       foreignColumns: [perfumesTable.id],
     }).onDelete("restrict"),
     foreignKey({
-      name: "pc_company_fk",
+      name: PC_COMPANY_FK,
       columns: [pfComp.companyId],
       foreignColumns: [companiesTable.id],
     }).onDelete("restrict"),

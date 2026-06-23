@@ -16,12 +16,13 @@ import {
   usersTable,
 } from ".";
 import { relations } from "drizzle-orm";
+import { SH_NAME_UQ, SH_OWNER_FK } from "../../utils/errorMap";
 
 export const shopsTable = pgTable(
   "shops",
   {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar("name", { length: 100 }).notNull().unique("shops_name_uq"),
+    name: varchar("name", { length: 100 }).notNull().unique(SH_NAME_UQ),
     ownerId: integer("owner_id").notNull(),
     logo: text("logo").default(""),
     active: boolean().notNull().default(true),
@@ -30,7 +31,7 @@ export const shopsTable = pgTable(
   },
   (shop) => [
     foreignKey({
-      name: "shops_owner_id_fk",
+      name: SH_OWNER_FK,
       columns: [shop.ownerId],
       foreignColumns: [usersTable.id],
     }).onDelete("cascade"),

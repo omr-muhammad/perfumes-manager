@@ -3,6 +3,7 @@ import { staffEn } from "./enums";
 import { timestamps } from "../columns.helpers";
 import { shopsTable, usersTable } from ".";
 import { relations } from "drizzle-orm";
+import { SS_SHOP_FK, SS_SHOP_USER_PK, SS_USER_FK } from "../../utils/errorMap";
 
 export const shopsStaffTable = pgTable(
   "shop_staff",
@@ -14,16 +15,16 @@ export const shopsStaffTable = pgTable(
   },
   (table) => [
     primaryKey({
-      name: "shops_staff_shop_user_pk",
+      name: SS_SHOP_USER_PK,
       columns: [table.shopId, table.userId],
     }),
     foreignKey({
-      name: "shops_staff_shop_id_fk",
+      name: SS_SHOP_FK,
       columns: [table.shopId],
       foreignColumns: [shopsTable.id],
     }).onDelete("cascade"),
     foreignKey({
-      name: "shops_staff_user_id_fk",
+      name: SS_USER_FK,
       columns: [table.userId],
       foreignColumns: [usersTable.id],
     }).onDelete("cascade"),

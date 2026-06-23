@@ -11,6 +11,7 @@ import {
 import { timestamps } from "../columns.helpers";
 import { companyTypeEn } from "./enums";
 import { perfumeCompoundsTable } from "./perfumesCompounds";
+import { CO_APPROVED_CHK, CO_UQ } from "../../utils/errorMap";
 
 export const companiesTable = pgTable(
   "companies",
@@ -24,9 +25,9 @@ export const companiesTable = pgTable(
     ...timestamps,
   },
   (table) => [
-    unique("companies_uq").on(table.name, table.country),
+    unique(CO_UQ).on(table.name, table.country),
     check(
-      "companies_approved_chk",
+      CO_APPROVED_CHK,
       sql`
       NOT ${table.approved}
         OR
