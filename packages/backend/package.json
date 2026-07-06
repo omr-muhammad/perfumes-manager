@@ -16,6 +16,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@elysia/cors": "^1.4.2",
     "@elysiajs/jwt": "^1.4.1",
     "drizzle-orm": "^0.45.2",
     "drizzle-typebox": "^0.3.3",
