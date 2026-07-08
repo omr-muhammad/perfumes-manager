@@ -1,0 +1,67 @@
+.wrap {
+  position: relative;
+  width: 100%;
+  max-width: 26rem;
+  height: 14rem;
+  display: flex;
+}
+
+.side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: var(--font-size-xl);
+  color: var(--text-primary);
+  transition:
+    color 0.3s ease,
+    opacity 0.3s ease;
+}
+
+.wrap[data-hover] .side {
+  opacity: 0.55;
+}
+
+.wrap[data-hover="login"] .side[data-role="login"],
+.wrap[data-hover="signup"] .side[data-role="signup"] {
+  opacity: 1;
+  color: var(--accent-primary);
+}
+
+.divider {
+  position: absolute;
+  inset-block: 15%;
+  inset-inline-start: 50%;
+  width: 2px;
+  background: var(--border-hover);
+  transform: translateX(-50%);
+  transition:
+    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.4s ease,
+    background-color 0.4s ease;
+}
+
+.wrap[data-hover="login"] .divider {
+  width: 2.5rem;
+  background: var(--accent-tint);
+  transform: translateX(calc(-50% + 2.5rem));
+}
+
+.wrap[data-hover="signup"] .divider {
+  width: 2.5rem;
+  background: var(--accent-tint);
+  transform: translateX(calc(-50% - 2.5rem));
+}
+
+/* transform offsets are physical, not logical — flexbox row-reverse
+   mirrors automatically under dir="rtl" but translateX doesn't, so
+   the shift direction needs an explicit flip here */
+:dir(rtl) .wrap[data-hover="login"] .divider {
+  transform: translateX(calc(-50% - 2.5rem));
+}
+
+:dir(rtl) .wrap[data-hover="signup"] .divider {
+  transform: translateX(calc(-50% + 2.5rem));
+}

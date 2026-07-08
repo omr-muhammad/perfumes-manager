@@ -1,0 +1,34 @@
+{
+  "auth": {
+    "nav": {
+      "login": "تسجيل الدخول",
+      "signup": "إنشاء حساب"
+    },
+    "login": {
+      "heading": "تسجيل الدخول إلى حسابك",
+      "subtitle": "ليس لديك حساب؟",
+      "subtitleLink": "إنشاء حساب",
+      "submit": "تسجيل الدخول"
+    },
+    "signup": {
+      "heading": "إنشاء حساب جديد",
+      "subtitle": "لديك حساب بالفعل؟",
+      "subtitleLink": "تسجيل الدخول",
+      "submit": "إنشاء الحساب"
+    },
+    "fields": {
+      "name": "الاسم",
+      "username": "اسم المستخدم",
+      "email": "البريد الإلكتروني",
+      "phone": "رقم الهاتف",
+      "password": "كلمة المرور",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "optional": "(اختياري)"
+    },
+    "errors": {
+      "required": "هذا الحقل مطلوب",
+      "maxLength": "يجب ألا يتجاوز {{max}} حرفًا",
+      "passwordMismatch": "كلمتا المرور غير متطابقتين"
+    }
+  }
+}
