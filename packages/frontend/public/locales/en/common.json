@@ -1,0 +1,34 @@
+{
+  "auth": {
+    "nav": {
+      "login": "Login",
+      "signup": "Sign Up"
+    },
+    "login": {
+      "heading": "Login to your account",
+      "subtitle": "Don't have an account?",
+      "subtitleLink": "Sign Up",
+      "submit": "Login"
+    },
+    "signup": {
+      "heading": "Create new account",
+      "subtitle": "Already have an account?",
+      "subtitleLink": "Login",
+      "submit": "Create Account"
+    },
+    "fields": {
+      "name": "Name",
+      "username": "Username",
+      "email": "Email",
+      "phone": "Phone",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "optional": "(optional)"
+    },
+    "errors": {
+      "required": "This field is required",
+      "maxLength": "Must be {{max}} characters or fewer",
+      "passwordMismatch": "Passwords do not match"
+    }
+  }
+}

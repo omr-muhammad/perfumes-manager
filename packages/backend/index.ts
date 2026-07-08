@@ -10,8 +10,15 @@ import { adminRouter } from "./modules/admin/router";
 import util from "node:util";
 import { handleValidation } from "./utils/validationErrorHandler";
 import { pfCompRouter } from "./modules/perfumeCompounds/router";
+import cors from "@elysia/cors";
 
 export const app = new Elysia({ prefix: "/api" })
+  .use(
+    cors({
+      origin: Bun.env.frontend_url,
+      credentials: true,
+    }),
+  )
   .onError(({ code, error, set, cookie }) => {
     // console.error(
     //   `\n[${code}]`,
@@ -63,6 +70,8 @@ export const app = new Elysia({ prefix: "/api" })
   .use(usersRouter)
   .use(shopsRouter)
   .listen(3000);
+
+export type App = typeof app;
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,

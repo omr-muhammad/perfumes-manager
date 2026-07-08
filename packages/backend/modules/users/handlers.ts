@@ -96,7 +96,8 @@ export async function login(context: UserCTXs["Login"]) {
   const maxAge = body.keepLogin ? 30 * 24 * 60 * 60 : 24 * 60 * 60;
   setCookie(cookie, "authToken", token, maxAge);
 
-  return res.ok("User logged");
+  const { password, active, tokenVersion, ...safe } = user;
+  return res.ok("User logged", { user: safe });
 }
 
 // Logged Users

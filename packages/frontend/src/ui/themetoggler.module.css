@@ -1,0 +1,22 @@
+.toggler {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  color: var(--text-primary);
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    transform 0.2s ease;
+}
+
+.toggler:hover {
+  background: var(--accent-tint);
+  color: var(--accent-primary);
+}
+
+.toggler:active {
+  transform: scale(0.92);
+}
