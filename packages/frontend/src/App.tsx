@@ -8,13 +8,31 @@ import { Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "react-hot-toast";
+import { AppLayout } from "./ui/AppLayout";
+import { Dashboard } from "./features/Dashboard/Dashboard";
+import { Companies } from "./features/Companies/Companies";
+import { Perfumes } from "./features/Perfumes/Perfumes";
 
 const queryClient = new QueryClient();
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    Component: () => <h1>There's no war in Ba Sing Se.</h1>,
+    path: "/dashboard",
+    element: <AppLayout />,
+    children: [
+      {
+        index: true,
+        element: <Dashboard />
+      },
+      {
+        path: "perfumes",
+        element: <Perfumes />
+      },
+      {
+        path: "companies",
+        element: <Companies />
+      }
+    ]
   },
   {
     path: "/auth",
