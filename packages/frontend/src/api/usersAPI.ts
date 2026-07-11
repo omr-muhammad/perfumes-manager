@@ -21,6 +21,12 @@ export async function apiSignup(signupUser: SignupUser) {
   return data.data;
 }
 
+export async function apiLogout() {
+  const { error } = await backend.api.users.profile.logout.post();
+
+  if (error) throw new Error(error.value.message);
+}
+
 export async function apiGetLoggedUser() {
   const { data, error } = await backend.api.users.profile.get();
 
