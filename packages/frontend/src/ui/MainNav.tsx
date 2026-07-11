@@ -9,7 +9,7 @@ import NavItem, { type NavItemProps } from './NavItem';
 import styles from './main-nav.module.css';
 import { HiOutlineUsers } from 'react-icons/hi';
 import { IoArrowBack } from 'react-icons/io5';
-import { GiPerfumeBottle } from 'react-icons/gi';
+import { GiDelicatePerfume } from 'react-icons/gi';
 
 const NAV_ITEMS: NavItemProps[] = [
   { to: 'perfumes', label: 'perfumes', icon: <HiOutlineSparkles /> },
@@ -20,7 +20,7 @@ const NAV_ITEMS: NavItemProps[] = [
 ];
 
 const SHOP_NAV_ITEM: NavItemProps[] = [
-  { to: 'shop-compounds', label: 'shopCompounds', icon: <GiPerfumeBottle /> },
+  { to: 'shop-compounds', label: 'shopCompounds', icon: <GiDelicatePerfume /> },
   { to: 'staff', label: 'staff', icon: <HiOutlineUsers /> },
   { to: '/dashboard', label: "back", icon: <IoArrowBack />, end: true }
 ]
