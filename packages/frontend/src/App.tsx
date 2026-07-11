@@ -17,6 +17,7 @@ import { authLoader } from "./features/Auth/loaders";
 import { Compounds } from "./features/Compounds/Compounds";
 import { Shops } from "./features/Shops/Shops";
 import { Settings } from "./features/Settings/Settings";
+import { Spinner } from "./ui/Spinner";
 
 const router = createBrowserRouter([
   {
@@ -75,7 +76,7 @@ const router = createBrowserRouter([
 
 export default function App() {
   return (
-    <Suspense fallback={<div>Loading translations...</div>}>
+    <Suspense fallback={<Spinner />}>
       <QueryClientProvider client={queryClient}>
         <ReactQueryDevtools initialIsOpen={false} />
 

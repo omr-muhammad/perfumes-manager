@@ -165,6 +165,10 @@
 .button:hover {
   background: var(--accent-primary);
   color: var(--bg-gradient-end);
+
+  div[aria-label="Loading"] {
+    background-color: var(--bg-gradient-end);
+  }
 }
 
 @media (max-width: 30rem) {

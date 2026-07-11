@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import styles from "../features/Auth/authlayout.module.css";
 import { Link } from "react-router";
 import { useLogin } from "../features/Auth/hooks";
+import { Spinner } from "../ui/Spinner";
 
 export function Login() {
   const { t } = useTranslation();
@@ -71,7 +72,7 @@ export function Login() {
           type="submit"
           disabled={loggingIn}
         >
-          {t("auth.login.submit")}
+          {loggingIn ? <Spinner size="1.2rem" /> : t("auth.login.submit")}
         </button>
       </form>
     </>
