@@ -1,10 +1,13 @@
 import styles from "./app-layout.module.css";
+import { Logo } from "./Logo";
+import MainNav from "./MainNav";
 
-export function Sidebar() {
+export function Sidebar({ whichNav }: { whichNav?: "shops" }) {
   return (
     <aside className={styles.sidebar}>
-      <h1>Sidebar</h1>
-      {/* logo, nav, etc. */}
+      <Logo />
+
+      <MainNav whichNav={whichNav} />
     </aside>
   );
 }

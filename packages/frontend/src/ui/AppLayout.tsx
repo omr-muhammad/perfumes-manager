@@ -3,11 +3,11 @@ import {Header} from "./Header";
 import {Sidebar} from "./Sidebar";
 import styles from "./app-layout.module.css";
 
-export function AppLayout() {
+export function AppLayout({ whichNav }: { whichNav?: "shops" }) {
   return (
     <div className={styles.layout}>
       <Header />
-      <Sidebar />
+      <Sidebar whichNav={whichNav} />
       <main className={styles.main}>
         <div className={styles.container}>
           <Outlet />

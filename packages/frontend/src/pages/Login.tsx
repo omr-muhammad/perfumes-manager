@@ -1,15 +1,15 @@
-import { useState, type SubmitEvent } from "react";
+import { useState, type ChangeEvent, type SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "../features/Auth/authlayout.module.css";
 import { Link } from "react-router";
-import { useLogin } from "../features/Auth/useLogin";
+import { useLogin } from "../features/Auth/hooks";
 
 export function Login() {
   const { t } = useTranslation();
   const [form, setForm] = useState({ email: "", password: "" });
   const { login, loggingIn } = useLogin();
 
-  function handleChange(e: any) {
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };

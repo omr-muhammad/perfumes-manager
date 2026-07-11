@@ -1,0 +1,88 @@
+.item {
+  list-style: none;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-block: var(--space-3);
+  padding-inline: var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-decoration: none;
+
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+
+.icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.label {
+  white-space: nowrap;
+}
+
+/* Hover */
+.link:hover {
+  color: var(--text-primary);
+  background-color: var(--accent-tint);
+  border-color: var(--border-hover);
+}
+
+.link:hover .icon {
+  color: var(--accent-primary);
+}
+
+/* Active (current route) */
+.link.active {
+  color: var(--text-primary);
+  background-color: var(--accent-tint);
+  border-color: var(--border-hover);
+}
+
+.link.active .icon {
+  color: var(--accent-primary);
+}
+
+/* Active indicator bar — uses inset-inline-start so it sits on the
+   correct side automatically in RTL, no separate rtl override needed */
+.link.active::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  width: 3px;
+  align-self: stretch;
+  border-radius: var(--radius-sm);
+  background-color: var(--accent-primary);
+}
+
+.link {
+  position: relative;
+}
+
+/* Focus visibility for keyboard nav */
+.link:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}

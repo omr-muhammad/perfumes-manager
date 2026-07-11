@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import styles from "../features/Auth/authlayout.module.css";
 import { Link } from "react-router";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import { useSignup } from "../features/Auth/useSignup";
+import { useSignup } from "../features/Auth/hooks";
 
 export function Signup() {
   const { t } = useTranslation();

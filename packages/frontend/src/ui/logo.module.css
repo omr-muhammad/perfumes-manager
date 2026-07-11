@@ -1,0 +1,7 @@
+.logoWrap {
+  display: flex;
+  justify-content: center;
+  margin-block-start: var(--space-6);
+  margin-block-end: var(--space-6);
+  color: var(--accent-primary);
+}
