@@ -18,6 +18,8 @@ import { Compounds } from "./features/Compounds/Compounds";
 import { Shops } from "./features/Shops/Shops";
 import { Settings } from "./features/Settings/Settings";
 import { Spinner } from "./ui/Spinner";
+import { UpdateUser } from "./features/users/UpdateUser";
+import { UpdateUserPassword } from "./features/users/UpdateUserPassword";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +35,7 @@ const router = createBrowserRouter([
           { path: "companies", element: <Companies /> },
           { path: "compounds", element: <Compounds /> },
           { path: "settings", element: <Settings /> },
+          { path: "profile", element: <><UpdateUser /> <UpdateUserPassword /></>}
         ],
       },
       {
@@ -46,6 +49,8 @@ const router = createBrowserRouter([
       },
     ],
   },
+
+  // /auth
   {
     path: "/auth",
     element: <AuthLayout />,
