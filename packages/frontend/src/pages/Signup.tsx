@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import styles from "../features/Auth/authlayout.module.css";
 import { Link } from "react-router";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import { useSignup } from "../features/Auth/useSignup";
+import { useSignup } from "../features/Auth/hooks";
+import { Spinner } from "../ui/Spinner";
 
 export function Signup() {
   const { t } = useTranslation();
@@ -233,7 +234,7 @@ export function Signup() {
         </div>
 
         <button className={styles.button} type="submit" disabled={signingUp}>
-          {t("auth.signup.submit")}
+          {signingUp ? <Spinner size="1.2rem" /> : t("auth.signup.submit")}
         </button>
       </form>
     </>

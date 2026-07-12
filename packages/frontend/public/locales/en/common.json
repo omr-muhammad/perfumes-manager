@@ -30,5 +30,16 @@
       "maxLength": "Must be {{max}} characters or fewer",
       "passwordMismatch": "Passwords do not match"
     }
+  },
+  "sidebar": {
+    "perfumes": "Perfumes",
+    "companies": "Companies",
+    "compounds": "Compounds",
+    "shops": "Shops",
+    "myShops": "My Shops",
+    "settings": "Settings",
+    "staff": "Staff",
+    "back": "Back",
+    "shopCompounds": "Shop Compounds"
   }
 }

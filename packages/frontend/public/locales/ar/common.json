@@ -30,5 +30,16 @@
       "maxLength": "يجب ألا يتجاوز {{max}} حرفًا",
       "passwordMismatch": "كلمتا المرور غير متطابقتين"
     }
+  },
+  "sidebar": {
+    "perfumes": "العطور",
+    "companies": "الشركات",
+    "compounds": "المستوحاة",
+    "shops": "المتاجر",
+    "myShops": "محلاتى",
+    "settings": "الإعدادات",
+    "staff": "الطاقم",
+    "back": "رجوع",
+    "shopCompounds": "عطور المتجر"
   }
 }

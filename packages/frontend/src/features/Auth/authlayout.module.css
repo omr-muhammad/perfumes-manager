@@ -10,14 +10,6 @@
   padding: var(--space-4) var(--space-5);
 }
 
-.logoWrap {
-  display: flex;
-  justify-content: center;
-  margin-block-start: var(--space-6);
-  margin-block-end: var(--space-6);
-  color: var(--accent-primary);
-}
-
 .main {
   flex: 1;
   display: flex;
@@ -173,6 +165,10 @@
 .button:hover {
   background: var(--accent-primary);
   color: var(--bg-gradient-end);
+
+  div[aria-label="Loading"] {
+    background-color: var(--bg-gradient-end);
+  }
 }
 
 @media (max-width: 30rem) {

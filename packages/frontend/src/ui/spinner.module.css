@@ -1,0 +1,36 @@
+@keyframes rotate {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.spinner {
+  aspect-ratio: 1;
+  border-radius: 50%;
+
+  /* Ring thickness scales with size instead of a fixed 10px, so a small
+     inline spinner doesn't turn into a solid dot */
+  --spinner-thickness: max(2px, calc(10 / 64 * 100%));
+
+  background:
+    radial-gradient(farthest-side, var(--accent-primary) 94%, #0000)
+      top / var(--spinner-thickness) var(--spinner-thickness) no-repeat,
+    conic-gradient(#0000 30%, var(--accent-primary));
+
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    #0000 calc(100% - var(--spinner-thickness)),
+    #000 0
+  );
+  mask: radial-gradient(
+    farthest-side,
+    #0000 calc(100% - var(--spinner-thickness)),
+    #000 0
+  );
+
+  animation: rotate 1.5s infinite linear;
+}
+
+.centered {
+  margin: auto;
+}
