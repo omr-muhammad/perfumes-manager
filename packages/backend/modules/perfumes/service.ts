@@ -1,9 +1,16 @@
-import { and, arrayContains, eq, ilike } from "drizzle-orm";
+import {
+  and,
+  arrayContains,
+  eq,
+  getTableColumns,
+  ilike,
+  sql,
+} from "drizzle-orm";
 import { db } from "../../db/config";
 import { perfumesTable } from "../../db/schema/index";
 import type {
   CreatePerfumeBody,
-  QueryPerfumesFilters,
+  QueryPerfumes,
   Season,
   UpdatePerfumeBody,
 } from "./schema";
@@ -47,19 +54,34 @@ export async function adminApprove(
   return approvedPerfume;
 }
 
-export async function query(filters: QueryPerfumesFilters) {
+export async function query(filters: QueryPerfumes) {
   try {
     const conditions = preparePerfumesFilters(filters);
     const { page = 1, limit = 10 } = filters;
 
-    const perfumes = await db
-      .select()
+    const rows = await db
+      .select({
+        ...getTableColumns(perfumesTable),
+        totalCount: sql<number>`count(*) over()`.as("total_count"),
+      })
       .from(perfumesTable)
       .where(and(...conditions, eq(perfumesTable.approved, true)))
       .offset((page - 1) * limit)
       .limit(limit);
 
-    return perfumes;
+    const total = rows[0]?.totalCount ?? 0;
+    const data = rows.map(({ totalCount, ...row }) => row);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+      },
+    };
   } catch (e: any) {
     console.log("Error: ", e);
     console.log("Error Cause: ", e.cause);
@@ -93,24 +115,15 @@ export async function remove(perfumeId: number) {
 }
 
 // HELPERS
-function preparePerfumesFilters(filters: QueryPerfumesFilters) {
-  const {
-    search,
-    sex,
-    seasons, // still separated comma string => winter,fall
-    approved,
-  } = filters;
-
-  const seasonsArray = seasons
-    ? (seasons.split(",").map((s) => s.trim()) as Season[])
-    : undefined;
+function preparePerfumesFilters(filters: QueryPerfumes) {
+  const { search, sex, seasons, approved } = filters;
 
   const conditions = [];
 
   if (sex) conditions.push(eq(perfumesTable.sex, sex));
   if (search) conditions.push(ilike(perfumesTable.name, `%${search}%`));
-  if (seasonsArray?.length)
-    conditions.push(arrayContains(perfumesTable.seasons, seasonsArray));
+  if (seasons?.length)
+    conditions.push(arrayContains(perfumesTable.seasons, seasons));
 
   if (approved !== undefined)
     conditions.push(eq(perfumesTable.approved, filters.approved || true));
