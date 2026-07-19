@@ -4,12 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import styles from "./perfumes.module.css";
 import { useDebounce } from "../../hooks/useDebounce";
 import { loggedUserQuery } from "../Auth/hooks";
-import { usePerfumes } from "./hook";
+import { useInfinitePerfumes } from "./hook";
 import type { PerfumeQuery } from "../../api/perfumesAPI";
 import { Filters } from "./Filters";
 import PerfumeCardMini from "./PerfumeCardMini";
 import { ActiveFilters } from "../../ui/ActiveFilters";
 import { perfumesActiveFiltersTags } from "./buildTags";
+import LoadMore from "../../ui/LoadMore";
 
 export function BrowseTab() {
   const { t } = useTranslation("perfumes");
@@ -37,8 +38,8 @@ export function BrowseTab() {
   const { data: user } = useQuery(loggedUserQuery);
   const isAdmin = user?.role === "admin";
 
-  const { data, loading } = usePerfumes(queryFilters);
-  const perfumes = data?.data ?? [];
+  const { perfumes, loading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfinitePerfumes(queryFilters);
 
   return (
     <>
@@ -55,17 +56,26 @@ export function BrowseTab() {
         <div className={`${styles.grid} hide-scrollbar`}>
           {perfumes.map((perfume) => (
             <PerfumeCardMini
-              key={perfume.id}
+              key={perfume!.id}
               perfume={{
-                id: perfume.id,
-                name: perfume.name,
-                sex: perfume.sex,
-                approved: perfume.approved,
+                id: perfume!.id,
+                name: perfume!.name,
+                sex: perfume!.sex,
+                approved: perfume!.approved,
               }}
               isAdmin={isAdmin}
               nsFile="perfumes"
             />
           ))}
+
+          <LoadMore
+            loadText={t("common:loadingBtnTxt")}
+            onLoadMore={fetchNextPage}
+            hasMore={hasNextPage}
+            isLoadingMore={isFetchingNextPage}
+            noMoreText={t("common:noMoreTxt")}
+            errorText={t("common:loadingErrorTxt")}
+          />
         </div>
       )}
     </>

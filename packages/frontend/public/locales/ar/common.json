@@ -41,5 +41,8 @@
     "staff": "الطاقم",
     "back": "رجوع",
     "shopCompounds": "عطور المتجر"
-  }
+  },
+  "loadingBtnTxt": "المزيد",
+  "noMoreTxt": "ليس هناك المزيد",
+  "loadingErrorTxt": "لا يمكن تحميل المزيد, أعد المحاولة"
 }

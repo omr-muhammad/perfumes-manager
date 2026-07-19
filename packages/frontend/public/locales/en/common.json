@@ -41,5 +41,8 @@
     "staff": "Staff",
     "back": "Back",
     "shopCompounds": "Shop Compounds"
-  }
+  },
+  "loadingBtnTxt": "Load more",
+  "noMoreTxt": "No more items",
+  "loadingErrorTxt": "Couldn't load more. Retry"
 }
