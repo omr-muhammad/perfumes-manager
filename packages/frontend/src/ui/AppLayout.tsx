@@ -1,7 +1,7 @@
 import { Outlet } from "react-router";
-import {Header} from "./Header";
-import {Sidebar} from "./Sidebar";
-import styles from "./app-layout.module.css";
+import { Header } from "./Header";
+import { Sidebar } from "./Sidebar";
+import styles from "./styles/app-layout.module.css";
 
 export function AppLayout({ whichNav }: { whichNav?: "shops" }) {
   return (

@@ -54,6 +54,7 @@
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
+  --font-size-xbase: 1.125rem;
   --font-size-lg: 1.25rem;
   --font-size-xl: 1.75rem;
   --font-size-2xl: 2.25rem;
@@ -185,4 +186,18 @@ h6 {
 ::selection {
   background: var(--accent-tint);
   color: var(--text-primary);
+}
+
+.hide-scrollbar {
+  overflow-y: auto;
+  /* Firefox */
+  scrollbar-width: none;
+
+  /* Internet Explorer and Legacy Edge */
+  -ms-overflow-style: none;
+}
+
+/* Chrome, Safari, Opera, and modern Edge */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }

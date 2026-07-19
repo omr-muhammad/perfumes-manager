@@ -1,6 +1,6 @@
 .layout {
   display: grid;
-  grid-template-columns: 20rem 1fr;
+  grid-template-columns: 18rem 1fr;
   grid-template-rows: auto 1fr;
   block-size: 100vh;
 }
@@ -65,9 +65,11 @@ html[dir="rtl"] .logoutIcon {
 }
 
 .main {
-  padding-block-start: 4rem;
-  padding-block-end: 6.4rem;
-  padding-inline: 4.8rem;
+  display: flex;
+  flex-direction: column;
+  min-block-size: 0;
+  padding-block: 2rem;
+  padding-inline: 3.8rem;
 }
 
 .container {
@@ -76,5 +78,14 @@ html[dir="rtl"] .logoutIcon {
 
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
   gap: var(--space-8);
+}
+
+.container > * {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }

@@ -1,0 +1,134 @@
+/* ============================================
+   Perfumes feature — shared styles
+   ============================================ */
+
+/* ----- Header ----- */
+.header {
+  margin-block-end: var(--space-6);
+}
+
+.heading {
+  font-size: var(--font-size-2xl);
+}
+
+.divider {
+  margin-block-start: var(--space-3);
+  block-size: 3px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    to right,
+    var(--accent-primary) 0%,
+    var(--accent-mid) 35%,
+    var(--accent-tint) 75%,
+    transparent 100%
+  );
+}
+
+html[dir="rtl"] .divider {
+  background: linear-gradient(
+    to left,
+    var(--accent-primary) 0%,
+    var(--accent-mid) 35%,
+    var(--accent-tint) 75%,
+    transparent 100%
+  );
+}
+
+/* ----- Tabs ----- */
+.tabList {
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--border-default);
+  margin-block-end: var(--space-6);
+}
+
+.tab {
+  position: relative;
+  padding-block: var(--space-3);
+  padding-inline: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.tabActive {
+  color: var(--accent-primary);
+}
+
+.tabIndicator {
+  position: absolute;
+  inset-inline: 0;
+  block-size: 2px;
+  bottom: -1px;
+  background: var(--accent-primary);
+  border-radius: var(--radius-sm);
+}
+
+.tabPanel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: var(--space-6);
+  min-height: 0;
+}
+
+/* ----- Add tab placeholder ----- */
+.addPlaceholder {
+  padding-block: var(--space-8);
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   Filters
+   ============================================ */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  flex-shrink: 0;
+  gap: var(--space-5);
+  /* margin-block-end: var(--space-4); */
+}
+
+.filterField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  font-size: 0.875rem;
+}
+
+.filterLabel {
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+/* ============================================
+   Grid + empty/loading states
+   ============================================ */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--space-6);
+  flex: 1;
+  min-height: 0;
+  /* margin-block-start: var(--space-6); */
+}
+
+.stateMessage {
+  padding-block: var(--space-8);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
