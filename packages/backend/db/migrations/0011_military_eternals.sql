@@ -1,0 +1,1 @@
+ALTER TABLE "perfumes" ALTER COLUMN "description_ar" SET DEFAULT '';
