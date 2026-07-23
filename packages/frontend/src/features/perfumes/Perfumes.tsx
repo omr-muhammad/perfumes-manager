@@ -1,13 +1,19 @@
 import { useState } from "react";
+import { loggedUserQuery } from "../Auth/hooks";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { BrowseTab } from "./BrowseTab";
 import styles from "./perfumes.module.css";
+import { AddPerfumeTab } from "./AddPerfumeTab";
 
 type PerfumesTab = "browse" | "add";
 
 export function Perfumes() {
   const { t } = useTranslation("perfumes");
   const [activeTab, setActiveTab] = useState<PerfumesTab>("browse");
+
+  const { data: user } = useQuery(loggedUserQuery);
+  const isAdmin = user?.role === "admin";
 
   return (
     <div>
@@ -50,18 +56,18 @@ export function Perfumes() {
           id="tabpanel-browse"
           aria-labelledby="tab-browse"
         >
-          <BrowseTab />
+          <BrowseTab isAdmin={isAdmin} />
         </div>
       )}
 
       {activeTab === "add" && (
         <div
-          className="hide-scrollbar"
+          className={`${styles.tabPanel} hide-scrollbar`}
           role="tabpanel"
           id="tabpanel-add"
           aria-labelledby="tab-add"
         >
-          <h1>{t("addNewPerfume")}</h1>
+          <AddPerfumeTab isAdmin={isAdmin} />
         </div>
       )}
     </div>

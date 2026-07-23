@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
 import styles from "./perfumes.module.css";
 import { useDebounce } from "../../hooks/useDebounce";
-import { loggedUserQuery } from "../Auth/hooks";
 import { useInfinitePerfumes } from "./hook";
 import type { PerfumeQuery } from "../../api/perfumesAPI";
 import { Filters } from "./Filters";
@@ -12,7 +10,7 @@ import { ActiveFilters } from "../../ui/ActiveFilters";
 import { perfumesActiveFiltersTags } from "./buildTags";
 import LoadMore from "../../ui/LoadMore";
 
-export function BrowseTab() {
+export function BrowseTab({ isAdmin }: { isAdmin: boolean }) {
   const { t } = useTranslation("perfumes");
   const [query, setQuery] = useState<PerfumeQuery>({
     search: "",
@@ -34,9 +32,6 @@ export function BrowseTab() {
     ...query,
     search: debouncedSearch,
   };
-
-  const { data: user } = useQuery(loggedUserQuery);
-  const isAdmin = user?.role === "admin";
 
   const { perfumes, loading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfinitePerfumes(queryFilters);

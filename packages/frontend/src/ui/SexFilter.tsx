@@ -3,6 +3,7 @@ import { BsCheck, BsChevronDown } from "react-icons/bs";
 import styles from "./styles/sex-filter.module.css";
 import type { PerfumeSex } from "../api/perfumesAPI";
 import { useTranslation } from "react-i18next";
+import i18n from "../i18";
 
 const genders = [
   { value: "male", label: "male" },
@@ -10,7 +11,7 @@ const genders = [
   { value: "unisex", label: "unisex" },
 ];
 
-type Sex = PerfumeSex | undefined;
+type Sex = PerfumeSex | "";
 interface SexFilterProps {
   sex: Sex;
   handleSelect: (value: Sex) => void;
@@ -22,7 +23,7 @@ export function SexFilter({ sex, handleSelect, nsFile }: SexFilterProps) {
 
   return (
     <Select.Root
-      value={t(sex ?? "") ?? ""}
+      value={t(sex)}
       onValueChange={(value) => handleSelect(value as Sex)}
     >
       <Select.Trigger className={styles.trigger}>
@@ -36,6 +37,7 @@ export function SexFilter({ sex, handleSelect, nsFile }: SexFilterProps) {
       <Select.Portal>
         <Select.Content
           className={styles.content}
+          dir={i18n.language === "ar" ? "rtl" : "ltr"}
           position="popper"
           sideOffset={6}
         >

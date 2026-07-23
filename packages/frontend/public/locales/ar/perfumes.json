@@ -33,5 +33,13 @@
   "edit": "تعديل",
   "approve": "قبول",
   "delete": "حذف",
-  "updated": "تم التحديث"
+  "updated": "تم التحديث",
+  "addTab": {
+    "heading": "أضف عطرََا",
+    "name": "الاسم",
+    "engDescription": "الوصف بالإنجليزية",
+    "arDescription": "الوصف بالعربية",
+    "addBtn": "إضافة",
+    "adminAddBtn": "إضافة مع التوثيق"
+  }
 }

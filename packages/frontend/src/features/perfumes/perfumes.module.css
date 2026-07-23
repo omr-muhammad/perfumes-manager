@@ -79,6 +79,11 @@ html[dir="rtl"] .divider {
   min-height: 0;
 }
 
+/* This was added to prevent name label from overflowing */
+/* .tabPanel:has(> form) {
+  padding: var(--space-4);
+} */
+
 /* ----- Add tab placeholder ----- */
 .addPlaceholder {
   padding-block: var(--space-8);

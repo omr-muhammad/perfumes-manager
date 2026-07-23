@@ -140,6 +140,7 @@ button {
   cursor: pointer;
   background: none;
   border: none;
+  direction: inherit;
 }
 
 a {

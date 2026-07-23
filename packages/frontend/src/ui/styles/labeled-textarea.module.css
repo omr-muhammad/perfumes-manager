@@ -1,0 +1,97 @@
+.ltGroup {
+  position: relative;
+  width: 100%;
+}
+
+.ltTextarea {
+  width: 100%;
+  resize: none;
+  overflow-y: auto;
+  padding: var(--space-4) var(--space-3) var(--space-2);
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.ltTextarea:hover:not(:focus):not(:disabled) {
+  border-color: var(--border-hover);
+}
+
+.ltTextarea:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-tint);
+}
+
+.ltTextarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ltTextarea[aria-invalid="true"] {
+  border-color: var(--status-error);
+}
+
+.ltTextarea[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px var(--status-error-tint);
+}
+
+/* Per-field direction — set via the `dir` attribute on the textarea itself
+   (e.g. dir="rtl" for an Arabic description), independent of the page's
+   own ltr/rtl chrome. */
+.ltTextarea[dir="rtl"] {
+  text-align: right;
+}
+
+.ltTextarea[dir="rtl"] ~ .ltLabel {
+  left: auto;
+  right: var(--space-3);
+}
+
+/* Label idle position sits at the top padding line, like the first
+   line of typed text would. Floating flies up above the border,
+   same visual language as DynamicLabelInput. */
+.ltLabel {
+  position: absolute;
+  left: var(--space-3);
+  top: var(--space-4);
+  padding: 0 var(--space-1);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  pointer-events: none;
+  transition:
+    top 0.2s ease,
+    transform 0.2s ease,
+    font-size 0.2s ease,
+    color 0.2s ease;
+}
+
+.ltLabelFloating {
+  top: 0;
+  transform: translateY(-50%) scale(0.85);
+  color: var(--accent-primary);
+  background: var(--card-bg-start, var(--bg-gradient-mid));
+}
+
+.ltTextarea[aria-invalid="true"] ~ .ltLabelFloating {
+  color: var(--status-error);
+}
+
+.ltRequired {
+  color: var(--status-error);
+}
+
+.ltError {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: var(--font-size-xs);
+  color: var(--status-error);
+}

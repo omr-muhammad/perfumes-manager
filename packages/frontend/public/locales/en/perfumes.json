@@ -32,5 +32,13 @@
   "edit": "Edit",
   "approve": "Approve",
   "delete": "Delete",
-  "updated": "Updated"
+  "updated": "Updated",
+  "addTab": {
+    "heading": "Add Perfume",
+    "name": "Name",
+    "engDescription": "Description (EN)",
+    "arDescription": "Description (AR)",
+    "addBtn": "Add",
+    "adminAddBtn": "Add Approved"
+  }
 }

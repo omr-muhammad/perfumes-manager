@@ -1,9 +1,16 @@
 import {
   keepPreviousData,
   useInfiniteQuery,
+  useMutation,
   useQuery,
 } from "@tanstack/react-query";
-import { apiPerfumesQuery, type PerfumeQuery } from "../../api/perfumesAPI";
+import {
+  apiAddPerfume,
+  apiPerfumesQuery,
+  type NewPerfume,
+  type PerfumeQuery,
+} from "../../api/perfumesAPI";
+import toast from "react-hot-toast";
 
 export function usePerfumes(query?: PerfumeQuery) {
   const { data, isPending, error } = useQuery({
@@ -49,4 +56,17 @@ export function useInfinitePerfumes(query?: PerfumeQuery) {
     hasNextPage,
     isFetchingNextPage,
   };
+}
+
+export function useAddPerfume() {
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["newPerfume"],
+    mutationFn: async (newPerfume: NewPerfume) => apiAddPerfume(newPerfume),
+    onSuccess: (data) => {
+      toast.success(`${data.name} perfume was created successfully.`);
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  return { createNewPerfume: mutate, creating: isPending };
 }
