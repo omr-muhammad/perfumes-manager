@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent, type SubmitEvent } from "react";
 import type { Perfume, PerfumeSex, Season } from "../../api/perfumesAPI";
 import styles from "./perfume-form.module.css";
 import { LabeledInput } from "../../ui/LabeledInput";
@@ -7,6 +7,7 @@ import { SexFilter } from "../../ui/SexFilter";
 import { SeasonsFilter } from "../../ui/SeasonsFilter";
 import LabeledTextarea from "../../ui/LabeledTextarea";
 import { Spinner } from "../../ui/Spinner";
+import toast from "react-hot-toast";
 // import { FieldError } from "../../ui/FieldError";
 
 export type FormPerfume = Omit<
@@ -69,13 +70,36 @@ export function PerfumeForm({
   }
 
   function handleChange(name: keyof typeof perfume, value: string) {
+    // console.log("Name: ", name);
+    // console.log("Value: ", value);
     if (name === "seasons") return handleSeasons(value as Season);
 
     setPerfume((cur) => ({ ...cur, [name]: value }));
+
+    console.log(perfume[name]);
+  }
+
+  function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    const { name, seasons, sex, descriptionAr, descriptionEn } = perfume;
+
+    console.log("Perfuem: ", perfume);
+
+    if (
+      !name ||
+      seasons!.length <= 0 ||
+      !sex ||
+      !descriptionAr ||
+      !descriptionEn
+    )
+      return toast.error("Missing required data!");
+
+    onSubmit(perfume);
   }
 
   return (
-    <form className={styles.apForm} onSubmit={() => onSubmit(perfume)}>
+    <form className={styles.apForm} onSubmit={handleSubmit}>
       {/* <h2>{t("addTab.heading")}</h2> */}
 
       <div className={`${styles.formContent} hide-scrollbar`}>

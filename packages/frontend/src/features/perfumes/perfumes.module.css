@@ -124,10 +124,11 @@ html[dir="rtl"] .divider {
    ============================================ */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
   gap: var(--space-6);
   flex: 1;
   min-height: 0;
+  padding-block: 5px;
   /* margin-block-start: var(--space-6); */
 }
 

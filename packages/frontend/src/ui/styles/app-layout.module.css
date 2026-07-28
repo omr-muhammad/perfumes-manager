@@ -69,7 +69,7 @@ html[dir="rtl"] .logoutIcon {
   flex-direction: column;
   min-block-size: 0;
   padding-block: 2rem;
-  padding-inline: 3.8rem;
+  padding-inline: 3rem;
 }
 
 .container {

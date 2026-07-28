@@ -55,38 +55,32 @@ export async function adminApprove(
 }
 
 export async function query(filters: QueryPerfumes) {
-  try {
-    const conditions = preparePerfumesFilters(filters);
-    const { page = 1, limit = 10 } = filters;
+  const conditions = preparePerfumesFilters(filters);
+  const { page = 1, limit = 10 } = filters;
 
-    const rows = await db
-      .select({
-        ...getTableColumns(perfumesTable),
-        totalCount: sql<number>`count(*) over()`.as("total_count"),
-      })
-      .from(perfumesTable)
-      .where(and(...conditions, eq(perfumesTable.approved, true)))
-      .offset((page - 1) * limit)
-      .limit(limit);
+  const rows = await db
+    .select({
+      ...getTableColumns(perfumesTable),
+      totalCount: sql<number>`count(*) over()`.as("total_count"),
+    })
+    .from(perfumesTable)
+    .where(and(...conditions))
+    .offset((page - 1) * limit)
+    .limit(limit);
 
-    const total = rows[0]?.totalCount ?? 0;
-    const data = rows.map(({ totalCount, ...row }) => row);
+  const total = rows[0]?.totalCount ?? 0;
+  const data = rows.map(({ totalCount, ...row }) => row);
 
-    return {
-      data,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-        hasNextPage: page * limit < total,
-      },
-    };
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
-  }
+  return {
+    data,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page * limit < total,
+    },
+  };
 }
 
 export async function update(perfumeId: number, updates: UpdatePerfumeBody) {
@@ -126,7 +120,7 @@ function preparePerfumesFilters(filters: QueryPerfumes) {
     conditions.push(arrayContains(perfumesTable.seasons, seasons));
 
   if (approved !== undefined)
-    conditions.push(eq(perfumesTable.approved, filters.approved || true));
+    conditions.push(eq(perfumesTable.approved, approved));
 
   return conditions;
 }

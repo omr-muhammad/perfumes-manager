@@ -22,12 +22,9 @@ export function SexFilter({ sex, handleSelect, nsFile }: SexFilterProps) {
   const { t } = useTranslation(nsFile);
 
   return (
-    <Select.Root
-      value={t(sex)}
-      onValueChange={(value) => handleSelect(value as Sex)}
-    >
+    <Select.Root value={sex} onValueChange={handleSelect}>
       <Select.Trigger className={styles.trigger}>
-        <Select.Value placeholder={t("selectSex")} />
+        <Select.Value placeholder={t("selectSex")}>{t(sex)}</Select.Value>
 
         <Select.Icon>
           <BsChevronDown />
