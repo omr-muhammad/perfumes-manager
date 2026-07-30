@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-query";
 import {
   apiAddPerfume,
+  apiApprovePerfume,
   apiEditPerfume,
   apiGetPerfumeById,
   apiPerfumesQuery,
@@ -107,5 +108,28 @@ export function useEditPerfume() {
     onError: (error) => toast.error(error.message),
   });
 
-  return { updatePerfume: mutate, updating: isPending };
+  // Those names must match the `useApprovePerfume` hook
+  return { mutate, isPending };
+}
+
+export function useApprovePerfume() {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: [`perfume_approve`],
+    mutationFn: async ({
+      perfumeId,
+      updates,
+    }: {
+      perfumeId: number;
+      updates: PerfumeUpdates;
+    }) => apiApprovePerfume(perfumeId, updates),
+    onSuccess: (perfume) => {
+      toast.success(`${perfume?.perfume.name} was successfully approved.`);
+      queryClient.setQueryData([`perfume_approve`], perfume);
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  return { mutate, isPending };
 }

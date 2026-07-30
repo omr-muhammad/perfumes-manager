@@ -20,8 +20,7 @@ export async function approvePerfume(context: CTXs["UpdatePfCtx"]) {
   const perfume = await perfumeService.adminApprove(params.perfumeId, body);
 
   return response.ok("Perfume Approved", {
-    id: perfume.id,
-    name: perfume.name,
+    perfume,
   });
 }
 

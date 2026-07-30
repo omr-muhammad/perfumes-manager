@@ -18,7 +18,7 @@ export type FormPerfume = Omit<
 interface FormProps {
   initialData?: FormPerfume;
   perfumeId?: number;
-  approved?: boolean;
+  approve?: boolean;
   onSubmit: (perfume: FormPerfume) => void;
   isSubmitting: boolean;
   isAdmin: boolean;
@@ -50,8 +50,7 @@ const EmptyPerfume: EmptyPerfume = {
 
 export function PerfumeForm({
   initialData,
-  perfumeId,
-  approved,
+  approve,
   onSubmit,
   isSubmitting,
   isAdmin,
@@ -72,8 +71,6 @@ export function PerfumeForm({
   }
 
   function handleChange(name: keyof typeof perfume, value: string) {
-    // console.log("Name: ", name);
-    // console.log("Value: ", value);
     if (name === "seasons") return handleSeasons(value as Season);
 
     setPerfume((cur) => ({ ...cur, [name]: value }));
@@ -85,8 +82,6 @@ export function PerfumeForm({
     e.preventDefault();
 
     const { name, seasons, sex, descriptionAr, descriptionEn } = perfume;
-
-    console.log("Perfuem: ", perfume);
 
     if (
       !name ||
@@ -108,7 +103,7 @@ export function PerfumeForm({
         <div className={styles.apRow}>
           <LabeledInput
             name="name"
-            label={t("addTab.name")}
+            label={t("name")}
             value={perfume.name}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               handleChange("name", e.target.value)
@@ -142,7 +137,7 @@ export function PerfumeForm({
           <div>
             <LabeledTextarea
               name="descriptionEn"
-              label={t("addTab.engDescription")}
+              label={t("engDescription")}
               value={perfume.descriptionEn!}
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                 handleChange("descriptionEn", e.target.value)
@@ -157,7 +152,7 @@ export function PerfumeForm({
           <div>
             <LabeledTextarea
               name="descriptionAr"
-              label={t("addTab.arDescription")}
+              label={t("arDescription")}
               value={perfume.descriptionAr!}
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                 handleChange("descriptionAr", e.target.value)
@@ -178,18 +173,16 @@ export function PerfumeForm({
         >
           {isSubmitting ? (
             <Spinner size="1rem" inline />
-          ) : isAdmin ? (
-            perfumeId ? (
-              approved ? (
-                t("edit")
-              ) : (
-                t("addTab.adminEditBtn")
-              )
+          ) : approve === undefined ? ( // we're adding new perfume
+            isAdmin ? ( // admin add approved perfume directly
+              t("adminAddBtn")
             ) : (
-              t("addTab.adminAddBtn")
+              t("addBtn")
             )
+          ) : approve ? ( // true => approve mode else edit
+            t("approveBtn")
           ) : (
-            t("addTab.addBtn")
+            t("editBtn")
           )}
         </button>
       </div>

@@ -57,3 +57,19 @@ export async function apiEditPerfume(
 
   return data.data!;
 }
+
+export async function apiApprovePerfume(
+  perfumeId: number,
+  dataToApprove: PerfumeUpdates,
+) {
+  const { data, error } = await backend.api.admin
+    .perfumes({ perfumeId })
+    .approve.patch(dataToApprove);
+
+  if (error || !data?.success)
+    throw new Error(
+      error?.value.message ?? data?.message ?? "Failed to approve.",
+    );
+
+  return data.data!;
+}

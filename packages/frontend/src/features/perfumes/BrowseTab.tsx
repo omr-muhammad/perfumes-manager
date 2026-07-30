@@ -13,9 +13,10 @@ import LoadMore from "../../ui/LoadMore";
 interface BrowseTabProps {
   isAdmin: boolean;
   onEdit: (perfumeId: number, perfumeName: string) => void;
+  onApprove: (perfumeId: number, perfumeName: string) => void;
 }
 
-export function BrowseTab({ isAdmin, onEdit }: BrowseTabProps) {
+export function BrowseTab({ isAdmin, onEdit, onApprove }: BrowseTabProps) {
   const { t } = useTranslation("perfumes");
   const [query, setQuery] = useState<PerfumeQuery>({
     search: "",
@@ -66,6 +67,7 @@ export function BrowseTab({ isAdmin, onEdit }: BrowseTabProps) {
               isAdmin={isAdmin}
               nsFile="perfumes"
               onEdit={onEdit}
+              onApprove={onApprove}
             />
           ))}
 

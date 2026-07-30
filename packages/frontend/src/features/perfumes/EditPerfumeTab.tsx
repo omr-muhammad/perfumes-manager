@@ -1,15 +1,21 @@
 import { Spinner } from "../../ui/Spinner";
-import { useEditPerfume, usePerfumeById } from "./hook";
+import { useApprovePerfume, useEditPerfume, usePerfumeById } from "./hook";
 import { PerfumeForm, type FormPerfume } from "./PerfumeForm";
 
 interface EditPerfumeTabProps {
   perfumeId: number;
   isAdmin: boolean;
+  mode?: "approve";
 }
 
-export function EditPerfumeTab({ perfumeId, isAdmin }: EditPerfumeTabProps) {
+export function EditPerfumeTab({
+  perfumeId,
+  isAdmin,
+  mode,
+}: EditPerfumeTabProps) {
   const { perfume, loading } = usePerfumeById(perfumeId);
-  const { updatePerfume, updating } = useEditPerfume();
+  const actionHook = mode === "approve" ? useApprovePerfume : useEditPerfume;
+  const { mutate, isPending } = actionHook();
 
   if (loading) return <Spinner />;
 
@@ -21,18 +27,17 @@ export function EditPerfumeTab({ perfumeId, isAdmin }: EditPerfumeTabProps) {
     descriptionAr: perfume!.perfume.descriptionAr ?? "لا يوجد وصف بالعربية",
   };
 
-  function handleEditPerfume(current: FormPerfume) {
-    updatePerfume({ perfumeId, updates: current });
+  function handleAction(current: FormPerfume) {
+    mutate({ perfumeId, updates: current });
   }
 
   return (
     <PerfumeForm
       initialData={initialData}
-      onSubmit={handleEditPerfume}
+      onSubmit={handleAction}
       isAdmin={isAdmin}
-      isSubmitting={updating}
-      perfumeId={perfumeId}
-      approved={perfume!.perfume.approved}
+      isSubmitting={isPending}
+      approve={mode === "approve"}
     />
   );
 }

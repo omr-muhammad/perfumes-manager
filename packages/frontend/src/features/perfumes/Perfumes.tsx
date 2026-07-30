@@ -10,7 +10,7 @@ import { EditPerfumeTab } from "./EditPerfumeTab";
 type PerfumesTab =
   | { type: "browse" }
   | { type: "add" }
-  | { type: "edit"; perfumeId: number; perfumeName: string };
+  | { type: "edit" | "approve"; perfumeId: number; perfumeName: string };
 
 export function Perfumes() {
   const { t } = useTranslation("perfumes");
@@ -24,6 +24,14 @@ export function Perfumes() {
   function activeEdit(perfumeId: number, perfumeName: string) {
     setActiveTab({
       type: "edit",
+      perfumeId,
+      perfumeName,
+    });
+  }
+
+  function activeApprove(perfumeId: number, perfumeName: string) {
+    setActiveTab({
+      type: "approve",
       perfumeId,
       perfumeName,
     });
@@ -77,6 +85,22 @@ export function Perfumes() {
             )}
           </button>
         )}
+
+        {activeTab.type === "approve" && (
+          <button
+            type="button"
+            role="tab"
+            id="tab-approve"
+            aria-selected={activeTab.type === "approve"}
+            aria-controls="tabpanel-approve"
+            className={`${styles.tab} ${activeTab.type === "approve" ? styles.tabActive : ""}`}
+          >
+            {t("approveTabLabel", { perfumeName: activeTab.perfumeName })}
+            {activeTab.type === "approve" && (
+              <span className={styles.tabIndicator} aria-hidden="true" />
+            )}
+          </button>
+        )}
       </div>
 
       {activeTab.type === "browse" && (
@@ -86,7 +110,11 @@ export function Perfumes() {
           id="tabpanel-browse"
           aria-labelledby="tab-browse"
         >
-          <BrowseTab isAdmin={isAdmin} onEdit={activeEdit} />
+          <BrowseTab
+            isAdmin={isAdmin}
+            onEdit={activeEdit}
+            onApprove={activeApprove}
+          />
         </div>
       )}
 
@@ -109,6 +137,21 @@ export function Perfumes() {
           aria-labelledby="tab-edit"
         >
           <EditPerfumeTab perfumeId={activeTab.perfumeId} isAdmin={isAdmin} />
+        </div>
+      )}
+
+      {activeTab.type === "approve" && (
+        <div
+          className={`${styles.tabPanel} hide-scrollbar`}
+          role="tabpanel"
+          id="tabpanel-approve"
+          aria-labelledby="tab-approve"
+        >
+          <EditPerfumeTab
+            perfumeId={activeTab.perfumeId}
+            isAdmin={isAdmin}
+            mode="approve"
+          />
         </div>
       )}
     </div>

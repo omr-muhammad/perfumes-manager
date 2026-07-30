@@ -3,6 +3,7 @@
   "browse": "تصفح",
   "add": "إضافة",
   "editTabLabel": "تعديل: {{perfumeName}}",
+  "approveTabLabel": "مراجعة: {{perfumeName}}",
   "addNewPerfume": "إضافة عطر جديد",
   "search": "بحث...",
   "searchByName": "ابحث بالاسم...",
@@ -35,13 +36,12 @@
   "approve": "قبول",
   "delete": "حذف",
   "updated": "تم التحديث",
-  "addTab": {
-    "heading": "أضف عطرََا",
-    "name": "الاسم",
-    "engDescription": "الوصف بالإنجليزية",
-    "arDescription": "الوصف بالعربية",
-    "addBtn": "إضافة",
-    "adminAddBtn": "إضافة مع التوثيق",
-    "adminEditBtn": "تعديل مع التوثيق"
-  }
+  "name": "الاسم",
+  "engDescription": "الوصف بالإنجليزية",
+  "arDescription": "الوصف بالعربية",
+  "addBtn": "إضافة",
+  "adminAddBtn": "إضافة مع التوثيق",
+  "adminEditBtn": "تعديل مع التوثيق",
+  "approveBtn": "توثيق",
+  "editBtn": "تعديل"
 }

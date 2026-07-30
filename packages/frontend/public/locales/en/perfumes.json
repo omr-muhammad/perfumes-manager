@@ -3,6 +3,7 @@
   "browse": "Browse",
   "add": "Add",
   "editTabLabel": "Edit: {{perfumeName}}",
+  "approveTabLabel": "Approve: {{perfumeName}}",
   "addNewPerfume": "Add New Perfume",
   "search": "Search",
   "searchByName": "Search by name...",
@@ -34,13 +35,11 @@
   "approve": "Approve",
   "delete": "Delete",
   "updated": "Updated",
-  "addTab": {
-    "heading": "Add Perfume",
-    "name": "Name",
-    "engDescription": "Description (EN)",
-    "arDescription": "Description (AR)",
-    "addBtn": "Add",
-    "adminAddBtn": "Add Approved",
-    "adminEditBtn": "Edit & approve"
-  }
+  "name": "Name",
+  "engDescription": "Description (EN)",
+  "arDescription": "Description (AR)",
+  "addBtn": "Add",
+  "adminAddBtn": "Add Approved",
+  "approveBtn": "Approve",
+  "editBtn": "Edit"
 }
