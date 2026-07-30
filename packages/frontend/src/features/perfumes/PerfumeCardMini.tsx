@@ -16,12 +16,14 @@ interface PerfumeCardMiniProps {
   perfume: Perfume;
   isAdmin: boolean;
   nsFile?: string;
+  onEdit: (perfumeId: number, perfumeName: string) => void;
 }
 
 export default function PerfumeCardMini({
   perfume,
   isAdmin,
   nsFile,
+  onEdit,
 }: PerfumeCardMiniProps) {
   const { t } = useTranslation(nsFile);
   const { name, sex, approved } = perfume;
@@ -41,7 +43,7 @@ export default function PerfumeCardMini({
 
   const handleEdit = () => {
     setMenuOpen(false);
-    console.log("edited");
+    onEdit(perfume.id, perfume.name);
   };
 
   const handleApprove = () => {

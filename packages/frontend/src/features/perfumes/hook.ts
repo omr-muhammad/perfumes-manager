@@ -3,14 +3,23 @@ import {
   useInfiniteQuery,
   useMutation,
   useQuery,
+  useQueryClient,
 } from "@tanstack/react-query";
 import {
   apiAddPerfume,
+  apiEditPerfume,
+  apiGetPerfumeById,
   apiPerfumesQuery,
   type NewPerfume,
   type PerfumeQuery,
+  type PerfumeUpdates,
 } from "../../api/perfumesAPI";
 import toast from "react-hot-toast";
+
+type EditPerfumeVariables = {
+  perfumeId: number;
+  updates: PerfumeUpdates;
+};
 
 export function usePerfumes(query?: PerfumeQuery) {
   const { data, isPending, error } = useQuery({
@@ -57,6 +66,19 @@ export function useInfinitePerfumes(query?: PerfumeQuery) {
   };
 }
 
+export function usePerfumeById(perfumeId: number) {
+  const { data, isPending, error } = useQuery({
+    queryKey: [perfumeId],
+    queryFn: () => apiGetPerfumeById(perfumeId),
+    staleTime: 5 * 60 * 1000,
+    placeholderData: keepPreviousData,
+  });
+
+  if (error) throw error;
+
+  return { perfume: data, loading: isPending };
+}
+
 export function useAddPerfume() {
   const { mutate, isPending } = useMutation({
     mutationKey: ["newPerfume"],
@@ -68,4 +90,22 @@ export function useAddPerfume() {
   });
 
   return { createNewPerfume: mutate, creating: isPending };
+}
+
+export function useEditPerfume() {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["editPerfume"],
+    mutationFn: async ({ perfumeId, updates }: EditPerfumeVariables) =>
+      apiEditPerfume(perfumeId, updates),
+    onSuccess: (data) => {
+      toast.success(`${data.perfume.name} perfume was updated successfully.`);
+
+      queryClient.setQueryData([data.perfume.id], data.perfume);
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  return { updatePerfume: mutate, updating: isPending };
 }

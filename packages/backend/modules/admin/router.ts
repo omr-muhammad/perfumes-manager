@@ -7,12 +7,9 @@ import { perfumesAdminRouter } from "../perfumes/perfumeAdminRouter";
 import { compAdminRouter } from "../perfumeCompounds/compoundsAdminRouter";
 
 export const adminRouter = new Elysia({ prefix: "/admin" })
-  .use(protect)
   .use(restrictTo("admin"))
-  // done
   .group("/companies", (app) => app.use(companiesAdminRouter))
   .group("/perfumes", (app) => app.use(perfumesAdminRouter))
   .group("/compounds", (app) => app.use(compAdminRouter))
   .group("/shops", (app) => app.use(shopsAdminRouter))
   .group("/users", (app) => app.use(userAdminRouter));
-// progress...

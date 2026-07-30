@@ -17,7 +17,8 @@ export type FormPerfume = Omit<
 
 interface FormProps {
   initialData?: FormPerfume;
-  perfumeId?: string;
+  perfumeId?: number;
+  approved?: boolean;
   onSubmit: (perfume: FormPerfume) => void;
   isSubmitting: boolean;
   isAdmin: boolean;
@@ -49,7 +50,8 @@ const EmptyPerfume: EmptyPerfume = {
 
 export function PerfumeForm({
   initialData,
-  // perfumeId,
+  perfumeId,
+  approved,
   onSubmit,
   isSubmitting,
   isAdmin,
@@ -177,7 +179,15 @@ export function PerfumeForm({
           {isSubmitting ? (
             <Spinner size="1rem" inline />
           ) : isAdmin ? (
-            t("addTab.adminAddBtn")
+            perfumeId ? (
+              approved ? (
+                t("edit")
+              ) : (
+                t("addTab.adminEditBtn")
+              )
+            ) : (
+              t("addTab.adminAddBtn")
+            )
           ) : (
             t("addTab.addBtn")
           )}

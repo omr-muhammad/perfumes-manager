@@ -25,12 +25,20 @@ export async function approvePerfume(context: CTXs["UpdatePfCtx"]) {
   });
 }
 
-export async function getPerfumes(context: CTXs["QueryPfCtx"]) {
+export async function getPerfumes(context: CTXs["QueryPfsCtx"]) {
   const { query } = context;
 
   const perfumes = await perfumeService.query(query);
 
   return response.ok("Perfumes fetched", perfumes);
+}
+
+export async function getPerfumeById(context: CTXs["QueryPfCtx"]) {
+  const { params } = context;
+
+  const perfume = await perfumeService.queryById(params.perfumeId);
+
+  return response.ok("Perfume Fetched.", { perfume });
 }
 
 export async function updatePerfume(context: CTXs["UpdatePfCtx"]) {
@@ -39,8 +47,7 @@ export async function updatePerfume(context: CTXs["UpdatePfCtx"]) {
   const perfume = await perfumeService.update(params.perfumeId, body);
 
   return response.ok("Perfume updated", {
-    id: perfume.id,
-    name: perfume.name,
+    perfume,
   });
 }
 

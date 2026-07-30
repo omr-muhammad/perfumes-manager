@@ -10,7 +10,12 @@ import { ActiveFilters } from "../../ui/ActiveFilters";
 import { perfumesActiveFiltersTags } from "./buildTags";
 import LoadMore from "../../ui/LoadMore";
 
-export function BrowseTab({ isAdmin }: { isAdmin: boolean }) {
+interface BrowseTabProps {
+  isAdmin: boolean;
+  onEdit: (perfumeId: number, perfumeName: string) => void;
+}
+
+export function BrowseTab({ isAdmin, onEdit }: BrowseTabProps) {
   const { t } = useTranslation("perfumes");
   const [query, setQuery] = useState<PerfumeQuery>({
     search: "",
@@ -60,6 +65,7 @@ export function BrowseTab({ isAdmin }: { isAdmin: boolean }) {
               }}
               isAdmin={isAdmin}
               nsFile="perfumes"
+              onEdit={onEdit}
             />
           ))}
 

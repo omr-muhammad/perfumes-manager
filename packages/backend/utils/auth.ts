@@ -5,7 +5,7 @@ import { AppError } from "./AppError";
 
 export const protect = new Elysia({ name: "protect" })
   .use(authPlugin)
-  .resolve({ as: "scoped" }, async ({ cookie, authJWT }) => {
+  .resolve({ as: "global" }, async ({ cookie, authJWT }) => {
     const { authToken } = cookie;
 
     if (!authToken || typeof authToken.value !== "string")
@@ -37,8 +37,9 @@ export const protect = new Elysia({ name: "protect" })
 export function restrictTo(...roles: string[]) {
   return new Elysia({ name: `restrict-${roles.join("-")}` })
     .use(protect)
-    .onBeforeHandle(({ authPayload }) => {
-      if (!roles.includes(authPayload.role))
+    .onBeforeHandle({ as: "scoped" }, ({ authPayload }) => {
+      if (!roles.includes(authPayload!.role)) {
         throw new AppError(403, "Forbidden: Insufficient permissions");
+      }
     });
 }

@@ -2,6 +2,7 @@
   "headingText": "العطور",
   "browse": "تصفح",
   "add": "إضافة",
+  "editTabLabel": "تعديل: {{perfumeName}}",
   "addNewPerfume": "إضافة عطر جديد",
   "search": "بحث...",
   "searchByName": "ابحث بالاسم...",
@@ -40,6 +41,7 @@
     "engDescription": "الوصف بالإنجليزية",
     "arDescription": "الوصف بالعربية",
     "addBtn": "إضافة",
-    "adminAddBtn": "إضافة مع التوثيق"
+    "adminAddBtn": "إضافة مع التوثيق",
+    "adminEditBtn": "تعديل مع التوثيق"
   }
 }

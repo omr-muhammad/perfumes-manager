@@ -83,6 +83,18 @@ export async function query(filters: QueryPerfumes) {
   };
 }
 
+export async function queryById(perfumeId: number) {
+  const [perfume] = await db
+    .select()
+    .from(perfumesTable)
+    .where(eq(perfumesTable.id, perfumeId));
+
+  if (!perfume)
+    throw new AppError(404, `Perfuem with id: ${perfumeId} not found.`);
+
+  return perfume;
+}
+
 export async function update(perfumeId: number, updates: UpdatePerfumeBody) {
   const [perfume] = await db
     .update(perfumesTable)

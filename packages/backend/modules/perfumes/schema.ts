@@ -51,14 +51,16 @@ type PfParams = Static<typeof PfParams>;
 // ---------------- Contexts Types ----------------
 export interface PerfumesCTXs {
   CreatePfCtx: Ctx<CreatePerfumeBody>;
-  QueryPfCtx: Ctx<unknown, unknown, QueryPerfumes>;
+  QueryPfsCtx: Ctx<unknown, unknown, QueryPerfumes>;
+  QueryPfCtx: Ctx<unknown, PfParams, unknown>;
   ApprovePfCtx: Ctx<UpdatePerfumeBody, PfParams>;
   UpdatePfCtx: Ctx<UpdatePerfumeBody, PfParams>;
   DelPfCtx: Ctx<unknown, PfParams>;
 }
 // ---------------- Contexts Schema ----------------
 export const ContextSchema = {
-  QueryPf: { query: QueryPerfumes },
+  QueryPfs: { query: QueryPerfumes },
+  QueryPf: { params: PfParams },
   CreatePf: { body: CreatePerfumeBody },
   ApprovePf: { params: PfParams, body: UpdatePerfumeBody },
   UpdatePf: { params: PfParams, body: UpdatePerfumeBody },

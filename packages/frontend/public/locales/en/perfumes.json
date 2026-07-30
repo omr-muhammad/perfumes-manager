@@ -2,6 +2,7 @@
   "headingText": "Perfumes",
   "browse": "Browse",
   "add": "Add",
+  "editTabLabel": "Edit: {{perfumeName}}",
   "addNewPerfume": "Add New Perfume",
   "search": "Search",
   "searchByName": "Search by name...",
@@ -39,6 +40,7 @@
     "engDescription": "Description (EN)",
     "arDescription": "Description (AR)",
     "addBtn": "Add",
-    "adminAddBtn": "Add Approved"
+    "adminAddBtn": "Add Approved",
+    "adminEditBtn": "Edit & approve"
   }
 }
