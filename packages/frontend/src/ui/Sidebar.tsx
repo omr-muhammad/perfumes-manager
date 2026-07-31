@@ -1,4 +1,4 @@
-import styles from "./app-layout.module.css";
+import styles from "./styles/app-layout.module.css";
 import { Logo } from "./Logo";
 import MainNav from "./MainNav";
 

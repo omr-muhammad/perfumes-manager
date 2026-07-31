@@ -63,12 +63,12 @@ export const app = new Elysia({ prefix: "/api" })
     set.status = 500;
     return { success: false, message: "Internal server error" };
   })
-  .use(adminRouter)
+  .use(usersRouter)
   .use(perfumesRouter)
   .use(pfCompRouter)
   .use(companiesRouter)
-  .use(usersRouter)
   .use(shopsRouter)
+  .use(adminRouter)
   .listen(3000);
 
 export type App = typeof app;

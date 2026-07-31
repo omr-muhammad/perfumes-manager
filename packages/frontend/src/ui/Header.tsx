@@ -1,4 +1,4 @@
-import styles from "./app-layout.module.css";
+import styles from "./styles/app-layout.module.css";
 import { loggedUserQuery, useLogout } from "../features/Auth/hooks";
 import { Spinner } from "./Spinner";
 import { Link } from "react-router";
@@ -8,17 +8,20 @@ import { useQuery } from "@tanstack/react-query";
 
 export function Header() {
   const { logout, loggingOut } = useLogout();
-  const { data: user } = useQuery(loggedUserQuery)
+  const { data: user } = useQuery(loggedUserQuery);
 
   return (
     <header className={styles.header}>
-      {
-        user !== undefined &&
+      {user !== undefined && (
         <div className={styles.wrapper}>
-          <img className={styles.avatar} src="/default-avatar.png" alt={`Avatar of ${user.name}`} />
+          <img
+            className={styles.avatar}
+            src="/default-avatar.png"
+            alt={`Avatar of ${user.name}`}
+          />
           <span>{user.username}</span>
         </div>
-      }
+      )}
 
       <ul className={styles.headerMenu}>
         <li>
@@ -30,11 +33,15 @@ export function Header() {
           <ThemeToggler wrap={false} />
         </li>
         <li>
-          {loggingOut ?
+          {loggingOut ? (
             <Spinner size="1rem" />
-            :
-            <LuLogOut onClick={() => logout()} className={styles.logoutIcon} size={20} />
-          }
+          ) : (
+            <LuLogOut
+              onClick={() => logout()}
+              className={styles.logoutIcon}
+              size={20}
+            />
+          )}
         </li>
       </ul>
     </header>

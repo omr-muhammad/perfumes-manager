@@ -1,0 +1,115 @@
+.trigger {
+  inline-size: 10rem;
+
+  padding: var(--space-2) var(--space-4);
+  box-shadow: 0 8px 24px var(--shadow-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+
+  background: var(--card-bg-start);
+
+  color: var(--text-primary);
+
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.trigger[data-state="open"] {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.trigger:hover {
+  border-color: var(--border-hover);
+}
+
+.trigger:focus-visible {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-tint);
+}
+
+.content {
+  inline-size: 10rem;
+
+  padding: var(--space-2);
+
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+
+  background: linear-gradient(180deg, var(--card-bg-start), var(--card-bg-end));
+
+  box-shadow: 0 12px 32px var(--shadow-soft);
+
+  animation: fadeIn 140ms ease;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  padding: var(--space-3);
+
+  border-radius: var(--radius-sm);
+
+  cursor: pointer;
+
+  transition: background-color 120ms ease;
+  font-size: 0.875rem;
+}
+
+.option:hover {
+  background: var(--accent-tint);
+}
+
+.checkbox {
+  inline-size: 1.15rem;
+  block-size: 1.15rem;
+
+  flex-shrink: 0;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+
+  background: transparent;
+
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.checkbox:hover {
+  border-color: var(--border-hover);
+}
+
+.checkbox[data-state="checked"] {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+.indicator {
+  display: grid;
+  place-items: center;
+
+  color: var(--bg-gradient-end);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

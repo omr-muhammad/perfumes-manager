@@ -1,0 +1,88 @@
+.dliGroup {
+  position: relative;
+  width: 100%;
+}
+
+.dliInput {
+  width: 100%;
+  padding: var(--space-4) var(--space-3) var(--space-2);
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.dliInput:hover:not(:focus):not(:disabled) {
+  border-color: var(--border-hover);
+}
+
+.dliInput:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-tint);
+}
+
+.dliInput:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dliInput[aria-invalid="true"] {
+  border-color: var(--status-error);
+}
+
+.dliInput[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px var(--status-error-tint);
+}
+
+/* Label sits inside the field until focus/value pushes it up */
+.dliLabel {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0 var(--space-1);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  pointer-events: none;
+  transition:
+    top 0.2s ease,
+    transform 0.2s ease,
+    font-size 0.2s ease,
+    color 0.2s ease;
+}
+
+.dliLabelFloating {
+  top: 0;
+  transform: translateY(-50%) scale(0.85);
+  color: var(--accent-primary);
+  /* Matches the card surface so the label appears to "cut" the border.
+     Falls back to the page background if used outside a card. */
+  background: var(--card-bg-start, var(--bg-gradient-mid));
+}
+
+html[dir="rtl"] .dliLabel {
+  left: auto;
+  right: var(--space-3);
+}
+
+.dliInput[aria-invalid="true"] ~ .dliLabelFloating {
+  color: var(--status-error);
+}
+
+.dliRequired {
+  color: var(--status-error);
+}
+
+.dliError {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: var(--font-size-xs);
+  color: var(--status-error);
+}

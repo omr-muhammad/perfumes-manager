@@ -2,6 +2,10 @@ import util from "node:util";
 import type { TSchema, ValidationError } from "elysia";
 
 export function handleValidation(e: Readonly<ValidationError>) {
+  console.error(
+    `Validation Error: `,
+    util.inspect(e, { depth: null, colors: true }),
+  );
   // When using TypeBox Errors will always be in e.validator
   // @ts-expect-error
   const errors = [...e.validator.Errors(e.value)];

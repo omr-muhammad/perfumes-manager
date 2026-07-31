@@ -26,7 +26,8 @@ export const perfumesTable = pgTable(
     name: varchar("name", { length: 100 }).unique(PF_UQ).notNull(),
     seasons: seasonsEn("seasons").array(),
     sex: sexEn("sex"),
-    description: text("description").default(""),
+    descriptionEn: text("description_en").default(""),
+    descriptionAr: text("description_ar").default(""),
     approved: boolean("approved").notNull().default(false),
     ...timestamps,
   },
@@ -39,7 +40,8 @@ export const perfumesTable = pgTable(
         ${table.seasons} IS NOT NULL
         AND array_length(${table.seasons}, 1) > 0
         AND ${table.sex} IS NOT NULL
-        AND ${table.description} != ''
+        AND ${table.descriptionEn} != ''
+        AND ${table.descriptionAr} != ''
       )
     `,
     ),

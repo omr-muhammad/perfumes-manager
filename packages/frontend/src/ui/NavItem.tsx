@@ -1,7 +1,7 @@
-import type { ReactElement } from 'react';
-import { NavLink } from 'react-router';
-import styles from './nav-item.module.css';
-import { useTranslation } from 'react-i18next';
+import type { ReactElement } from "react";
+import { NavLink } from "react-router";
+import styles from "./styles/nav-item.module.css";
+import { useTranslation } from "react-i18next";
 
 export interface NavItemProps {
   /** Route path, passed straight to react-router's `to` */
@@ -13,7 +13,12 @@ export interface NavItemProps {
   end?: boolean;
 }
 
-export default function NavItem({ to, icon, label, end = false }: NavItemProps) {
+export default function NavItem({
+  to,
+  icon,
+  label,
+  end = false,
+}: NavItemProps) {
   const { t } = useTranslation();
   return (
     <li className={styles.item}>

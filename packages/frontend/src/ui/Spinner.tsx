@@ -1,4 +1,4 @@
-import styles from './spinner.module.css';
+import styles from "./styles/spinner.module.css";
 
 export interface SpinnerProps {
   /**
@@ -14,10 +14,12 @@ export interface SpinnerProps {
   inline?: boolean;
 }
 
-export function Spinner({ size = '6.4rem', inline = false }: SpinnerProps) {
+export function Spinner({ size = "6.4rem", inline = false }: SpinnerProps) {
   return (
     <div
-      className={inline ? styles.spinner : `${styles.spinner} ${styles.centered}`}
+      className={
+        inline ? styles.spinner : `${styles.spinner} ${styles.centered}`
+      }
       style={{ width: size }}
       role="status"
       aria-label="Loading"

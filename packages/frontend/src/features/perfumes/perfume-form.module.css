@@ -1,0 +1,97 @@
+.apForm {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: var(--space-5);
+  /* background: linear-gradient(var(--card-bg-start), var(--card-bg-end));
+  padding-block: var(--space-4);
+  max-width: 560px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px var(--shadow-soft); */
+}
+
+/* .apForm > h2 {
+  align-self: center;
+  flex-shrink: 0;
+} */
+
+.formContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-height: 0;
+  overflow-y: auto;
+  padding-block-start: var(--space-4);
+}
+
+.apRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+}
+
+.apRowTwoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 480px) {
+  .apRowTwoCol {
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+}
+
+/* Stand-ins for the real Sex/Seasons select components */
+.fieldPlaceholder {
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.apActions {
+  display: flex;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.apButton {
+  border: 1px solid var(--accent-primary);
+  background: var(--accent-tint);
+  color: var(--accent-primary);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.apButton:hover:not(:disabled) {
+  background: var(--accent-primary);
+  /* card-bg-start is dark in dark mode, light in light mode —
+     the opposite lightness of accent-primary in both themes,
+     so it doubles as a ready-made "on-accent" text color. */
+  color: var(--card-bg-start);
+}
+
+.apButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.apError {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: var(--font-size-xs);
+  color: var(--status-error);
+}

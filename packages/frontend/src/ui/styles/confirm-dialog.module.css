@@ -1,0 +1,142 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: rgba(8, 18, 28, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: fade 0.2s ease;
+}
+
+[data-theme="light"] .backdrop {
+  background: rgba(61, 42, 38, 0.35);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 26rem;
+  padding: var(--space-6) var(--space-5);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  background: linear-gradient(
+    160deg,
+    var(--card-bg-start) 0%,
+    var(--card-bg-end) 100%
+  );
+  box-shadow: 0 1.5rem 3rem var(--shadow-soft);
+  text-align: center;
+  animation: rise 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.title {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--space-4);
+}
+
+/* Signature touch: a thin metallic/rose hairline,
+   the kind of rule you'd see under a perfume label. */
+.divider {
+  width: 2.5rem;
+  height: 1px;
+  margin: 0 auto var(--space-5);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-mid),
+    transparent
+  );
+}
+
+.message {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--space-6);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: center;
+}
+
+.btn {
+  flex: 1;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent-bright);
+  outline-offset: 2px;
+}
+
+.btnGhost {
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+}
+
+.btnGhost:hover {
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+.btnSolid {
+  border: 1px solid transparent;
+  background: linear-gradient(135deg, var(--accent-mid), var(--accent-bright));
+  /* index.css has no "text on accent" token, so these
+     reuse existing palette values rather than adding a
+     new color: dark-mode's own card-end navy, and
+     light-mode's own bg-start cream. */
+  color: #0e1b2c;
+}
+
+[data-theme="light"] .btnSolid {
+  color: #fbf1ed;
+}
+
+.btnSolid:hover {
+  box-shadow: 0 0.5rem 1.25rem var(--accent-tint);
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .dialog {
+    animation: none;
+  }
+}

@@ -68,7 +68,7 @@
 /* Active indicator bar — uses inset-inline-start so it sits on the
    correct side automatically in RTL, no separate rtl override needed */
 .link.active::before {
-  content: '';
+  content: "";
   position: absolute;
   inset-inline-start: 0;
   width: 3px;

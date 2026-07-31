@@ -9,9 +9,9 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "react-hot-toast";
 import { AppLayout } from "./ui/AppLayout";
-import { Dashboard } from "./features/Dashboard/Dashboard";
+import { Dashboard } from "./features/dashboard/Dashboard";
 import { Companies } from "./features/Companies/Companies";
-import { Perfumes } from "./features/Perfumes/Perfumes";
+import { Perfumes } from "./features/perfumes/Perfumes";
 import { queryClient } from "./lib/queryClient";
 import { authLoader } from "./features/Auth/loaders";
 import { Compounds } from "./features/Compounds/Compounds";
@@ -22,10 +22,15 @@ import { UpdateUser } from "./features/users/UpdateUser";
 import { UpdateUserPassword } from "./features/users/UpdateUserPassword";
 
 const router = createBrowserRouter([
+  // /dashboard
   {
     path: "/dashboard",
     loader: authLoader,
-    ErrorBoundary: () => <h1>Error here <Link to="/dashboard">Back</Link></h1>,
+    ErrorBoundary: () => (
+      <h1>
+        Error here <Link to="/dashboard">Back</Link>
+      </h1>
+    ),
     children: [
       {
         element: <AppLayout />,
@@ -35,7 +40,14 @@ const router = createBrowserRouter([
           { path: "companies", element: <Companies /> },
           { path: "compounds", element: <Compounds /> },
           { path: "settings", element: <Settings /> },
-          { path: "profile", element: <><UpdateUser /> <UpdateUserPassword /></>}
+          {
+            path: "profile",
+            element: (
+              <>
+                <UpdateUser /> <UpdateUserPassword />
+              </>
+            ),
+          },
         ],
       },
       {
