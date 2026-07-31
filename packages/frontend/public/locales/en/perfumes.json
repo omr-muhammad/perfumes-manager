@@ -41,5 +41,9 @@
   "addBtn": "Add",
   "adminAddBtn": "Add Approved",
   "approveBtn": "Approve",
-  "editBtn": "Edit"
+  "editBtn": "Edit",
+  "confirmDeleteTitle": "Do you want to delete {{perfumeName}} perfume?",
+  "warnDeleteMsg": "This action cannot be undone",
+  "confirmText": "Confirm",
+  "cancelText": "Cancel"
 }

@@ -6,12 +6,14 @@ interface EditPerfumeTabProps {
   perfumeId: number;
   isAdmin: boolean;
   mode?: "approve";
+  backToBrowse: () => void;
 }
 
 export function EditPerfumeTab({
   perfumeId,
   isAdmin,
   mode,
+  backToBrowse,
 }: EditPerfumeTabProps) {
   const { perfume, loading } = usePerfumeById(perfumeId);
   const actionHook = mode === "approve" ? useApprovePerfume : useEditPerfume;
@@ -24,11 +26,13 @@ export function EditPerfumeTab({
     sex: perfume!.perfume.sex,
     seasons: perfume!.perfume.seasons,
     descriptionEn: perfume!.perfume.descriptionEn,
-    descriptionAr: perfume!.perfume.descriptionAr ?? "لا يوجد وصف بالعربية",
+    descriptionAr: perfume!.perfume.descriptionAr,
   };
 
   function handleAction(current: FormPerfume) {
     mutate({ perfumeId, updates: current });
+
+    backToBrowse();
   }
 
   return (

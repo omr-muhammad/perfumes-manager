@@ -73,3 +73,14 @@ export async function apiApprovePerfume(
 
   return data.data!;
 }
+
+export async function apiDeletePerfume(perfumeId: number) {
+  const { data, error } = await backend.api.admin
+    .perfumes({ perfumeId })
+    .delete();
+
+  if (error || !data.success)
+    throw new Error(error?.value.message || data?.message);
+
+  return data.data!;
+}

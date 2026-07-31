@@ -8,6 +8,7 @@ import {
 import {
   apiAddPerfume,
   apiApprovePerfume,
+  apiDeletePerfume,
   apiEditPerfume,
   apiGetPerfumeById,
   apiPerfumesQuery,
@@ -69,7 +70,7 @@ export function useInfinitePerfumes(query?: PerfumeQuery) {
 
 export function usePerfumeById(perfumeId: number) {
   const { data, isPending, error } = useQuery({
-    queryKey: [perfumeId],
+    queryKey: ["perfumes", `id_${perfumeId}`],
     queryFn: () => apiGetPerfumeById(perfumeId),
     staleTime: 5 * 60 * 1000,
     placeholderData: keepPreviousData,
@@ -82,7 +83,7 @@ export function usePerfumeById(perfumeId: number) {
 
 export function useAddPerfume() {
   const { mutate, isPending } = useMutation({
-    mutationKey: ["newPerfume"],
+    mutationKey: ["perfumes", `new_perfume`],
     mutationFn: async (newPerfume: NewPerfume) => apiAddPerfume(newPerfume),
     onSuccess: (data) => {
       toast.success(`${data.name} perfume was created successfully.`);
@@ -97,13 +98,15 @@ export function useEditPerfume() {
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
-    mutationKey: ["editPerfume"],
+    mutationKey: ["perfumes", "perfume_edit"],
     mutationFn: async ({ perfumeId, updates }: EditPerfumeVariables) =>
       apiEditPerfume(perfumeId, updates),
     onSuccess: (data) => {
       toast.success(`${data.perfume.name} perfume was updated successfully.`);
 
-      queryClient.setQueryData([data.perfume.id], data.perfume);
+      queryClient.invalidateQueries({
+        queryKey: ["perfumes"],
+      });
     },
     onError: (error) => toast.error(error.message),
   });
@@ -116,7 +119,7 @@ export function useApprovePerfume() {
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
-    mutationKey: [`perfume_approve`],
+    mutationKey: ["perfumes", `perfume_approve`],
     mutationFn: async ({
       perfumeId,
       updates,
@@ -126,10 +129,30 @@ export function useApprovePerfume() {
     }) => apiApprovePerfume(perfumeId, updates),
     onSuccess: (perfume) => {
       toast.success(`${perfume?.perfume.name} was successfully approved.`);
-      queryClient.setQueryData([`perfume_approve`], perfume);
+
+      queryClient.invalidateQueries({ queryKey: ["perfumes"] });
     },
     onError: (error) => toast.error(error.message),
   });
 
   return { mutate, isPending };
+}
+
+export function useDeletePerfume() {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["perfumes", "perfume_delete"],
+    mutationFn: async (perfumeId: number) => apiDeletePerfume(perfumeId),
+    onSuccess: (data) => {
+      toast.success(`${data.name} perfume was successfully deleted.`);
+
+      queryClient.invalidateQueries({
+        queryKey: ["perfumes"],
+      });
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  return { deletePerfume: mutate, deleting: isPending };
 }

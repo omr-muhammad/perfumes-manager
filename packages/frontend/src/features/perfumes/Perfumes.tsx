@@ -37,6 +37,10 @@ export function Perfumes() {
     });
   }
 
+  function activeBrowseTab() {
+    setActiveTab({ type: "browse" });
+  }
+
   return (
     <div>
       <div className={styles.tabList} role="tablist">
@@ -136,7 +140,11 @@ export function Perfumes() {
           id="tabpanel-edit"
           aria-labelledby="tab-edit"
         >
-          <EditPerfumeTab perfumeId={activeTab.perfumeId} isAdmin={isAdmin} />
+          <EditPerfumeTab
+            perfumeId={activeTab.perfumeId}
+            isAdmin={isAdmin}
+            backToBrowse={activeBrowseTab}
+          />
         </div>
       )}
 
@@ -151,6 +159,7 @@ export function Perfumes() {
             perfumeId={activeTab.perfumeId}
             isAdmin={isAdmin}
             mode="approve"
+            backToBrowse={activeBrowseTab}
           />
         </div>
       )}

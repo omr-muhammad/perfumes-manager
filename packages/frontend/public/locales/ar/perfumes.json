@@ -43,5 +43,9 @@
   "adminAddBtn": "إضافة مع التوثيق",
   "adminEditBtn": "تعديل مع التوثيق",
   "approveBtn": "توثيق",
-  "editBtn": "تعديل"
+  "editBtn": "تعديل",
+  "confirmDeleteTitle": "هل أنت متأكد من حذف عطر {{perfumeName}}؟",
+  "warnDeleteMsg": "لا يمكن التراجع عن هذا الفعل.",
+  "confirmText": "تأكيد",
+  "cancelText": "تراجع"
 }

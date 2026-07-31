@@ -4,6 +4,8 @@ import { CgSandClock } from "react-icons/cg";
 import { HiDotsVertical } from "react-icons/hi";
 import styles from "./perfume-card-mini.module.css";
 import { useTranslation } from "react-i18next";
+import { useConfirm } from "../../contexts/ConfirmContext";
+import { useDeletePerfume } from "./hook";
 
 interface Perfume {
   id: number;
@@ -23,7 +25,7 @@ interface PerfumeCardMiniProps {
 export default function PerfumeCardMini({
   perfume,
   isAdmin,
-  nsFile,
+  nsFile = "perfumes",
   onEdit,
   onApprove,
 }: PerfumeCardMiniProps) {
@@ -31,6 +33,8 @@ export default function PerfumeCardMini({
   const { name, sex, approved } = perfume;
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const confirm = useConfirm();
+  const { deletePerfume } = useDeletePerfume();
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -43,20 +47,28 @@ export default function PerfumeCardMini({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuOpen]);
 
-  const handleEdit = () => {
+  function handleEdit() {
     setMenuOpen(false);
     onEdit(perfume.id, perfume.name);
-  };
+  }
 
-  const handleApprove = () => {
+  function handleApprove() {
     setMenuOpen(false);
     onApprove(perfume.id, perfume.name);
-  };
+  }
 
-  const handleDelete = () => {
+  async function handleDelete() {
     setMenuOpen(false);
-    console.log("deleted");
-  };
+
+    const confirmed = await confirm({
+      title: t("confirmDeleteTitle", { perfumeName: perfume.name }),
+      message: t("warnDeleteMsg"),
+    });
+
+    if (!confirmed) return;
+
+    deletePerfume(perfume.id);
+  }
 
   return (
     <div className={styles.card}>
