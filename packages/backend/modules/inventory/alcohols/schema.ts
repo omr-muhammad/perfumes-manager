@@ -138,20 +138,96 @@ export interface AlcoCTXs {
 
 // -------------- Alco Schema --------------
 export const AlcoSchema = {
-  create: { params: ShopParams, body: CreateAlcoBody },
-  queryAll: { params: ShopParams, query: AlcoholsQueryFilters },
-  update: { params: AlcoParams, body: UpdateAlcoBody },
-  del: { params: AlcoParams },
-  queryOne: { params: AlcoParams },
+  create: {
+    params: ShopParams,
+    body: CreateAlcoBody,
+    detail: {
+      summary: "Add an alcohol to shop inventory",
+      tags: ["Inventory - Alcohols"],
+    },
+  },
+  queryAll: {
+    params: ShopParams,
+    query: AlcoholsQueryFilters,
+    detail: {
+      summary: "List alcohols in shop inventory",
+      tags: ["Inventory - Alcohols"],
+    },
+  },
+  update: {
+    params: AlcoParams,
+    body: UpdateAlcoBody,
+    detail: { summary: "Update an alcohol", tags: ["Inventory - Alcohols"] },
+  },
+  del: {
+    params: AlcoParams,
+    detail: { summary: "Delete an alcohol", tags: ["Inventory - Alcohols"] },
+  },
+  queryOne: {
+    params: AlcoParams,
+    detail: {
+      summary: "Get an alcohol by id",
+      tags: ["Inventory - Alcohols"],
+    },
+  },
 
   // Alco Lots
-  createLot: { params: AlcoParams, body: AlcoholLot },
-  updateLot: { params: AlcoLotParams, body: UpdateLotBody },
-  updateLotStock: { params: AlcoLotParams, body: UpdateLotStock },
-  delLot: { params: AlcoLotParams },
+  createLot: {
+    params: AlcoParams,
+    body: AlcoholLot,
+    detail: {
+      summary: "Add a stock lot to an alcohol",
+      tags: ["Inventory - Alcohols"],
+    },
+  },
+  updateLot: {
+    params: AlcoLotParams,
+    body: UpdateLotBody,
+    detail: {
+      summary: "Update an alcohol lot",
+      tags: ["Inventory - Alcohols"],
+    },
+  },
+  updateLotStock: {
+    params: AlcoLotParams,
+    body: UpdateLotStock,
+    detail: {
+      summary: "Adjust stock quantity for an alcohol lot",
+      tags: ["Inventory - Alcohols"],
+    },
+  },
+  delLot: {
+    params: AlcoLotParams,
+    detail: {
+      summary: "Delete an alcohol lot",
+      tags: ["Inventory - Alcohols"],
+    },
+  },
 
   // Amount Tiers
-  addAmountTier: { params: AlcoLotParams, body: CreateTier },
-  updateAmountTier: { params: AlcoLotAmountParams, body: UpdateTier },
-  delAmountTier: { params: AlcoLotAmountParams },
+  addAmountTier: {
+    params: AlcoLotParams,
+    body: CreateTier,
+    detail: {
+      summary: "Add a pricing amount tier to an alcohol lot",
+      description:
+        "For discount pricing, value must be a percentage between 1 and 100.",
+      tags: ["Inventory - Alcohols"],
+    },
+  },
+  updateAmountTier: {
+    params: AlcoLotAmountParams,
+    body: UpdateTier,
+    detail: {
+      summary: "Update an alcohol lot's amount tier",
+      tags: ["Inventory - Alcohols"],
+    },
+  },
+  delAmountTier: {
+    params: AlcoLotAmountParams,
+    detail: {
+      summary: "Delete an alcohol lot's amount tier",
+      tags: ["Inventory - Alcohols"],
+    },
+  },
 };

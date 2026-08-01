@@ -80,18 +80,76 @@ export interface UserCTXs {
 // ------------------ CTXs Schema ------------------
 export const UserSchema = {
   // Admin
-  AdminGetUser: { params: UserParams },
-  AdminCreate: { body: AdminCreateUserBody },
-  Activation: { params: UserParams, body: HandleActivationBody },
-  AdminDelUser: { params: UserParams },
+  AdminQuery: {
+    detail: { summary: "List all users", tags: ["Admin - Users"] },
+  },
+  AdminGetUser: {
+    params: UserParams,
+    detail: { summary: "Get a user by id", tags: ["Admin - Users"] },
+  },
+  AdminCreate: {
+    body: AdminCreateUserBody,
+    detail: { summary: "Create a user", tags: ["Admin - Users"] },
+  },
+  Activation: {
+    params: UserParams,
+    body: HandleActivationBody,
+    detail: {
+      summary: "Activate or deactivate a user",
+      tags: ["Admin - Users"],
+    },
+  },
+  AdminDelUser: {
+    params: UserParams,
+    detail: { summary: "Delete a user", tags: ["Admin - Users"] },
+  },
 
   // Logged User
-  UpdateMe: { body: UpdateUserBody },
-  ChangePW: { body: ChangePasswordBody },
-  UpsertAddress: { body: AddressBase },
-  DelMe: { body: DelMeBody },
+  Me: {
+    detail: {
+      summary: "Get the current user's profile",
+      tags: ["My Profile"],
+    },
+  },
+  Logout: {
+    detail: { summary: "Log out", tags: ["Auth"] },
+  },
+  UpdateMe: {
+    body: UpdateUserBody,
+    detail: {
+      summary: "Update the current user's profile",
+      tags: ["My Profile"],
+    },
+  },
+  ChangePW: {
+    body: ChangePasswordBody,
+    detail: {
+      summary: "Change the current user's password",
+      tags: ["My Profile"],
+    },
+  },
+  UpsertAddress: {
+    body: AddressBase,
+    detail: {
+      summary: "Set or replace the current user's address",
+      tags: ["My Profile"],
+    },
+  },
+  DelMe: {
+    body: DelMeBody,
+    detail: {
+      summary: "Delete the current user's account",
+      tags: ["My Profile"],
+    },
+  },
 
   // Non Logged User
-  Signup: { body: SignupBody },
-  Login: { body: LoginBody },
+  Signup: {
+    body: SignupBody,
+    detail: { summary: "Register a new user", tags: ["Auth"] },
+  },
+  Login: {
+    body: LoginBody,
+    detail: { summary: "Log in", tags: ["Auth"] },
+  },
 };

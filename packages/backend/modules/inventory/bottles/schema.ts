@@ -129,20 +129,93 @@ export interface BottleCTXs {
 }
 
 export const BottleSchema = {
-  qAll: { params: ShopParams, query: BottlesQueryFilters },
-  create: { params: ShopParams, body: CreateBottleBody },
-  qOne: { params: BottleParams },
-  update: { params: BottleParams, body: UpdateBottleBody },
-  del: { params: BottleParams },
+  qAll: {
+    params: ShopParams,
+    query: BottlesQueryFilters,
+    detail: {
+      summary: "List bottles in shop inventory",
+      tags: ["Inventory - Bottles"],
+    },
+  },
+  create: {
+    params: ShopParams,
+    body: CreateBottleBody,
+    detail: {
+      summary: "Add a bottle to shop inventory",
+      tags: ["Inventory - Bottles"],
+    },
+  },
+  qOne: {
+    params: BottleParams,
+    detail: { summary: "Get a bottle by id", tags: ["Inventory - Bottles"] },
+  },
+  update: {
+    params: BottleParams,
+    body: UpdateBottleBody,
+    detail: { summary: "Update a bottle", tags: ["Inventory - Bottles"] },
+  },
+  del: {
+    params: BottleParams,
+    detail: { summary: "Delete a bottle", tags: ["Inventory - Bottles"] },
+  },
 
   // lots
-  createLot: { params: BottleParams, body: CreateBottleLot },
-  updateLot: { params: BottleLotParams, body: UpdateBottleLotBody },
-  updateLotStock: { params: BottleLotParams, body: UpdateLotStock },
-  deleteLot: { params: BottleLotParams },
+  createLot: {
+    params: BottleParams,
+    body: CreateBottleLot,
+    detail: {
+      summary: "Add a stock lot to a bottle",
+      tags: ["Inventory - Bottles"],
+    },
+  },
+  updateLot: {
+    params: BottleLotParams,
+    body: UpdateBottleLotBody,
+    detail: {
+      summary: "Update a bottle lot",
+      tags: ["Inventory - Bottles"],
+    },
+  },
+  updateLotStock: {
+    params: BottleLotParams,
+    body: UpdateLotStock,
+    detail: {
+      summary: "Adjust stock quantity for a bottle lot",
+      tags: ["Inventory - Bottles"],
+    },
+  },
+  deleteLot: {
+    params: BottleLotParams,
+    detail: {
+      summary: "Delete a bottle lot",
+      tags: ["Inventory - Bottles"],
+    },
+  },
 
   // Amount Tiers
-  addAmountTier: { params: BottleLotParams, body: CreateTier },
-  updateAmountTier: { params: BottleLotAmountParams, body: UpdateTier },
-  delAmountTier: { params: BottleLotAmountParams },
+  addAmountTier: {
+    params: BottleLotParams,
+    body: CreateTier,
+    detail: {
+      summary: "Add a pricing amount tier to a bottle lot",
+      description:
+        "For discount pricing, value must be a percentage between 1 and 100.",
+      tags: ["Inventory - Bottles"],
+    },
+  },
+  updateAmountTier: {
+    params: BottleLotAmountParams,
+    body: UpdateTier,
+    detail: {
+      summary: "Update a bottle lot's amount tier",
+      tags: ["Inventory - Bottles"],
+    },
+  },
+  delAmountTier: {
+    params: BottleLotAmountParams,
+    detail: {
+      summary: "Delete a bottle lot's amount tier",
+      tags: ["Inventory - Bottles"],
+    },
+  },
 };

@@ -265,16 +265,71 @@ export interface OrderCtx {
 }
 // ------------------- Context Schema -------------------
 export const CtxSchema = {
-  create: { body: Order, params: ShopParams },
+  create: {
+    body: Order,
+    params: ShopParams,
+    detail: {
+      summary: "Create an order",
+      tags: ["Shop Orders"],
+    },
+  },
 
-  update: { body: UpdateOrder, params: OrderParams },
-  updateStatus: { body: UpdateStatus, params: OrderParams },
-  updatePaymentStatus: { body: UpdatePaymentStatus, params: OrderParams },
-  updateShipping: { body: UpdateShipping, params: OrderParams },
-  updateFulfillmentMethod: { body: UpdateFulfillment, params: OrderParams },
+  update: {
+    body: UpdateOrder,
+    params: OrderParams,
+    detail: {
+      summary: "Update an order",
+      tags: ["Shop Orders"],
+    },
+  },
+  updateStatus: {
+    body: UpdateStatus,
+    params: OrderParams,
+    detail: {
+      summary: "Update an order's status",
+      tags: ["Shop Orders"],
+    },
+  },
+  updatePaymentStatus: {
+    body: UpdatePaymentStatus,
+    params: OrderParams,
+    detail: {
+      summary: "Update an order's payment status",
+      tags: ["Shop Orders"],
+    },
+  },
+  updateShipping: {
+    body: UpdateShipping,
+    params: OrderParams,
+    detail: {
+      summary: "Update an order's shipping details",
+      tags: ["Shop Orders"],
+    },
+  },
+  updateFulfillmentMethod: {
+    body: UpdateFulfillment,
+    params: OrderParams,
+    detail: {
+      summary: "Update an order's fulfillment method",
+      tags: ["Shop Orders"],
+    },
+  },
 
-  query: { params: ShopParams, query: orderQuerySchema },
+  query: {
+    params: ShopParams,
+    query: orderQuerySchema,
+    detail: {
+      summary: "List orders for a shop",
+      tags: ["Shop Orders"],
+    },
+  },
 
-  del: { params: OrderParams },
+  del: {
+    params: OrderParams,
+    detail: {
+      summary: "Delete an order",
+      tags: ["Shop Orders"],
+    },
+  },
 };
 // ------------------------------------------------------

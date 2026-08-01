@@ -11,8 +11,11 @@ import util from "node:util";
 import { handleValidation } from "./utils/validationErrorHandler";
 import { pfCompRouter } from "./modules/perfumeCompounds/router";
 import cors from "@elysia/cors";
+import openapi from "@elysia/openapi";
+import { openApiDocs } from "./openapi.config";
 
 export const app = new Elysia({ prefix: "/api" })
+  .use(openapi({ documentation: openApiDocs }))
   .use(
     cors({
       origin: Bun.env.frontend_url,

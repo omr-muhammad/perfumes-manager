@@ -13,8 +13,8 @@ export const usersRouter = new Elysia({ prefix: "/users" })
   .use(protect)
   .group("/profile", (app) =>
     app
-      .get("", handlers.getMe)
-      .post("/logout", handlers.logout)
+      .get("", handlers.getMe, UserSchema.Me)
+      .post("/logout", handlers.logout, UserSchema.Logout)
       .patch("", handlers.updateMe, UserSchema.UpdateMe)
       .patch("/change-password", handlers.changePassword, UserSchema.ChangePW)
       .put("/address", handlers.upsertUserAddress, UserSchema.UpsertAddress)

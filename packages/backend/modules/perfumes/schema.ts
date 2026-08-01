@@ -59,10 +59,48 @@ export interface PerfumesCTXs {
 }
 // ---------------- Contexts Schema ----------------
 export const ContextSchema = {
-  QueryPfs: { query: QueryPerfumes },
-  QueryPf: { params: PfParams },
-  CreatePf: { body: CreatePerfumeBody },
-  ApprovePf: { params: PfParams, body: UpdatePerfumeBody },
-  UpdatePf: { params: PfParams, body: UpdatePerfumeBody },
-  DelPf: { params: PfParams },
+  QueryPfs: {
+    query: QueryPerfumes,
+    detail: {
+      summary: "List perfumes",
+      tags: ["Perfumes"],
+    },
+  },
+  QueryPf: {
+    params: PfParams,
+    detail: {
+      summary: "Get a perfume by id",
+      tags: ["Perfumes"],
+    },
+  },
+  CreatePf: {
+    body: CreatePerfumeBody,
+    detail: {
+      summary: "Create a perfume",
+      tags: ["Perfumes"],
+    },
+  },
+  ApprovePf: {
+    params: PfParams,
+    body: UpdatePerfumeBody,
+    detail: {
+      summary: "Approve a perfume",
+      tags: ["Admin - Perfumes"],
+    },
+  },
+  UpdatePf: {
+    params: PfParams,
+    body: UpdatePerfumeBody,
+    detail: {
+      summary: "Update a perfume",
+      tags: ["Admin - Perfumes"],
+    },
+  },
+  DelPf: {
+    params: PfParams,
+    detail: {
+      summary: "Delete a perfume",
+      tags: ["Admin - Perfumes"],
+    },
+  },
 };

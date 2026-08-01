@@ -20,9 +20,27 @@ export const alcoAmountRouter = new Elysia()
   .post("", handlers.addAmountTier, {
     ...TierSchema.create,
     beforeHandle,
+    detail: {
+      summary: "Add a pricing amount tier to an alcohol lot",
+      description:
+        "For discount pricing, value must be a percentage between 1 and 100.",
+      tags: ["Inventory - Alcohols"],
+    },
   })
-  .patch("/:tierId", handlers.updateAmountTier, TierSchema.update)
-  .delete("/:tierId", handlers.deleteAmountTier, TierSchema.delete);
+  .patch("/:tierId", handlers.updateAmountTier, {
+    ...TierSchema.update,
+    detail: {
+      summary: "Update an alcohol lot's amount tier",
+      tags: ["Inventory - Alcohols"],
+    },
+  })
+  .delete("/:tierId", handlers.deleteAmountTier, {
+    ...TierSchema.delete,
+    detail: {
+      summary: "Delete an alcohol lot's amount tier",
+      tags: ["Inventory - Alcohols"],
+    },
+  });
 
 // Bottles
 export const btlAmountRouter = new Elysia()
@@ -36,9 +54,27 @@ export const btlAmountRouter = new Elysia()
   .post("", handlers.addAmountTier, {
     ...TierSchema.create,
     beforeHandle,
+    detail: {
+      summary: "Add a pricing amount tier to a bottle lot",
+      description:
+        "For discount pricing, value must be a percentage between 1 and 100.",
+      tags: ["Inventory - Bottles"],
+    },
   })
-  .patch("/:tierId", handlers.updateAmountTier, TierSchema.update)
-  .delete("/:tierId", handlers.deleteAmountTier, TierSchema.delete);
+  .patch("/:tierId", handlers.updateAmountTier, {
+    ...TierSchema.update,
+    detail: {
+      summary: "Update a bottle lot's amount tier",
+      tags: ["Inventory - Bottles"],
+    },
+  })
+  .delete("/:tierId", handlers.deleteAmountTier, {
+    ...TierSchema.delete,
+    detail: {
+      summary: "Delete a bottle lot's amount tier",
+      tags: ["Inventory - Bottles"],
+    },
+  });
 
 // Perfume Compounds
 export const compAmountRouter = new Elysia()
@@ -52,9 +88,27 @@ export const compAmountRouter = new Elysia()
   .post("", handlers.addAmountTier, {
     ...TierSchema.create,
     beforeHandle,
+    detail: {
+      summary: "Add a pricing amount tier to a shop compound lot",
+      description:
+        "For discount pricing, value must be a percentage between 1 and 100.",
+      tags: ["Inventory - Shop Compounds"],
+    },
   })
-  .patch("/:tierId", handlers.updateAmountTier, TierSchema.update)
-  .delete("/:tierId", handlers.deleteAmountTier, TierSchema.delete);
+  .patch("/:tierId", handlers.updateAmountTier, {
+    ...TierSchema.update,
+    detail: {
+      summary: "Update a shop compound lot's amount tier",
+      tags: ["Inventory - Shop Compounds"],
+    },
+  })
+  .delete("/:tierId", handlers.deleteAmountTier, {
+    ...TierSchema.delete,
+    detail: {
+      summary: "Delete a shop compound lot's amount tier",
+      tags: ["Inventory - Shop Compounds"],
+    },
+  });
 
 // Validate create tier body
 function beforeHandle({ body }: TierCTXs["create"]) {

@@ -54,9 +54,41 @@ export interface CoCTXs {
 
 // ------------ Contexts Validators ------------
 export const CoSchema = {
-  CreateCoValidators: { body: CreateCompanyBody },
-  ApproveCoValidators: { params: CParams, body: UpdateCompanyBody },
-  UpdateCoValidators: { params: CParams, body: UpdateCompanyBody },
-  DelCoValidators: { params: CParams },
-  QueryCoValidators: { query: CompaniesQueryFilters },
+  CreateCoValidators: {
+    body: CreateCompanyBody,
+    detail: {
+      summary: "Create a company",
+      tags: ["Companies"],
+    },
+  },
+  ApproveCoValidators: {
+    params: CParams,
+    body: UpdateCompanyBody,
+    detail: {
+      summary: "Approve a company",
+      tags: ["Admin - Companies"],
+    },
+  },
+  UpdateCoValidators: {
+    params: CParams,
+    body: UpdateCompanyBody,
+    detail: {
+      summary: "Update a company",
+      tags: ["Admin - Companies"],
+    },
+  },
+  DelCoValidators: {
+    params: CParams,
+    detail: {
+      summary: "Delete a company",
+      tags: ["Admin - Companies"],
+    },
+  },
+  QueryCoValidators: {
+    query: CompaniesQueryFilters,
+    detail: {
+      summary: "List companies",
+      tags: ["Companies"],
+    },
+  },
 };
