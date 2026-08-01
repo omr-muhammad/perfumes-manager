@@ -96,18 +96,86 @@ export interface ShopStaffCTXs {
 
 // ------------- Contexts Schema -------------
 export const ShopSchema = {
-  CreateShop: { body: CreateShopBody },
-  Query: { query: ShopsQueryFilters },
-  QueryById: { params: ShopParams },
-  DelShop: { params: ShopParams },
-  UpdateShop: { params: ShopParams, body: UpdateShopBody },
-  Activation: { params: ShopParams, body: HandleActivationBody },
-  Visibility: { params: ShopParams, body: HideShopBody },
-  UpsertShopAddress: { params: ShopParams, body: AddressBase },
+  CreateShop: {
+    body: CreateShopBody,
+    detail: { summary: "Create a shop", tags: ["Shops"] },
+  },
+  Query: {
+    query: ShopsQueryFilters,
+    detail: { summary: "List my shops", tags: ["Shops"] },
+  },
+  QueryById: {
+    params: ShopParams,
+    detail: { summary: "Get a shop by id", tags: ["Shops"] },
+  },
+  DelShop: {
+    params: ShopParams,
+    detail: { summary: "Delete a shop", tags: ["Shops"] },
+  },
+  UpdateShop: {
+    params: ShopParams,
+    body: UpdateShopBody,
+    detail: { summary: "Update a shop", tags: ["Shops"] },
+  },
+  Activation: {
+    params: ShopParams,
+    body: HandleActivationBody,
+    detail: {
+      summary: "Activate or deactivate a shop",
+      tags: ["Admin - Shops"],
+    },
+  },
+  Visibility: {
+    params: ShopParams,
+    body: HideShopBody,
+    detail: { summary: "Show or hide a shop", tags: ["Shops"] },
+  },
+  UpsertShopAddress: {
+    params: ShopParams,
+    body: AddressBase,
+    detail: { summary: "Set or replace a shop's address", tags: ["Shops"] },
+  },
 
   // Shop Staff
-  CreateStaff: { params: ShopParams, body: StaffBody },
-  UpdateStaff: { params: TStaffParams, body: UpdateStaffBody },
-  DelStaff: { params: TStaffParams },
-  QueryShopStaff: { params: ShopParams },
+  CreateStaff: {
+    params: ShopParams,
+    body: StaffBody,
+    detail: {
+      summary: "Add a staff member to a shop",
+      tags: ["Shop Staff"],
+    },
+  },
+  UpdateStaff: {
+    params: TStaffParams,
+    body: UpdateStaffBody,
+    detail: {
+      summary: "Update a shop staff member",
+      tags: ["Shop Staff"],
+    },
+  },
+  DelStaff: {
+    params: TStaffParams,
+    detail: {
+      summary: "Remove a shop staff member",
+      tags: ["Shop Staff"],
+    },
+  },
+  QueryShopStaff: {
+    params: ShopParams,
+    detail: { summary: "List staff for a shop", tags: ["Shop Staff"] },
+  },
+
+  // Admin-only views — same params as their owner-facing counterparts above,
+  // kept separate only because the tag/summary differs by audience.
+  AdminQuery: {
+    detail: { summary: "List all shops", tags: ["Admin - Shops"] },
+  },
+  AdminQueryById: {
+    params: ShopParams,
+    detail: { summary: "Get a shop by id", tags: ["Admin - Shops"] },
+  },
+  AdminDelShop: {
+    params: ShopParams,
+    detail: { summary: "Delete a shop", tags: ["Admin - Shops"] },
+  },
 };

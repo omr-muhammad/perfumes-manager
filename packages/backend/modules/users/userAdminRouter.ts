@@ -7,7 +7,7 @@ import { UserSchema } from "./schema";
 
 export const userAdminRouter = new Elysia()
   .use(protect)
-  .get("", handlers.getAllUsers)
+  .get("", handlers.getAllUsers, UserSchema.AdminQuery)
   .post("", handlers.adminCreateUser, UserSchema.AdminCreate)
   .group("/:userId", (app) =>
     app

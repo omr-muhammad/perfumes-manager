@@ -5,7 +5,7 @@ import { ShopSchema } from "./schema";
 
 export const shopsAdminRouter = new Elysia()
   .use(protect)
-  .get("", handlers.getShops)
-  .get("/:shopId", handlers.getShopById, ShopSchema.QueryById)
-  .delete("/:shopId", handlers.deleteShopById, ShopSchema.DelShop)
+  .get("", handlers.getShops, ShopSchema.AdminQuery)
+  .get("/:shopId", handlers.getShopById, ShopSchema.AdminQueryById)
+  .delete("/:shopId", handlers.deleteShopById, ShopSchema.AdminDelShop)
   .patch("/:shopId", handlers.handleShopActivation, ShopSchema.Activation);

@@ -1,5 +1,8 @@
 {
   "name": "qhwatol-attareen",
+  "scripts": {
+  "docs:build": "curl http://localhost:3000/api/openapi/json -o openapi.json && bunx @redocly/cli build-docs openapi.json -o docs/index.html"
+},
   "workspaces": [
     "packages/*"
   ]

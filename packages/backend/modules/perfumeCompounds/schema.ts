@@ -41,8 +41,27 @@ export interface PfCompCtxs {
 
 // ---------------- Perfume Compound Schema ----------------
 export const PfCompSchema = {
-  create: { body: CreatePfComp },
-  update: { body: UpdatePfComp, params: PfCompParams },
-  delete: { params: PfCompParams },
+  create: {
+    body: CreatePfComp,
+    detail: {
+      summary: "Create a perfume compound catalog entry",
+      tags: ["Perfume Compounds"],
+    },
+  },
+  update: {
+    body: UpdatePfComp,
+    params: PfCompParams,
+    detail: {
+      summary: "Update a perfume compound catalog entry",
+      tags: ["Admin - Compounds"],
+    },
+  },
+  delete: {
+    params: PfCompParams,
+    detail: {
+      summary: "Delete a perfume compound catalog entry",
+      tags: ["Admin - Compounds"],
+    },
+  },
   query: { query: QueryPfComp },
 };

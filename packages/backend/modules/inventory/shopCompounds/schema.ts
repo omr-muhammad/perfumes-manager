@@ -163,24 +163,140 @@ export interface CompCTXs {
 }
 
 // ---------------- Compounds Schema ----------------
+// export const CompSchema = {
+//   // Compounds
+//   createComp: { params: ShopParams, body: CreateShopComp },
+//   queryAllComps: { params: ShopParams, query: CompoundsQueryFilters },
+//   queryCompById: { params: CompParams },
+//   updateComp: { params: CompParams, body: UpdateShopComp },
+//   delComp: { params: CompParams },
+
+//   // Lots
+//   createCompLot: { params: CompParams, body: ShopCompLot },
+//   updateCompLot: { params: CompLotParams, body: UpdateShopCompLot },
+//   updateLotStock: { params: CompLotParams, body: UpdateStock },
+//   delCompLot: { params: CompLotParams },
+
+//   // Agings
+//   queryLotAgings: { params: CompLotParams },
+//   queryOneAging: { params: AgingParams },
+//   createLotAging: { body: CreateAging, params: AgingParams },
+//   updateLotAging: { params: AgingParams, body: UpdateAging },
+//   delLotAging: { params: AgingParams, body: RemoveAging },
+// };
 export const CompSchema = {
   // Compounds
-  createComp: { params: ShopParams, body: CreateShopComp },
-  queryAllComps: { params: ShopParams, query: CompoundsQueryFilters },
-  queryCompById: { params: CompParams },
-  updateComp: { params: CompParams, body: UpdateShopComp },
-  delComp: { params: CompParams },
+  createComp: {
+    params: ShopParams,
+    body: CreateShopComp,
+    detail: {
+      summary: "Add a perfume compound to shop inventory",
+      description:
+        "Requires a non-zero oil or spray amount on the initial lot. If a spray amount is given, concentration and alcoholId are also required.",
+      tags: ["Inventory - Shop Compounds"],
+    },
+  },
+  queryAllComps: {
+    params: ShopParams,
+    query: CompoundsQueryFilters,
+    detail: {
+      summary: "List shop compounds",
+      tags: ["Inventory - Shop Compounds"],
+    },
+  },
+  queryCompById: {
+    params: CompParams,
+    detail: {
+      summary: "Get a shop compound by id",
+      tags: ["Inventory - Shop Compounds"],
+    },
+  },
+  updateComp: {
+    params: CompParams,
+    body: UpdateShopComp,
+    detail: {
+      summary: "Update a shop compound",
+      tags: ["Inventory - Shop Compounds"],
+    },
+  },
+  delComp: {
+    params: CompParams,
+    detail: {
+      summary: "Delete a shop compound",
+      tags: ["Inventory - Shop Compounds"],
+    },
+  },
 
   // Lots
-  createCompLot: { params: CompParams, body: ShopCompLot },
-  updateCompLot: { params: CompLotParams, body: UpdateShopCompLot },
-  updateLotStock: { params: CompLotParams, body: UpdateStock },
-  delCompLot: { params: CompLotParams },
+  createCompLot: {
+    params: CompParams,
+    body: ShopCompLot,
+    detail: {
+      summary: "Add a stock lot to a shop compound",
+      tags: ["Inventory - Shop Compounds"],
+    },
+  },
+  updateCompLot: {
+    params: CompLotParams,
+    body: UpdateShopCompLot,
+    detail: {
+      summary: "Update a shop compound lot",
+      tags: ["Inventory - Shop Compounds"],
+    },
+  },
+  updateLotStock: {
+    params: CompLotParams,
+    body: UpdateStock,
+    detail: {
+      summary: "Adjust stock quantity for a shop compound lot",
+      tags: ["Inventory - Shop Compounds"],
+    },
+  },
+  delCompLot: {
+    params: CompLotParams,
+    detail: {
+      summary: "Delete a shop compound lot",
+      tags: ["Inventory - Shop Compounds"],
+    },
+  },
 
   // Agings
-  queryLotAgings: { params: CompLotParams },
-  queryOneAging: { params: AgingParams },
-  createLotAging: { body: CreateAging, params: AgingParams },
-  updateLotAging: { params: AgingParams, body: UpdateAging },
-  delLotAging: { params: AgingParams, body: RemoveAging },
+  queryLotAgings: {
+    params: CompLotParams,
+    detail: {
+      summary: "List agings for a compound lot",
+      tags: ["Inventory - Shop Compounds"],
+    },
+  },
+  queryOneAging: {
+    params: AgingParams,
+    detail: {
+      summary: "Get an aging record by id",
+      tags: ["Inventory - Shop Compounds"],
+    },
+  },
+  createLotAging: {
+    body: CreateAging,
+    params: AgingParams,
+    detail: {
+      summary: "Add an aging record to a compound lot",
+      tags: ["Inventory - Shop Compounds"],
+    },
+  },
+  updateLotAging: {
+    params: AgingParams,
+    body: UpdateAging,
+    detail: {
+      summary: "Update an aging record",
+      tags: ["Inventory - Shop Compounds"],
+    },
+  },
+  delLotAging: {
+    params: AgingParams,
+    body: RemoveAging,
+    detail: {
+      summary: "Delete an aging record",
+      tags: ["Inventory - Shop Compounds"],
+    },
+  },
 };

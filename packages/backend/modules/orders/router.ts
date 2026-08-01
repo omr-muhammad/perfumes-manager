@@ -10,7 +10,9 @@ export const orderRouter = new Elysia({ prefix: "/orders" })
   .group("/:orderId", (app) =>
     app
       .patch("", handlers.updateOrder, CtxSchema.update)
-      .patch("/status", handlers.updateOrderStatus, CtxSchema.updateStatus)
+      .patch("/status", handlers.updateOrderStatus, {
+        ...CtxSchema.updateStatus,
+      })
       .patch(
         "/shipping",
         handlers.updateOrderShipping,
