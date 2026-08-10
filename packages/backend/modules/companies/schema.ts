@@ -11,8 +11,8 @@ const CompanyType = t.Union(CoClass, {
 });
 
 const insertSchema = createInsertSchema(companiesTable, {
-  country: t.String({
-    error: "Country name is required",
+  hqCountryCode: t.String({
+    error: "Country code is required",
   }),
   type: CompanyType,
 });
@@ -32,7 +32,6 @@ export type UpdateCompanyBody = Static<typeof UpdateCompanyBody>;
 // ------------ Query ------------
 const CompaniesQueryFilters = t.Object({
   search: t.Optional(t.String()),
-  country: t.Optional(t.String()),
   type: t.Optional(CompanyType),
   approved: t.Optional(t.BooleanString({ default: true })),
   ...QueriesMeta,

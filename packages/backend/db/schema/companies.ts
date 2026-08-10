@@ -18,20 +18,20 @@ export const companiesTable = pgTable(
   {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     name: varchar("name", { length: 100 }).notNull(),
-    country: varchar("country", { length: 50 }),
+    hqCountryCode: varchar("hq_country_code", { length: 5 }),
     approved: boolean("approved").default(false),
     logo: text("logo").default(""),
     type: companyTypeEn("type").default("global").notNull(),
     ...timestamps,
   },
   (table) => [
-    unique(CO_UQ).on(table.name, table.country),
+    unique(CO_UQ).on(table.name, table.hqCountryCode),
     check(
       CO_APPROVED_CHK,
       sql`
       NOT ${table.approved}
         OR
-      ${table.country} IS NOT NULL
+      ${table.hqCountryCode} IS NOT NULL
     `,
     ),
   ],

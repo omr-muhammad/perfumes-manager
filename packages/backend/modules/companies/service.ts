@@ -1,4 +1,4 @@
-import { and, eq, ilike } from "drizzle-orm";
+import { and, eq, getTableColumns, ilike, sql } from "drizzle-orm";
 import { db } from "../../db/config";
 import { companiesTable } from "../../db/schema";
 import type {
@@ -47,21 +47,32 @@ export async function approve(
 }
 
 export async function queryAll(filters: CompaniesQueryFilters) {
-  try {
-    const { page = 1, limit = 20 } = filters;
-    const conditions = prepareCoFilters(filters);
+  const { page = 1, limit = 20 } = filters;
+  const conditions = prepareCoFilters(filters);
 
-    const companies = await db
-      .select()
-      .from(companiesTable)
-      .where(and(...conditions))
-      .offset((page - 1) * limit)
-      .limit(limit);
+  const rows = await db
+    .select({
+      ...getTableColumns(companiesTable),
+      totalCount: sql<number>`count(*) over()`.as("total_count"),
+    })
+    .from(companiesTable)
+    .where(and(...conditions))
+    .offset((page - 1) * limit)
+    .limit(limit);
 
-    return companies;
-  } catch (e: any) {
-    console.log("Error: ", e.cause);
-  }
+  const total = rows[0]?.totalCount ?? 0;
+  const data = rows.map(({ totalCount, ...row }) => row);
+
+  return {
+    data,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page * limit < total,
+    },
+  };
 }
 
 export async function update(companyId: number, updates: UpdateCompanyBody) {
@@ -91,12 +102,11 @@ export async function remove(companyId: number) {
 
 // ------------- Helpers -------------
 function prepareCoFilters(filters: CompaniesQueryFilters) {
-  const { search, country, type, approved } = filters;
+  const { search, type, approved } = filters;
 
   const conditions = [];
 
   if (search) conditions.push(ilike(companiesTable.name, `%${search}%`));
-  if (country) conditions.push(ilike(companiesTable.country, `%${country}%`));
   if (type) conditions.push(eq(companiesTable.type, type));
   if (approved !== undefined)
     conditions.push(eq(companiesTable.approved, approved));
