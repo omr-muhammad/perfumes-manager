@@ -30,7 +30,7 @@ export default function ApproveFilter({
         className={styles.option}
         onClick={() => handleActive(approved === true ? undefined : true)}
       >
-        {t("approve")}
+        {t("approved")}
       </button>
 
       <button

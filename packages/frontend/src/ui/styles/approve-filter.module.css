@@ -48,23 +48,25 @@
   transform: translateX(calc(100% + 3px));
 }
 
-/* Approved */
-.approved::before {
+.approved::before,
+.global::before {
   opacity: 1;
   transform: translateX(0);
 }
 
-/* Pending */
-.pending::before {
+.pending::before,
+.local::before {
   opacity: 1;
   transform: translateX(100%);
 }
 
-:global(html[dir="rtl"]) .approved::before {
+:global(html[dir="rtl"]) .approved::before,
+:global(html[dir="rtl"]) .global::before {
   transform: translateX(0);
 }
 
-:global(html[dir="rtl"]) .pending::before {
+:global(html[dir="rtl"]) .pending::before,
+:global(html[dir="rtl"]) .local::before {
   transform: translateX(-100%);
 }
 
@@ -80,7 +82,9 @@
 
 /* Active text becomes dark on golden background */
 .approved .option:first-child,
-.pending .option:last-child {
+.pending .option:last-child,
+.global .option:first-child,
+.local .option:last-child {
   color: var(--bg-gradient-end);
 }
 

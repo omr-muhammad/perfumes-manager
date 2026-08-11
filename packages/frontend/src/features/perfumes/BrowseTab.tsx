@@ -7,7 +7,7 @@ import type { PerfumeQuery } from "../../api/perfumesAPI";
 import { Filters } from "./Filters";
 import PerfumeCardMini from "./PerfumeCardMini";
 import { ActiveFilters } from "../../ui/ActiveFilters";
-import { perfumesActiveFiltersTags } from "./buildTags";
+import { perfumesActiveFiltersTags } from "../../utils/buildTags";
 import LoadMore from "../../ui/LoadMore";
 
 interface BrowseTabProps {

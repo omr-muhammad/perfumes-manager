@@ -33,7 +33,7 @@ export type UpdateCompanyBody = Static<typeof UpdateCompanyBody>;
 const CompaniesQueryFilters = t.Object({
   search: t.Optional(t.String()),
   type: t.Optional(CompanyType),
-  approved: t.Optional(t.BooleanString({ default: true })),
+  approved: t.Optional(t.BooleanString()),
   ...QueriesMeta,
 });
 export type CompaniesQueryFilters = Static<typeof CompaniesQueryFilters>;

@@ -1,0 +1,22 @@
+{
+  "browse": "Browse",
+  "add": "Add",
+  "editTabLabel": "Edit: {{coName}}",
+  "approveTablLabel": "Approve: {coName}}",
+  "noCoFound": "No companies found.",
+  "loadingCompanies": "Loading Companies",
+  "local": "Local",
+  "l": "L",
+  "global": "Global",
+  "g": "G",
+  "approved": "Approved",
+  "pending": "Pending",
+  "edit": "Edit",
+  "approve": "Approve",
+  "delete": "Delete",
+  "searchByName": "Search by name...",
+  "activeType": "Type",
+  "search": "Search",
+  "clearFilters": "Clear filters",
+  "removeFilter": "Remove filter"
+}

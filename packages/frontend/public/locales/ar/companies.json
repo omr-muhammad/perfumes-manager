@@ -1,0 +1,22 @@
+{
+  "browse": "تصفح",
+  "add": "إضافة",
+  "editTabLabel": "تعديل: {{coName}}",
+  "approveTablLabel": "مراجعة: {coName}}",
+  "noCoFound": "لم يتم العثور على شركات.",
+  "loadingCompanies": "جارى استحضار الشركات.",
+  "local": "محلية",
+  "l": "م",
+  "global": "عالمية",
+  "g": "ع",
+  "approved": "موثقة",
+  "pending": "قيد الإنتظار",
+  "edit": "تعديل",
+  "approve": "توثيق",
+  "delete": "حذف",
+  "searchByName": "البحث بالاسم...",
+  "activeType": "النوع",
+  "search": "البحث",
+  "clearFilters": "مسح الفلاتر",
+  "removeFilter": "إزالة الفلتر"
+}
