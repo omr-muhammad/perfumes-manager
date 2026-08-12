@@ -17,7 +17,7 @@ export async function createCompany(context: CoCTXs["CreateCoCtx"]) {
 export async function approveCompany(context: CoCTXs["ApproveCoCtx"]) {
   const { params, body } = context;
 
-  const company = await companiesService.approve(params.compnayId, body);
+  const company = await companiesService.approve(params.companyId, body);
 
   return res.ok("Company approved", {
     id: company.id,
@@ -33,10 +33,18 @@ export async function getAllCompanies(context: CoCTXs["QueryCoCtx"]) {
   return res.ok("Companies fetched", companies);
 }
 
+export async function getById(context: CoCTXs["QueryById"]) {
+  const { params } = context;
+
+  const company = await companiesService.getCoById(params.companyId);
+
+  return res.ok("Fetched successfully", { company });
+}
+
 export async function updateCompany(context: CoCTXs["UpdateCoCtx"]) {
   const { params, body } = context;
 
-  const company = await companiesService.update(params.compnayId, body);
+  const company = await companiesService.update(params.companyId, body);
 
   return res.ok("Company updated", { company });
 }
@@ -44,7 +52,7 @@ export async function updateCompany(context: CoCTXs["UpdateCoCtx"]) {
 export async function deleteCompany(context: CoCTXs["DelCoCtx"]) {
   const { params } = context;
 
-  const company = await companiesService.remove(params.compnayId);
+  const company = await companiesService.remove(params.companyId);
 
   return res.ok("Company deleted", { id: company.id, name: company.name });
 }

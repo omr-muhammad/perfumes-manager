@@ -39,7 +39,7 @@ const CompaniesQueryFilters = t.Object({
 export type CompaniesQueryFilters = Static<typeof CompaniesQueryFilters>;
 
 // ------------ Handlers ------------
-const CParams = t.Object({ compnayId: ID });
+const CParams = t.Object({ companyId: ID });
 type CParams = Static<typeof CParams>;
 
 // ------------ Contexts Types ------------
@@ -49,6 +49,7 @@ export interface CoCTXs {
   QueryCoCtx: Ctx<unknown, unknown, CompaniesQueryFilters>;
   UpdateCoCtx: Ctx<UpdateCompanyBody, CParams>;
   DelCoCtx: Ctx<unknown, CParams>;
+  QueryById: Ctx<unknown, CParams>;
 }
 
 // ------------ Contexts Validators ------------
@@ -87,6 +88,13 @@ export const CoSchema = {
     query: CompaniesQueryFilters,
     detail: {
       summary: "List companies",
+      tags: ["Companies"],
+    },
+  },
+  QueryById: {
+    params: CParams,
+    detail: {
+      summary: "Get a company",
       tags: ["Companies"],
     },
   },

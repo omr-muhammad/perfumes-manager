@@ -75,6 +75,17 @@ export async function queryAll(filters: CompaniesQueryFilters) {
   };
 }
 
+export async function getCoById(coId: number) {
+  const [company] = await db
+    .select()
+    .from(companiesTable)
+    .where(eq(companiesTable.id, coId));
+
+  if (!company) throw new AppError(404, `Company with id: ${coId} not found.`);
+
+  return company;
+}
+
 export async function update(companyId: number, updates: UpdateCompanyBody) {
   const [company] = await db
     .update(companiesTable)
