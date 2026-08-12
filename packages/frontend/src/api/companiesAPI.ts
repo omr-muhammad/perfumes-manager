@@ -31,6 +31,15 @@ export async function apiCoQuery(query?: CoQuery) {
   return data.data!;
 }
 
+export async function apiGetCoById(companyId: number) {
+  const { data, error } = await backend.api.companies({ companyId }).get();
+
+  if (error || !data.success)
+    throw new Error(error?.value.message || data!.message);
+
+  return data.data!;
+}
+
 export async function apiCoCreate(newCo: NewCompany) {
   const { data, error } = await backend.api.companies.post(newCo);
 
@@ -44,6 +53,17 @@ export async function apiCoUpdate(companyId: number, updates: CoUpdates) {
   const { data, error } = await backend.api.admin
     .companies({ companyId })
     .patch(updates);
+
+  if (error || !data.success)
+    throw new Error(error?.value.message || data?.message || "ERR_UNKNOWN");
+
+  return data.data!;
+}
+
+export async function apiCoApprove(companyId: number, updates: CoUpdates) {
+  const { data, error } = await backend.api.admin
+    .companies({ companyId })
+    .approve.patch(updates);
 
   if (error || !data.success)
     throw new Error(error?.value.message || data?.message || "ERR_UNKNOWN");

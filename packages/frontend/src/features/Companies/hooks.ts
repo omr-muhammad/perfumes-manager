@@ -1,5 +1,23 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { apiCoQuery, type CoQuery } from "../../api/companiesAPI";
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import {
+  apiCoCreate,
+  apiCoDelete,
+  apiCoQuery,
+  apiCoUpdate,
+  apiGetCoById,
+  type CoQuery,
+  type CoUpdates,
+  type NewCompany,
+} from "../../api/companiesAPI";
+import toast from "react-hot-toast";
+
+type EditApproveCo = { coId: number; updates: CoUpdates };
 
 export function useInfiniteCompanies(query?: CoQuery) {
   const {
@@ -31,4 +49,100 @@ export function useInfiniteCompanies(query?: CoQuery) {
     hasNextPage,
     isFetchingNextPage,
   };
+}
+
+export function useCompanyById(coId: number) {
+  const { data, isPending, error } = useQuery({
+    queryKey: ["companies", `id_${coId}`],
+    queryFn: () => apiGetCoById(coId),
+    staleTime: 5 * 60 * 1000,
+    placeholderData: keepPreviousData,
+  });
+
+  if (error) throw error;
+
+  return { company: data, loading: isPending };
+}
+
+export function useCreateCompany() {
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["companies", "new_company"],
+    mutationFn: async (newCo: NewCompany) => apiCoCreate(newCo),
+    onSuccess: (data) =>
+      toast.success(`${data.name} company was created successfully.`),
+    onError: (err) => {
+      console.log(err);
+      toast.error(err.message);
+    },
+  });
+
+  return { createCo: mutate, creating: isPending };
+}
+
+export function useUpdateCompany() {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["companies", "edit_company"],
+    mutationFn: async ({ coId, updates }: EditApproveCo) =>
+      apiCoUpdate(coId, updates),
+    onSuccess: (data) => {
+      toast.success(`${data.company.name} company was updated successfully.`);
+
+      queryClient.invalidateQueries({
+        queryKey: ["companies"],
+      });
+    },
+    onError: (err) => {
+      console.log(err);
+      toast.error(err.message);
+    },
+  });
+
+  return { mutate, isPending };
+}
+
+export function useApproveCompany() {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["companies", `approve_company`],
+    mutationFn: async ({ coId, updates }: EditApproveCo) =>
+      apiCoUpdate(coId, updates),
+    onSuccess: (data) => {
+      toast.success(`${data.company.name} company was approved successfully.`);
+
+      queryClient.invalidateQueries({
+        queryKey: ["companies"],
+      });
+    },
+    onError: (err) => {
+      console.log(err);
+      toast.error(err.message);
+    },
+  });
+
+  return { mutate, isPending };
+}
+
+export function useDeleteCompany() {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["companies", `delete_company`],
+    mutationFn: async (coId: number) => apiCoDelete(coId),
+    onSuccess: (data) => {
+      toast.success(`${data.name} company was deleted successfully.`);
+
+      queryClient.invalidateQueries({
+        queryKey: ["companies"],
+      });
+    },
+    onError: (err) => {
+      console.log(err);
+      toast.error(err.message);
+    },
+  });
+
+  return { deleteCo: mutate, deleting: isPending };
 }
