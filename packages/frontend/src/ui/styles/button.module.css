@@ -1,0 +1,98 @@
+/* ============================================
+   Button.module.css
+   Shape (.btn, .size-*) and color (.variant-*) are kept as
+   independent, composable classes on purpose — see
+   getButtonVariantClassName() in Button.tsx for why: it lets a
+   non-button element (a menu row) reuse just the color logic.
+   ============================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-weight: 500;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent-interactive, var(--accent-primary));
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ===== Sizes =====
+   small mirrors the card "Add" button (pill radius).
+   mid and large share the squarer --radius-sm, mirroring the
+   primary/ghost buttons already used for page-level actions. */
+.size-small {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-xs);
+  border-radius: 999px;
+}
+
+.size-mid {
+  padding: var(--space-2) var(--space-5);
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-sm);
+}
+
+.size-large {
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--font-size-base);
+  border-radius: var(--radius-sm);
+}
+
+/* ===== Variants ===== */
+
+/* Primary — filled, uses the interactive gold in light mode,
+   falls back to the gold accent in dark mode. */
+.variant-primary {
+  background: var(--accent-interactive, var(--accent-primary));
+  border-color: var(--accent-interactive, var(--accent-primary));
+  color: var(--card-bg-start);
+}
+.variant-primary:hover:not(:disabled) {
+  background: var(--accent-interactive-hover, var(--accent-mid));
+  border-color: var(--accent-interactive-hover, var(--accent-mid));
+}
+
+/* Secondary — outline/ghost. For a "Cancel" beside a submit, or
+   any lower-emphasis action next to a primary one. */
+.variant-secondary {
+  background: transparent;
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+.variant-secondary:hover:not(:disabled) {
+  border-color: var(--border-hover);
+  color: var(--accent-interactive, var(--accent-primary));
+}
+
+.variant-delete {
+  background: var(--status-error-tint);
+  border-color: var(--status-error);
+  color: var(--status-error);
+}
+.variant-delete:hover:not(:disabled) {
+  background: var(--status-error);
+  border-color: var(--status-error);
+  color: var(--card-bg-start);
+}

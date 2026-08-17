@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import styles from "./companies.module.css";
 import { BrowseTab } from "./BrowseTab";
+import { AddTab } from "./AddTab";
 
 type CompaniesTab =
   | { type: "browse" }
@@ -37,9 +38,9 @@ export function Companies() {
     });
   }
 
-  function activeBrowseTab() {
-    setActiveTab({ type: "browse" });
-  }
+  // function activeBrowseTab() {
+  //   setActiveTab({ type: "browse" });
+  // }
 
   return (
     <div>
@@ -91,6 +92,17 @@ export function Companies() {
             onEdit={activeEdit}
             onApprove={activeApprove}
           />
+        </div>
+      )}
+
+      {activeTab.type === "add" && (
+        <div
+          className={styles.tabPanel}
+          role="tabpanel"
+          id="tabpanel-browse"
+          aria-labelledby="tab-browse"
+        >
+          <AddTab />
         </div>
       )}
     </div>

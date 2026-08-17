@@ -1,4 +1,7 @@
 {
+  "countries": {
+    "selectCountryPlaceholder": "اختر دولة"
+  },
   "auth": {
     "nav": {
       "login": "تسجيل الدخول",
@@ -44,5 +47,6 @@
   },
   "loadingBtnTxt": "المزيد",
   "noMoreTxt": "ليس هناك المزيد",
-  "loadingErrorTxt": "لا يمكن تحميل المزيد, أعد المحاولة"
+  "loadingErrorTxt": "لا يمكن تحميل المزيد, أعد المحاولة",
+  "noResultsFound": "لا توجد نتائج."
 }

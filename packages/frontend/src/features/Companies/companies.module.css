@@ -59,3 +59,13 @@
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
 }
+
+.addCoFrom {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: var(--space-5);
+  width: 30rem;
+  margin-inline: auto;
+}

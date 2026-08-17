@@ -2,10 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { MdGppGood } from "react-icons/md";
 import { CgSandClock } from "react-icons/cg";
 import { HiDotsVertical } from "react-icons/hi";
+import { BiWorld, BiMapPin } from "react-icons/bi";
 import styles from "./company-card-mini.module.css";
 import { useTranslation } from "react-i18next";
 import { useConfirm } from "../../contexts/ConfirmContext";
 import type { Company } from "../../api/companiesAPI";
+import { getFlagEmoji } from "../../utils/countries";
+
 // import { useDeletePerfume } from "./hook";
 
 type MiniCo = Omit<Company, "createdAt" | "updatedAt" | "logo">;
@@ -77,16 +80,28 @@ export function CoMiniCard({
         </h3>
         {hqCountryCode && (
           <span
-            className={styles.badge}
+            className={styles.statusIcon}
             title={t(`countries:${hqCountryCode}`)}
           >
-            {hqCountryCode}
+            {getFlagEmoji(hqCountryCode)}
           </span>
         )}
-        {type && (
-          <span className={styles.badge} title={t(`companies:${type}`)}>
-            {t(type.slice(0, 1))}
-          </span>
+        {type &&
+        // <span className={styles.badge} title={t(`companies:${type}`)}>
+        //   {t(type.slice(0, 1))}
+        // </span>
+        type === "global" ? (
+          <BiWorld
+            className={styles.statusIcon}
+            data-staus={type}
+            title={t(`companies:${type}`)}
+          />
+        ) : (
+          <BiMapPin
+            className={styles.statusIcon}
+            data-staus={type}
+            title={t(`companies:${type}`)}
+          />
         )}
         {approved ? (
           <MdGppGood

@@ -63,6 +63,7 @@
 .statusIcon {
   font-size: 17px;
   flex-shrink: 0;
+  cursor: default;
 }
 
 .statusIcon[data-status="approved"] {

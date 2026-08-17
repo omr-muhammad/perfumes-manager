@@ -18,5 +18,12 @@
   "activeType": "Type",
   "search": "Search",
   "clearFilters": "Clear filters",
-  "removeFilter": "Remove filter"
+  "removeFilter": "Remove filter",
+  "countryNameLabel": "Country Name",
+  "logoInputLabel": "Logo Url (optional)",
+  "companyNameLabel": "Company Name",
+  "adminAddCoBtn": "Add & Approve",
+  "addCoBtn": "Add company",
+  "approveCoB": "Approve company",
+  "editCoBtn": "Edit company"
 }

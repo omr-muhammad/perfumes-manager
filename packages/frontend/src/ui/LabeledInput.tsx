@@ -72,6 +72,7 @@ export function LabeledInput({
         className={styles.dliInput}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? errorId : undefined}
+        autoComplete="off"
       />
       <label
         htmlFor={inputId}

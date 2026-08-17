@@ -12,10 +12,15 @@
      inline spinner doesn't turn into a solid dot */
   --spinner-thickness: max(2px, calc(10 / 64 * 100%));
 
+  /* currentColor instead of a hardcoded token: the ring now paints
+     with whatever `color` is active on this element. Nothing sets
+     that here, so it falls through to .centered below for the
+     default full-page case, or to an ancestor's `color` (a Button's
+     variant color, for instance) for inline use. */
   background:
-    radial-gradient(farthest-side, var(--accent-primary) 94%, #0000)
-      top / var(--spinner-thickness) var(--spinner-thickness) no-repeat,
-    conic-gradient(#0000 30%, var(--accent-primary));
+    radial-gradient(farthest-side, currentColor 94%, #0000) top /
+      var(--spinner-thickness) var(--spinner-thickness) no-repeat,
+    conic-gradient(#0000 30%, currentColor);
 
   -webkit-mask: radial-gradient(
     farthest-side,
@@ -33,4 +38,9 @@
 
 .centered {
   margin: auto;
+  /* The old hardcoded ring color lives here now, not on .spinner.
+     Every existing non-inline usage still gets exactly this gold,
+     unchanged — Spinner.tsx already applies .centered only when
+     inline is false, so nothing else needs to change. */
+  color: var(--accent-primary);
 }
