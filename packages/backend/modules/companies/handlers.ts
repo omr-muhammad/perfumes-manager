@@ -1,3 +1,4 @@
+import { uploadImage } from "../../services/uploadImage";
 import { response as res } from "../../utils/response";
 import type { CoCTXs } from "./schema";
 import * as companiesService from "./service";

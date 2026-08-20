@@ -16,6 +16,7 @@ import {
   type NewCompany,
 } from "../../api/companiesAPI";
 import toast from "react-hot-toast";
+import { uploadImgToCloudinary } from "../../utils/uploadImage";
 
 type EditApproveCo = { coId: number; updates: CoUpdates };
 
@@ -61,7 +62,7 @@ export function useCompanyById(coId: number) {
 
   if (error) throw error;
 
-  return { company: data, loading: isPending };
+  return { company: data?.company, loading: isPending };
 }
 
 export function useCreateCompany() {
@@ -77,6 +78,14 @@ export function useCreateCompany() {
   });
 
   return { createCo: mutate, creating: isPending };
+}
+
+export function useUploadLogo() {
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: uploadImgToCloudinary,
+  });
+
+  return { uploadCoLogo: mutateAsync, uploadingLogo: isPending };
 }
 
 export function useUpdateCompany() {

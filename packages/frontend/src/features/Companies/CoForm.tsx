@@ -1,17 +1,26 @@
-import { useEffect, useState, type ChangeEvent, type SubmitEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import styles from "./companies.module.css";
 import type { NewCompany, Company } from "../../api/companiesAPI";
 import { LabeledInput } from "../../ui/LabeledInput";
 import { useTranslation } from "react-i18next";
 import { TypeFilter } from "../../ui/TypeFilter";
 import DisplayResult from "../../ui/DisplayResult";
+import { FieldError } from "../../ui/FieldError";
+import { LogoUpload } from "../../ui/LogoUpload";
 import i18n from "../../i18";
 import { getLocalizedCountries } from "../../utils/countries";
-import toast from "react-hot-toast";
 import Button from "../../ui/Button";
 import { Spinner } from "../../ui/Spinner";
+import { useUploadLogo } from "./hooks";
 
-type FormCompany = Omit<Company, "createdAt" | "updatedAt" | "id" | "approved">;
+export type FormCompany = Omit<
+  Company,
+  "createdAt" | "updatedAt" | "id" | "approved"
+>;
+
+export type FormErrors = Partial<
+  Record<"name" | "hqCountryCode" | "type" | "logo" | "root", string>
+>;
 
 type CoFormProps = {
   initData?: FormCompany;
@@ -19,6 +28,9 @@ type CoFormProps = {
   onSubmit: (newCo: NewCompany) => void;
   isSubmitting: boolean;
   isAdmin: boolean;
+  // Field-keyed errors from a failed API call, merged on top of local
+  // validation so the caller doesn't need to know what's already showing.
+  serverErrors?: FormErrors;
 };
 
 type EmptyCompany = {
@@ -41,14 +53,24 @@ export function CoForm({
   isSubmitting,
   isAdmin,
   approve,
+  serverErrors,
 }: CoFormProps) {
   const { t } = useTranslation();
   const [company, setCompany] = useState<FormCompany>(initData || emptyCompany);
   const [countryName, setCountryName] = useState<string>();
   const [isOpen, setIsOpen] = useState(false);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const { uploadCoLogo, uploadingLogo } = useUploadLogo();
+  const [errors, setErrors] = useState<FormErrors>({});
+  // Bumped after a successful submit to force LogoUpload to remount — it
+  // owns its own preview URL internally, so resetting company.logo alone
+  // wouldn't clear what's on screen.
+  const [formKey, setFormKey] = useState(0);
 
   const countries = getLocalizedCountries(i18n.language);
-  const filtered = countries.filter((c) => c.name.includes(countryName!));
+  const filtered = countries.filter((c) =>
+    c.name.toLowerCase().includes(countryName?.toLowerCase() || ""),
+  );
 
   useEffect(() => {
     if (initData && initData.hqCountryCode) {
@@ -59,101 +81,172 @@ export function CoForm({
     }
   }, []);
 
+  useEffect(() => {
+    if (serverErrors) setErrors((cur) => ({ ...cur, ...serverErrors }));
+  }, [serverErrors]);
+
   function handleChange(name: keyof typeof company, value: string) {
     setCompany((cur) => ({ ...cur, [name]: value }));
+    setErrors((cur) => ({ ...cur, [name]: undefined }));
   }
 
   function handleType(coType: typeof company.type | undefined) {
     if (!coType) return;
-
     handleChange("type", coType);
   }
 
-  function handleSubmit(e: SubmitEvent) {
+  function validate(): FormErrors {
+    const next: FormErrors = {};
+    if (!company.name.trim()) {
+      next.name = t(
+        "companies:errors.nameRequired",
+        "Company name is required.",
+      );
+    }
+    if (!company.hqCountryCode) {
+      next.hqCountryCode = t(
+        "companies:errors.countryRequired",
+        "Country name is required.",
+      );
+    }
+    if (!company.type) {
+      next.type = t(
+        "companies:errors.typeRequired",
+        "Company type is required.",
+      );
+    }
+    return next;
+  }
+
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
 
-    if (!company.hqCountryCode) return toast.error("Country name is required.");
-    if (!company.name) return toast.error("Company name is required.");
-    if (!company.type) return toast.error("Comany type is required.");
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
 
-    onSubmit(company as NewCompany);
+    let imgId = company.logo;
+
+    if (logoFile) {
+      try {
+        const url = await uploadCoLogo(logoFile);
+
+        console.log("SUBMIT URL: ", url);
+
+        imgId = url.slice(url.lastIndexOf("/") + 1);
+      } catch (e) {
+        console.error("ERROR: ", e);
+        setErrors((cur) => ({
+          ...cur,
+          logo: t(
+            "companies:errors.logoUploadFailed",
+            "Couldn't upload the logo. Try again.",
+          ),
+        }));
+        return;
+      }
+    }
+
+    onSubmit({ ...company, logo: imgId ?? "" } as NewCompany);
 
     setCompany(emptyCompany);
     setCountryName("");
+    setLogoFile(null);
+    setErrors({});
+    setFormKey((k) => k + 1);
   }
+
+  const busy = isSubmitting || uploadingLogo;
 
   return (
     <form className={styles.addCoFrom} onSubmit={handleSubmit}>
-      <LabeledInput
-        name="name"
-        label={t("companies:companyNameLabel") + " *"}
-        value={company.name}
-        onChange={(e: ChangeEvent<HTMLInputElement>) =>
-          handleChange("name", e.target.value)
-        }
-        // required
-      />
-
-      <div
-        style={{ position: "relative" }}
-        onFocus={() => setIsOpen(true)}
-        onBlur={(e) => {
-          // don't close if focus moved somewhere still inside this wrapper
-          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-            setIsOpen(false);
-          }
-        }}
-      >
-        <LabeledInput
-          name="country-name"
-          label={t("companies:countryNameLabel") + " *"}
-          value={countryName || ""}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setCountryName(e.target.value)
-          }
-          // required
-        />
-        <DisplayResult
-          results={filtered}
-          isOpen={isOpen}
-          noResultsLabel={t("noResultsFound")}
-          onSelect={(item) => {
-            setCountryName(item.name);
-            handleChange("hqCountryCode", item.code);
-            setIsOpen(false);
+      <div className={styles.topRow}>
+        <LogoUpload
+          key={formKey}
+          // label={t("companies:logoLabel", "Company logo")}
+          value={company.logo || null}
+          onChange={(file) => {
+            setLogoFile(file);
+            setErrors((cur) => ({ ...cur, logo: undefined }));
           }}
+          error={errors.logo}
+          disabled={busy}
+          size="lg"
         />
+
+        <div className={styles.topRowFields}>
+          <div className={styles.field}>
+            <LabeledInput
+              name="name"
+              label={t("companies:companyNameLabel") + " *"}
+              value={company.name}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                handleChange("name", e.target.value)
+              }
+            />
+            <FieldError message={errors.name} className={styles.fieldError} />
+          </div>
+
+          <div className={styles.field}>
+            <div
+              style={{ position: "relative" }}
+              onFocus={() => setIsOpen(true)}
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                  setIsOpen(false);
+                }
+              }}
+            >
+              <LabeledInput
+                name="country-name"
+                label={t("companies:countryNameLabel") + " *"}
+                value={countryName || ""}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setCountryName(e.target.value)
+                }
+              />
+              <DisplayResult
+                results={filtered}
+                isOpen={isOpen}
+                noResultsLabel={t("noResultsFound")}
+                onSelect={(item) => {
+                  setCountryName(item.name);
+                  handleChange("hqCountryCode", item.code);
+                  setIsOpen(false);
+                }}
+              />
+            </div>
+            <FieldError
+              message={errors.hqCountryCode}
+              className={styles.fieldError}
+            />
+          </div>
+        </div>
       </div>
 
-      {/* <LabeledInput
-        name="logo"
-        label={t("companies:logoInputLabel")}
-        value={company.logo || ""}
-        onChange={(e: ChangeEvent<HTMLInputElement>) =>
-          handleChange("logo", e.target.value)
-        }
-      /> */}
+      <div className={styles.field}>
+        <TypeFilter
+          coType={company.type}
+          handleActive={handleType}
+          nsFile="companies"
+        />
+        <FieldError message={errors.type} className={styles.fieldError} />
+      </div>
 
-      <TypeFilter
-        coType={company.type}
-        handleActive={handleType}
-        nsFile="companies"
-      />
+      <FieldError message={errors.root} className={styles.formError} />
 
-      <Button
-        type="submit"
-        style={{ alignSelf: "flex-end" }}
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? (
+      <Button type="submit" style={{ alignSelf: "flex-end" }} disabled={busy}>
+        {busy ? (
           <Spinner size="1rem" inline />
-        ) : approve === undefined ? ( // we're adding new company
-          isAdmin ? ( // admin add approved company directly
+        ) : approve === undefined ? (
+          isAdmin ? (
             t("companies:adminAddCoBtn")
           ) : (
             t("companies:addCoBtn")
           )
-        ) : approve ? ( // true => approve mode else edit
+        ) : approve ? (
           t("companies:approveCoBtn")
         ) : (
           t("companies:editCoBtn")

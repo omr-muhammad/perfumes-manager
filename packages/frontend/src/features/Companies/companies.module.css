@@ -21,7 +21,6 @@
   align-items: flex-end;
   flex-shrink: 0;
   gap: var(--space-5);
-  /* margin-block-end: var(--space-4); */
 }
 
 .filterField {
@@ -50,7 +49,6 @@
   flex: 1;
   min-height: 0;
   padding-block: 5px;
-  /* margin-block-start: var(--space-6); */
 }
 
 .stateMessage {
@@ -66,6 +64,46 @@
   flex: 1;
   min-height: 0;
   gap: var(--space-5);
-  width: 30rem;
+  inline-size: 30rem;
   margin-inline: auto;
+}
+
+/* ============================================
+   Logo + top fields row
+   ============================================ */
+.topRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.topRowFields {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ============================================
+   Field wrappers + error states
+   ============================================ */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.fieldError {
+  font-size: var(--font-size-xs);
+  color: var(--status-error);
+}
+
+.formError {
+  font-size: var(--font-size-sm);
+  color: var(--status-error);
+  background: var(--status-error-tint);
+  border-radius: var(--radius-sm);
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
 }
