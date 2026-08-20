@@ -1,6 +1,6 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import styles from "./companies.module.css";
-import type { NewCompany, Company } from "../../api/companiesAPI";
+import type { Company } from "../../api/companiesAPI";
 import { LabeledInput } from "../../ui/LabeledInput";
 import { useTranslation } from "react-i18next";
 import { TypeFilter } from "../../ui/TypeFilter";
@@ -12,6 +12,8 @@ import { getLocalizedCountries } from "../../utils/countries";
 import Button from "../../ui/Button";
 import { Spinner } from "../../ui/Spinner";
 import { useUploadLogo } from "./hooks";
+
+const BASE_IMG_URL = import.meta.env.VITE_BASE_CLOUDINARY_URL;
 
 export type FormCompany = Omit<
   Company,
@@ -25,7 +27,7 @@ export type FormErrors = Partial<
 type CoFormProps = {
   initData?: FormCompany;
   approve?: boolean;
-  onSubmit: (newCo: NewCompany) => void;
+  onSubmit: (newCo: FormCompany) => void;
   isSubmitting: boolean;
   isAdmin: boolean;
   // Field-keyed errors from a failed API call, merged on top of local
@@ -149,7 +151,7 @@ export function CoForm({
       }
     }
 
-    onSubmit({ ...company, logo: imgId ?? "" } as NewCompany);
+    onSubmit({ ...company, logo: imgId ?? "" });
 
     setCompany(emptyCompany);
     setCountryName("");
@@ -166,7 +168,7 @@ export function CoForm({
         <LogoUpload
           key={formKey}
           // label={t("companies:logoLabel", "Company logo")}
-          value={company.logo || null}
+          value={company.logo ? `${BASE_IMG_URL}/${company.logo}` : null}
           onChange={(file) => {
             setLogoFile(file);
             setErrors((cur) => ({ ...cur, logo: undefined }));

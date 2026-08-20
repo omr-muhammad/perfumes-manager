@@ -2,7 +2,7 @@
   "browse": "Browse",
   "add": "Add",
   "editTabLabel": "Edit: {{coName}}",
-  "approveTablLabel": "Approve: {coName}}",
+  "approveTabLabel": "Approve: {{coName}}",
   "noCoFound": "No companies found.",
   "loadingCompanies": "Loading Companies",
   "local": "Local",
@@ -24,6 +24,6 @@
   "companyNameLabel": "Company Name",
   "adminAddCoBtn": "Add & Approve",
   "addCoBtn": "Add company",
-  "approveCoB": "Approve company",
+  "approveCoBtn": "Approve company",
   "editCoBtn": "Edit company"
 }

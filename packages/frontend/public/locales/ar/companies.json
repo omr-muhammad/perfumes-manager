@@ -2,7 +2,7 @@
   "browse": "تصفح",
   "add": "إضافة",
   "editTabLabel": "تعديل: {{coName}}",
-  "approveTablLabel": "مراجعة: {coName}}",
+  "approveTabLabel": "مراجعة: {{coName}}",
   "noCoFound": "لم يتم العثور على شركات.",
   "loadingCompanies": "جارى استحضار الشركات.",
   "local": "محلية",
@@ -24,6 +24,6 @@
   "companyNameLabel": "اسم الشركة",
   "adminAddCoBtn": "أضف مع التوثيق",
   "addCoBtn": "أضف",
-  "approveCoB": "وثٍّق",
+  "approveCoBtn": "وثٍّق",
   "editCoBtn": "عدٍّل"
 }

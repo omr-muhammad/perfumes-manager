@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import styles from "./companies.module.css";
 import { BrowseTab } from "./BrowseTab";
 import { AddTab } from "./AddTab";
+import { EditCompanyTab } from "./EditCompanyTab";
 
 type CompaniesTab =
   | { type: "browse" }
@@ -38,9 +39,9 @@ export function Companies() {
     });
   }
 
-  // function activeBrowseTab() {
-  //   setActiveTab({ type: "browse" });
-  // }
+  function activeBrowseTab() {
+    setActiveTab({ type: "browse" });
+  }
 
   return (
     <div>
@@ -103,6 +104,37 @@ export function Companies() {
           aria-labelledby="tab-browse"
         >
           <AddTab />
+        </div>
+      )}
+
+      {activeTab.type === "edit" && (
+        <div
+          className={styles.tabPanel}
+          role="tabpanel"
+          id="tabpanel-edit"
+          aria-labelledby="tab-edit"
+        >
+          <EditCompanyTab
+            isAdmin={isAdmin}
+            coId={activeTab.coId}
+            backToBrowse={activeBrowseTab}
+          />
+        </div>
+      )}
+
+      {activeTab.type === "approve" && (
+        <div
+          className={styles.tabPanel}
+          role="tabpanel"
+          id="tabpanel-approve"
+          aria-labelledby="tab-approve"
+        >
+          <EditCompanyTab
+            isAdmin={isAdmin}
+            coId={activeTab.coId}
+            backToBrowse={activeBrowseTab}
+            mode="approve"
+          />
         </div>
       )}
     </div>

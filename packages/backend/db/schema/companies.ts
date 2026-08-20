@@ -18,23 +18,13 @@ export const companiesTable = pgTable(
   {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     name: varchar("name", { length: 100 }).notNull(),
-    hqCountryCode: varchar("hq_country_code", { length: 5 }),
+    hqCountryCode: varchar("hq_country_code", { length: 5 }).notNull(),
     approved: boolean("approved").default(false),
     logo: text("logo").default(""),
     type: companyTypeEn("type").default("global").notNull(),
     ...timestamps,
   },
-  (table) => [
-    unique(CO_UQ).on(table.name, table.hqCountryCode),
-    check(
-      CO_APPROVED_CHK,
-      sql`
-      NOT ${table.approved}
-        OR
-      ${table.hqCountryCode} IS NOT NULL
-    `,
-    ),
-  ],
+  (table) => [unique(CO_UQ).on(table.name, table.hqCountryCode)],
 );
 
 export const companiesRelations = relations(companiesTable, ({ many }) => ({

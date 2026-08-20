@@ -6,6 +6,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import {
+  apiCoApprove,
   apiCoCreate,
   apiCoDelete,
   apiCoQuery,
@@ -99,7 +100,7 @@ export function useUpdateCompany() {
       toast.success(`${data.company.name} company was updated successfully.`);
 
       queryClient.invalidateQueries({
-        queryKey: ["companies"],
+        queryKey: ["companies", `id_${data.company.id}`],
       });
     },
     onError: (err) => {
@@ -117,12 +118,12 @@ export function useApproveCompany() {
   const { mutate, isPending } = useMutation({
     mutationKey: ["companies", `approve_company`],
     mutationFn: async ({ coId, updates }: EditApproveCo) =>
-      apiCoUpdate(coId, updates),
+      apiCoApprove(coId, updates),
     onSuccess: (data) => {
       toast.success(`${data.company.name} company was approved successfully.`);
 
       queryClient.invalidateQueries({
-        queryKey: ["companies"],
+        queryKey: ["companies", `id_${data.company.id}`],
       });
     },
     onError: (err) => {

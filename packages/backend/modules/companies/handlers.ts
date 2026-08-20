@@ -21,8 +21,7 @@ export async function approveCompany(context: CoCTXs["ApproveCoCtx"]) {
   const company = await companiesService.approve(params.companyId, body);
 
   return res.ok("Company approved", {
-    id: company.id,
-    name: company.name,
+    company,
   });
 }
 
