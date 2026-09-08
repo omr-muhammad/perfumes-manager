@@ -22,7 +22,7 @@ interface PerfumeCardMiniProps {
   onApprove: (perfumeId: number, perfumeName: string) => void;
 }
 
-export default function PerfumeCardMini({
+export function PerfumeCardMini({
   perfume,
   isAdmin,
   nsFile = "perfumes",

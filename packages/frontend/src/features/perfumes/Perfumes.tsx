@@ -14,7 +14,7 @@ type PerfumesTab =
   | { type: "edit" | "approve"; perfumeId: number; perfumeName: string };
 
 export function Perfumes() {
-  const { t } = useTranslation("perfumes");
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<PerfumesTab>({
     type: "browse",
   });
@@ -50,11 +50,11 @@ export function Perfumes() {
           isActive={activeTab.type === "browse"}
           onClick={() => setActiveTab({ type: "browse" })}
           ariaControls="tabpanel-browse"
-          text={t("browse")}
+          text={t("perfumes:browse")}
         />
 
         <TabButton
-          text={t("add")}
+          text={t("perfumes:add")}
           buttonId="tab-add"
           isActive={activeTab.type === "add"}
           ariaControls="tabpanel-add"
@@ -63,7 +63,9 @@ export function Perfumes() {
 
         {activeTab.type === "edit" && (
           <TabButton
-            text={t("editTabLabel", { perfumeName: activeTab.perfumeName })}
+            text={t("perfumes:editTabLabel", {
+              perfumeName: activeTab.perfumeName,
+            })}
             buttonId="tab-edit"
             isActive={activeTab.type === "edit"}
             ariaControls="tabpanel-edit"
@@ -72,7 +74,9 @@ export function Perfumes() {
 
         {activeTab.type === "approve" && (
           <TabButton
-            text={t("approveTabLabel", { perfumeName: activeTab.perfumeName })}
+            text={t("perfumes:approveTabLabel", {
+              perfumeName: activeTab.perfumeName,
+            })}
             buttonId="tab-approve"
             isActive={activeTab.type === "approve"}
             ariaControls="tabpanel-approve"

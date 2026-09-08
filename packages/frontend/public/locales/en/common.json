@@ -1,4 +1,24 @@
 {
+  "filters": {
+    "searchPlaceholder": "Search...",
+    "approved": "Approved",
+    "pending": "Pending",
+    "male": "Male",
+    "female": "Female",
+    "unisex": "Unisex",
+    "winter": "Winter",
+    "spring": "Spring",
+    "summer": "Summer",
+    "fall": "Fall",
+    "remove": "Remove",
+    "clear": "Clear all"
+  },
+  "panelBtns": {
+    "browse": "Browse",
+    "add": "Add",
+    "edit": "Edit: {{name}}",
+    "approve": "Approve: {{name}}"
+  },
   "countries": {
     "selectCountryPlaceholder": "Select a country"
   },
@@ -44,6 +64,12 @@
     "staff": "Staff",
     "back": "Back",
     "shopCompounds": "Shop Compounds"
+  },
+  "modal": {
+    "confirmDeleteTitle": "Do you want to delete {{name}}?",
+    "warnDeleteMsg": "This action cannot be undone",
+    "confirmText": "Confirm",
+    "cancelText": "Cancel"
   },
   "loadingBtnTxt": "Load more",
   "noMoreTxt": "No more items",

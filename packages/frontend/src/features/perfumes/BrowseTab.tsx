@@ -5,7 +5,7 @@ import { useDebounce } from "../../hooks/useDebounce";
 import { useInfinitePerfumes } from "./hook";
 import type { PerfumeQuery } from "../../api/perfumesAPI";
 import { Filters } from "./Filters";
-import PerfumeCardMini from "./PerfumeCardMini";
+import { PerfumeCardMini } from "./PerfumeCardMini";
 import { ActiveFilters } from "../../ui/ActiveFilters";
 import { perfumesActiveFiltersTags } from "../../utils/buildTags";
 import LoadMore from "../../ui/LoadMore";
@@ -17,7 +17,7 @@ interface BrowseTabProps {
 }
 
 export function BrowseTab({ isAdmin, onEdit, onApprove }: BrowseTabProps) {
-  const { t } = useTranslation("perfumes");
+  const { t } = useTranslation();
   const [query, setQuery] = useState<PerfumeQuery>({
     search: "",
     sex: undefined,
@@ -47,10 +47,12 @@ export function BrowseTab({ isAdmin, onEdit, onApprove }: BrowseTabProps) {
       <Filters query={query} onChange={setQuery} />
       <ActiveFilters tags={tags} onClear={clearAll} />
 
-      {loading && <p className={styles.stateMessage}>{t("loadingPerfumes")}</p>}
+      {loading && (
+        <p className={styles.stateMessage}>{t("perfumes:loadingPerfumes")}</p>
+      )}
 
       {!loading && perfumes.length === 0 && (
-        <p className={styles.stateMessage}>{t("noPerfumesFound")}</p>
+        <p className={styles.stateMessage}>{t("perfumes:noPerfumesFound")}</p>
       )}
 
       {!loading && perfumes.length > 0 && (
@@ -65,19 +67,18 @@ export function BrowseTab({ isAdmin, onEdit, onApprove }: BrowseTabProps) {
                 approved: perfume!.approved,
               }}
               isAdmin={isAdmin}
-              nsFile="perfumes"
               onEdit={onEdit}
               onApprove={onApprove}
             />
           ))}
 
           <LoadMore
-            loadText={t("common:loadingBtnTxt")}
+            loadText={t("loadingBtnTxt")}
             onLoadMore={fetchNextPage}
             hasMore={hasNextPage}
             isLoadingMore={isFetchingNextPage}
-            noMoreText={t("common:noMoreTxt")}
-            errorText={t("common:loadingErrorTxt")}
+            noMoreText={t("noMoreTxt")}
+            errorText={t("loadingErrorTxt")}
           />
         </div>
       )}

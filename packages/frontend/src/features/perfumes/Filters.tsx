@@ -5,6 +5,7 @@ import { SexFilter } from "../../ui/SexFilter";
 import ApproveFilter from "../../ui/ApproveFilter";
 import { SeasonsFilter } from "../../ui/SeasonsFilter";
 import { type Dispatch, type SetStateAction } from "react";
+import { useTranslation } from "react-i18next";
 
 interface FiltersProps {
   query: PerfumeQuery;
@@ -12,6 +13,8 @@ interface FiltersProps {
 }
 
 export function Filters({ query, onChange }: FiltersProps) {
+  const { t } = useTranslation();
+
   function handleSearch(value: string) {
     onChange((cur) => ({ ...cur, search: value }));
   }
@@ -41,8 +44,7 @@ export function Filters({ query, onChange }: FiltersProps) {
         <Search
           text={query.search}
           handleChange={handleSearch}
-          placeholder="searchByName"
-          nsFile="perfumes"
+          placeholder={t(`filters.searchPlaceholder`)}
         />
       </div>
 
@@ -50,20 +52,17 @@ export function Filters({ query, onChange }: FiltersProps) {
         <ApproveFilter
           approved={query.approved}
           handleActive={handleApprove}
-          nsFile="perfumes"
+          approvedTxt={t(`filters.approved`)}
+          pendingTxt={t(`filters.pending`)}
         />
       </div>
 
       <div className={styles.filterField}>
-        <SexFilter sex={query.sex} handleSelect={handleSex} nsFile="perfumes" />
+        <SexFilter sex={query.sex} handleSelect={handleSex} />
       </div>
 
       <div className={styles.filterField}>
-        <SeasonsFilter
-          selected={query.seasons}
-          handleSelect={handleSeasons}
-          nsFile="perfumes"
-        />
+        <SeasonsFilter selected={query.seasons} handleSelect={handleSeasons} />
       </div>
     </div>
   );

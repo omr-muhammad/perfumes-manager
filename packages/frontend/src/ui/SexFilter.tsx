@@ -11,20 +11,25 @@ const genders = [
   { value: "unisex", label: "unisex" },
 ];
 
-type Sex = PerfumeSex | "";
+type Sex = PerfumeSex | undefined;
 interface SexFilterProps {
   sex: Sex;
   handleSelect: (value: Sex) => void;
   nsFile?: string;
 }
 
-export function SexFilter({ sex, handleSelect, nsFile }: SexFilterProps) {
-  const { t } = useTranslation(nsFile);
+export function SexFilter({ sex, handleSelect }: SexFilterProps) {
+  const { t } = useTranslation();
 
   return (
-    <Select.Root value={sex} onValueChange={handleSelect}>
+    <Select.Root
+      value={sex}
+      onValueChange={(value) => handleSelect(value as Sex)}
+    >
       <Select.Trigger className={styles.trigger}>
-        <Select.Value placeholder={t("selectSex")}>{t(sex)}</Select.Value>
+        <Select.Value placeholder={t("perfumes:selectSex")}>
+          {t(sex || "")}
+        </Select.Value>
 
         <Select.Icon>
           <BsChevronDown />
@@ -45,7 +50,7 @@ export function SexFilter({ sex, handleSelect, nsFile }: SexFilterProps) {
                 value={item.value}
                 className={styles.item}
               >
-                <Select.ItemText>{t(item.label)}</Select.ItemText>
+                <Select.ItemText>{t(`filters.${item.label}`)}</Select.ItemText>
 
                 <Select.ItemIndicator className={styles.indicator}>
                   <BsCheck size={14} />

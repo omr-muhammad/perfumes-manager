@@ -45,5 +45,8 @@
   "confirmDeleteTitle": "Do you want to delete {{perfumeName}} perfume?",
   "warnDeleteMsg": "This action cannot be undone",
   "confirmText": "Confirm",
-  "cancelText": "Cancel"
+  "cancelText": "Cancel",
+  "errors": {
+    "missingReq": "Missing required data."
+  }
 }
