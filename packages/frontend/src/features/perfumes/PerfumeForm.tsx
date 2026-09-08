@@ -55,7 +55,7 @@ export function PerfumeForm({
   isSubmitting,
   isAdmin,
 }: FormProps) {
-  const { t } = useTranslation("perfumes");
+  const { t } = useTranslation();
   const [perfume, setPerfume] = useState<FormPerfume>(
     initialData || EmptyPerfume,
   );
@@ -90,7 +90,7 @@ export function PerfumeForm({
       !descriptionAr ||
       !descriptionEn
     )
-      return toast.error("Missing required data!");
+      return toast.error("perfumes:errors.missingReq");
 
     onSubmit(perfume);
   }
@@ -103,7 +103,7 @@ export function PerfumeForm({
         <div className={styles.apRow}>
           <LabeledInput
             name="name"
-            label={t("name")}
+            label={t("perfumes:name")}
             value={perfume.name}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               handleChange("name", e.target.value)
@@ -116,9 +116,8 @@ export function PerfumeForm({
         <div className={styles.apRowTwoCol}>
           <div>
             <SexFilter
-              sex={perfume.sex || ""}
-              handleSelect={(val) => handleChange("sex", val)}
-              nsFile="perfumes"
+              sex={perfume.sex || undefined}
+              handleSelect={(val) => handleChange("sex", val as PerfumeSex)}
             />
             {/* <FieldError message={errors.sex} /> */}
           </div>
@@ -127,7 +126,6 @@ export function PerfumeForm({
             <SeasonsFilter
               selected={perfume.seasons!}
               handleSelect={handleSeasons}
-              nsFile="perfumes"
             />
             {/* <FieldError message={errors.seasons} /> */}
           </div>
@@ -137,7 +135,7 @@ export function PerfumeForm({
           <div>
             <LabeledTextarea
               name="descriptionEn"
-              label={t("engDescription")}
+              label={t("perfumes:engDescription")}
               value={perfume.descriptionEn!}
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                 handleChange("descriptionEn", e.target.value)
@@ -152,7 +150,7 @@ export function PerfumeForm({
           <div>
             <LabeledTextarea
               name="descriptionAr"
-              label={t("arDescription")}
+              label={t("perfumes:arDescription")}
               value={perfume.descriptionAr!}
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                 handleChange("descriptionAr", e.target.value)
@@ -175,14 +173,14 @@ export function PerfumeForm({
             <Spinner size="1rem" inline />
           ) : approve === undefined ? ( // we're adding new perfume
             isAdmin ? ( // admin add approved perfume directly
-              t("adminAddBtn")
+              t("perfumes:adminAddBtn")
             ) : (
-              t("addBtn")
+              t("perfumes:addBtn")
             )
           ) : approve ? ( // true => approve mode else edit
-            t("approveBtn")
+            t("perfumes:approveBtn")
           ) : (
-            t("editBtn")
+            t("perfumes:editBtn")
           )}
         </button>
       </div>

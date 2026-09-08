@@ -1,0 +1,99 @@
+.container {
+  /* one source of truth for row height -> drives the fixed max-height below */
+  --item-height: 2.75rem;
+  --visible-items: 3; /* bump to 4 if the product wants a taller list */
+
+  position: absolute;
+  inset-block-start: calc(100% + var(--space-2));
+  inset-inline: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+
+  max-block-size: calc(var(--visible-items) * var(--item-height));
+  overflow-y: auto;
+
+  background: linear-gradient(180deg, var(--card-bg-start), var(--card-bg-end));
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px var(--shadow-soft);
+
+  font-family: var(--font-body);
+
+  animation: reveal 0.15s ease;
+
+  /* hide scrollbar, keep scroll behavior — same approach as .hide-scrollbar in index.css */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.container::-webkit-scrollbar {
+  display: none;
+}
+
+.item {
+  flex: 0 0 auto;
+  block-size: var(--item-height);
+
+  display: flex;
+  align-items: center;
+
+  padding-inline: var(--space-4);
+  margin-inline: 0;
+
+  border-block-end: 1px solid var(--border-default);
+
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  text-align: start;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.item:last-child {
+  border-block-end: none;
+}
+
+.item:hover {
+  background: var(--accent-tint);
+  color: var(--accent-primary);
+}
+
+.empty {
+  flex: 0 0 auto;
+  block-size: var(--item-height);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding-inline: var(--space-4);
+
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-style: italic;
+  text-align: center;
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .container {
+    animation: none;
+  }
+}

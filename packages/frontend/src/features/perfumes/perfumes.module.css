@@ -44,7 +44,7 @@ html[dir="rtl"] .divider {
   margin-block-end: var(--space-6);
 }
 
-.tab {
+/* .tab {
   position: relative;
   padding-block: var(--space-3);
   padding-inline: var(--space-2);
@@ -69,7 +69,7 @@ html[dir="rtl"] .divider {
   bottom: -1px;
   background: var(--accent-primary);
   border-radius: var(--radius-sm);
-}
+} */
 
 .tabPanel {
   display: flex;

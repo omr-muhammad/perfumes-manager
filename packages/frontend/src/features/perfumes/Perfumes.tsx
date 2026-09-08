@@ -6,6 +6,7 @@ import { BrowseTab } from "./BrowseTab";
 import styles from "./perfumes.module.css";
 import { AddPerfumeTab } from "./AddPerfumeTab";
 import { EditPerfumeTab } from "./EditPerfumeTab";
+import { TabButton } from "../../ui/TabButton";
 
 type PerfumesTab =
   | { type: "browse" }
@@ -13,7 +14,7 @@ type PerfumesTab =
   | { type: "edit" | "approve"; perfumeId: number; perfumeName: string };
 
 export function Perfumes() {
-  const { t } = useTranslation("perfumes");
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<PerfumesTab>({
     type: "browse",
   });
@@ -44,66 +45,42 @@ export function Perfumes() {
   return (
     <div>
       <div className={styles.tabList} role="tablist">
-        <button
-          type="button"
-          role="tab"
-          id="tab-browse"
-          aria-selected={activeTab.type === "browse"}
-          aria-controls="tabpanel-browse"
-          className={`${styles.tab} ${activeTab.type === "browse" ? styles.tabActive : ""}`}
+        <TabButton
+          buttonId="tab-browse"
+          isActive={activeTab.type === "browse"}
           onClick={() => setActiveTab({ type: "browse" })}
-        >
-          {t("browse")}
-          {activeTab.type === "browse" && (
-            <span className={styles.tabIndicator} aria-hidden="true" />
-          )}
-        </button>
+          ariaControls="tabpanel-browse"
+          text={t("perfumes:browse")}
+        />
 
-        <button
-          type="button"
-          role="tab"
-          id="tab-add"
-          aria-selected={activeTab.type === "add"}
-          aria-controls="tabpanel-add"
-          className={`${styles.tab} ${activeTab.type === "add" ? styles.tabActive : ""}`}
+        <TabButton
+          text={t("perfumes:add")}
+          buttonId="tab-add"
+          isActive={activeTab.type === "add"}
+          ariaControls="tabpanel-add"
           onClick={() => setActiveTab({ type: "add" })}
-        >
-          {t("add")}
-          {activeTab.type === "add" && (
-            <span className={styles.tabIndicator} aria-hidden="true" />
-          )}
-        </button>
+        />
 
         {activeTab.type === "edit" && (
-          <button
-            type="button"
-            role="tab"
-            id="tab-edit"
-            aria-selected={activeTab.type === "edit"}
-            aria-controls="tabpanel-edit"
-            className={`${styles.tab} ${activeTab.type === "edit" ? styles.tabActive : ""}`}
-          >
-            {t("editTabLabel", { perfumeName: activeTab.perfumeName })}
-            {activeTab.type === "edit" && (
-              <span className={styles.tabIndicator} aria-hidden="true" />
-            )}
-          </button>
+          <TabButton
+            text={t("perfumes:editTabLabel", {
+              perfumeName: activeTab.perfumeName,
+            })}
+            buttonId="tab-edit"
+            isActive={activeTab.type === "edit"}
+            ariaControls="tabpanel-edit"
+          />
         )}
 
         {activeTab.type === "approve" && (
-          <button
-            type="button"
-            role="tab"
-            id="tab-approve"
-            aria-selected={activeTab.type === "approve"}
-            aria-controls="tabpanel-approve"
-            className={`${styles.tab} ${activeTab.type === "approve" ? styles.tabActive : ""}`}
-          >
-            {t("approveTabLabel", { perfumeName: activeTab.perfumeName })}
-            {activeTab.type === "approve" && (
-              <span className={styles.tabIndicator} aria-hidden="true" />
-            )}
-          </button>
+          <TabButton
+            text={t("perfumes:approveTabLabel", {
+              perfumeName: activeTab.perfumeName,
+            })}
+            buttonId="tab-approve"
+            isActive={activeTab.type === "approve"}
+            ariaControls="tabpanel-approve"
+          />
         )}
       </div>
 

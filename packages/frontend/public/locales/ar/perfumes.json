@@ -9,7 +9,7 @@
   "searchByName": "ابحث بالاسم...",
   "searchPlaceholder": "ابحث عن العطور...",
   "status": "الحالة",
-  "approved": "صحيحة",
+  "approved": "موثقة",
   "pending": "قيد الانتظار",
   "selectSex": "اختر الجنس",
   "seasons": "المواسم",
@@ -47,5 +47,8 @@
   "confirmDeleteTitle": "هل أنت متأكد من حذف عطر {{perfumeName}}؟",
   "warnDeleteMsg": "لا يمكن التراجع عن هذا الفعل.",
   "confirmText": "تأكيد",
-  "cancelText": "تراجع"
+  "cancelText": "تراجع",
+  "errors": {
+    "missingReq": "بعض البيانات الأساسية مفقودة."
+  }
 }

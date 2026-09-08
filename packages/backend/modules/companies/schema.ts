@@ -11,8 +11,8 @@ const CompanyType = t.Union(CoClass, {
 });
 
 const insertSchema = createInsertSchema(companiesTable, {
-  country: t.String({
-    error: "Country name is required",
+  hqCountryCode: t.String({
+    error: "Country code is required",
   }),
   type: CompanyType,
 });
@@ -32,15 +32,14 @@ export type UpdateCompanyBody = Static<typeof UpdateCompanyBody>;
 // ------------ Query ------------
 const CompaniesQueryFilters = t.Object({
   search: t.Optional(t.String()),
-  country: t.Optional(t.String()),
   type: t.Optional(CompanyType),
-  approved: t.Optional(t.BooleanString({ default: true })),
+  approved: t.Optional(t.BooleanString()),
   ...QueriesMeta,
 });
 export type CompaniesQueryFilters = Static<typeof CompaniesQueryFilters>;
 
 // ------------ Handlers ------------
-const CParams = t.Object({ compnayId: ID });
+const CParams = t.Object({ companyId: ID });
 type CParams = Static<typeof CParams>;
 
 // ------------ Contexts Types ------------
@@ -50,6 +49,7 @@ export interface CoCTXs {
   QueryCoCtx: Ctx<unknown, unknown, CompaniesQueryFilters>;
   UpdateCoCtx: Ctx<UpdateCompanyBody, CParams>;
   DelCoCtx: Ctx<unknown, CParams>;
+  QueryById: Ctx<unknown, CParams>;
 }
 
 // ------------ Contexts Validators ------------
@@ -88,6 +88,13 @@ export const CoSchema = {
     query: CompaniesQueryFilters,
     detail: {
       summary: "List companies",
+      tags: ["Companies"],
+    },
+  },
+  QueryById: {
+    params: CParams,
+    detail: {
+      summary: "Get a company",
       tags: ["Companies"],
     },
   },

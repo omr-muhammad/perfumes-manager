@@ -49,7 +49,7 @@ export function useInfinitePerfumes(query?: PerfumeQuery) {
     queryKey: ["perfumes", query],
     queryFn: ({ pageParam }) => apiPerfumesQuery({ ...query, page: pageParam }),
     initialPageParam: 1,
-    getNextPageParam: (lastPage /* the last fetched page data */) =>
+    getNextPageParam: (lastPage /* the last fetched data */) =>
       lastPage?.pagination.hasNextPage
         ? lastPage.pagination.page + 1
         : undefined,

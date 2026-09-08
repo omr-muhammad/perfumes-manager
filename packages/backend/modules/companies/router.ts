@@ -6,4 +6,5 @@ import { CoSchema } from "./schema";
 export const companiesRouter = new Elysia({ prefix: "/companies" })
   .use(protect)
   .post("", handlers.createCompany, CoSchema.CreateCoValidators)
-  .get("", handlers.getAllCompanies, CoSchema.QueryCoValidators);
+  .get("", handlers.getAllCompanies, CoSchema.QueryCoValidators)
+  .get("/:companyId", handlers.getById, CoSchema.QueryById);

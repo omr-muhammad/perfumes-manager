@@ -15,20 +15,18 @@ const options = [
 interface SeasonsFilterProps {
   selected: Season[] | undefined;
   handleSelect: (value: Season) => void;
-  nsFile?: string;
 }
 
 export function SeasonsFilter({
   selected = [],
   handleSelect,
-  nsFile,
 }: SeasonsFilterProps) {
-  const { t } = useTranslation(nsFile);
+  const { t } = useTranslation();
 
   const triggerText =
     selected.length > 0
-      ? t("selectedSeasons", { count: selected.length })
-      : t("selectSeason");
+      ? t("perfumes:selectedSeasons", { count: selected.length })
+      : t("perfumes:selectSeason");
 
   return (
     <Popover.Root>
@@ -54,7 +52,7 @@ export function SeasonsFilter({
                 </Checkbox.Indicator>
               </Checkbox.Root>
 
-              <span>{t(option.label)}</span>
+              <span>{t(`filters.${option.label}`)}</span>
             </label>
           ))}
         </Popover.Content>

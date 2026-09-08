@@ -10,12 +10,10 @@ interface Tag {
 interface ActiveFiltersProps {
   tags: Tag[];
   onClear: () => void;
-  /** The ns file must contain the used keys in this component to work as expected */
-  nsFile?: string;
 }
 
-export function ActiveFilters({ tags, onClear, nsFile }: ActiveFiltersProps) {
-  const { t } = useTranslation(nsFile);
+export function ActiveFilters({ tags, onClear }: ActiveFiltersProps) {
+  const { t } = useTranslation();
 
   if (tags.length <= 0) return;
 
@@ -50,7 +48,7 @@ export function ActiveFilters({ tags, onClear, nsFile }: ActiveFiltersProps) {
         className={styles.clearFiltersButton}
         onClick={onClear}
       >
-        {t("clearFilters")}
+        {t("filters.clear")}
       </button>
     </div>
   );

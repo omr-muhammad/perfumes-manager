@@ -1,0 +1,26 @@
+.tab {
+  position: relative;
+  padding-block: var(--space-3);
+  padding-inline: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.tabActive {
+  color: var(--accent-primary);
+}
+
+.tabIndicator {
+  position: absolute;
+  inset-inline: 0;
+  block-size: 2px;
+  bottom: -1px;
+  background: var(--accent-primary);
+  border-radius: var(--radius-sm);
+}

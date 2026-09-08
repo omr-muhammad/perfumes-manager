@@ -1,20 +1,19 @@
-import { useTranslation } from "react-i18next";
 import styles from "./styles/approve-filter.module.css";
 
 type Approve = boolean | undefined;
 interface ApproveFilterProps {
   approved: Approve;
   handleActive: (value: Approve) => void;
-  nsFile?: string;
+  approvedTxt: string;
+  pendingTxt: string;
 }
 
 export default function ApproveFilter({
   approved,
   handleActive,
-  nsFile,
+  approvedTxt,
+  pendingTxt,
 }: ApproveFilterProps) {
-  const { t } = useTranslation(nsFile);
-
   return (
     <div
       className={`${styles.filter} ${
@@ -30,7 +29,7 @@ export default function ApproveFilter({
         className={styles.option}
         onClick={() => handleActive(approved === true ? undefined : true)}
       >
-        {t("approve")}
+        {approvedTxt}
       </button>
 
       <button
@@ -38,7 +37,7 @@ export default function ApproveFilter({
         className={styles.option}
         onClick={() => handleActive(approved === false ? undefined : false)}
       >
-        {t("pending")}
+        {pendingTxt}
       </button>
     </div>
   );

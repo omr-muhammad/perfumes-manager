@@ -1,4 +1,27 @@
 {
+  "filters": {
+    "searchPlaceholder": "بحث...",
+    "approved": "موثقة",
+    "pending": "قيد المراجعة",
+    "male": "رجالى",
+    "female": "نسائى",
+    "unisex": "للجنسين",
+    "winter": "شتوى",
+    "spring": "ربيعى",
+    "summer": "صيفى",
+    "fall": "خريفى",
+    "remove": "إزالة",
+    "clear": "مسح الكل"
+  },
+  "panelBtns": {
+    "browse": "تصفح",
+    "add": "إضافة",
+    "edit": "تعديل: {{name}}",
+    "approve": "توثيق: {{name}}"
+  },
+  "countries": {
+    "selectCountryPlaceholder": "اختر دولة"
+  },
   "auth": {
     "nav": {
       "login": "تسجيل الدخول",
@@ -42,7 +65,14 @@
     "back": "رجوع",
     "shopCompounds": "عطور المتجر"
   },
+  "modal": {
+    "confirmDeleteTitle": "تاكيد حذف  {{name}}؟",
+    "warnDeleteMsg": "لا يمكن التراجع عن هذا الفعل.",
+    "confirmText": "تأكيد",
+    "cancelText": "تراجع"
+  },
   "loadingBtnTxt": "المزيد",
   "noMoreTxt": "ليس هناك المزيد",
-  "loadingErrorTxt": "لا يمكن تحميل المزيد, أعد المحاولة"
+  "loadingErrorTxt": "لا يمكن تحميل المزيد, أعد المحاولة",
+  "noResultsFound": "لا توجد نتائج."
 }
