@@ -21,6 +21,12 @@ export async function deletePfComp(ctx: PfCompCtxs["delete"]) {
   return res.ok("Perfume Compound deleted.", { perfumeCompId: pfComp.id });
 }
 
+export async function getPfCompById(ctx: PfCompCtxs["queryOne"]) {
+  const perfumeComp = await pfCompService.getById(ctx.params);
+
+  return res.ok("Perfume Compound fetched.", { perfumeComp });
+}
+
 export async function queryCompounds(ctx: PfCompCtxs["query"]) {
   const compounds = await pfCompService.getCompounds(ctx.query);
 

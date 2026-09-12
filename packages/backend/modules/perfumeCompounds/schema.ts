@@ -42,6 +42,7 @@ export interface PfCompCtxs {
   update: Ctx<UpdatePfComp, PfCompParams>;
   delete: Ctx<unknown, PfCompParams>;
   query: Ctx<unknown, unknown, QueryPfComp>;
+  queryOne: Ctx<unknown, PfCompParams>;
 }
 
 // ---------------- Perfume Compound Schema ----------------
@@ -68,5 +69,18 @@ export const PfCompSchema = {
       tags: ["Admin - Compounds"],
     },
   },
-  query: { query: QueryPfComp },
+  query: {
+    query: QueryPfComp,
+    detail: {
+      summary: "Query perfumes compounds and group by perfume or company",
+      tags: ["Perfume Compounds"],
+    },
+  },
+  queryOne: {
+    params: PfCompParams,
+    detail: {
+      summary: "Get perfume compound by id",
+      tags: ["Perfume Compounds"],
+    },
+  },
 };

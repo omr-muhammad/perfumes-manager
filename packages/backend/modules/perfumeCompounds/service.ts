@@ -57,6 +57,21 @@ export async function remove(ids: PfCompParams) {
   return pfComp;
 }
 
+export async function getById(ids: PfCompParams) {
+  const [compound] = await db
+    .select()
+    .from(perfumeCompoundsTable)
+    .where(eq(perfumeCompoundsTable.id, ids.compoundId));
+
+  if (!compound)
+    throw new AppError(
+      404,
+      `Perfume Compound with id: ${ids.compoundId} not found`,
+    );
+
+  return compound;
+}
+
 export async function getCompounds(query: QueryPfComp) {
   const queryFn =
     query.type === "perfume" ? getCompoundsByPerfume : getCompoundsByCompany;
