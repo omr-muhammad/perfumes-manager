@@ -11,10 +11,10 @@ export type CompoundsGetResponse = NonNullable<
 >["compounds"]["data"];
 
 // -------------------- Create Types --------------------
-type NewCompound = Parameters<typeof backend.api.compounds.post>[0];
+export type NewCompound = Parameters<typeof backend.api.compounds.post>[0];
 
 // -------------------- Update Types --------------------
-type UpdateCompound = Parameters<
+export type UpdateCompound = Parameters<
   ReturnType<typeof backend.api.admin.compounds>["patch"]
 >[0];
 
@@ -25,6 +25,15 @@ export async function apiGetCompounds(query: CompoundsQuery) {
     throw new Error(error?.value.message || data?.message);
 
   return data.data!.compounds;
+}
+
+export async function apiGetCompoundById(compoundId: number) {
+  const { data, error } = await backend.api.compounds({ compoundId }).get();
+
+  if (error || !data.success)
+    throw new Error(error?.value.message || data?.message);
+
+  return data.data!.perfumeComp;
 }
 
 export async function apiCreateCompound(newComp: NewCompound) {
