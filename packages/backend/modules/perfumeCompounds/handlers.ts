@@ -1,6 +1,7 @@
 import { response as res } from "../../utils/response";
-import type { PfCompCtxs } from "./schema";
+import type { PfCompCtxs, QueryPfComp } from "./schema";
 import * as pfCompService from "./service";
+import type { CompoundsByCompany, CompoundsByPerfume } from "./service";
 
 export async function createPfComp(ctx: PfCompCtxs["create"]) {
   const pfComp = await pfCompService.create(ctx.body);
@@ -20,8 +21,8 @@ export async function deletePfComp(ctx: PfCompCtxs["delete"]) {
   return res.ok("Perfume Compound deleted.", { perfumeCompId: pfComp.id });
 }
 
-// export async function queryPfComp(ctx: PfCompCtxs["query"]) {
-//   const pfComps = await pfCompService.query(ctx.query);
+export async function queryCompounds(ctx: PfCompCtxs["query"]) {
+  const compounds = await pfCompService.getCompounds(ctx.query);
 
-//   return res.ok("Perfumes Compounds fetched .", { perfumesComps: pfComps });
-// }
+  return res.ok("Fetched Success.", { compounds });
+}

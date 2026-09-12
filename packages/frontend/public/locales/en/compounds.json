@@ -1,0 +1,22 @@
+{
+  "perfume": "Perfumes",
+  "company": "Companies",
+  "searchPlaceholder": {
+    "perfume": "Search perfumes…",
+    "company": "Search companies…"
+  },
+  "inTitle": "by",
+  "searchToBegin": {
+    "perfume": "Search for a perfume to begin",
+    "company": "Search for a company to begin"
+  },
+  "selectToShow": {
+    "perfume": "Select a company to show its perfumes",
+    "company": "Select a perfume to show its companies"
+  },
+  "addNew": "Not found? Add new",
+  "useCompound": "Use compound",
+  "flip": "Swap panels",
+  "edit": "Edit",
+  "delete": "Delete"
+}

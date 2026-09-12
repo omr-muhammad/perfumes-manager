@@ -1,0 +1,36 @@
+.page {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: var(--space-5);
+  height: 100%;
+  min-height: 0;
+}
+
+.actionRow {
+  display: flex;
+  justify-content: center;
+}
+
+.useCompoundButton {
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--accent-primary);
+  background: var(--accent-tint);
+  color: var(--accent-bright);
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: var(--font-size-base);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.useCompoundButton:hover:not(:disabled) {
+  background: var(--border-hover);
+}
+
+.useCompoundButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

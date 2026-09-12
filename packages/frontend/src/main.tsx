@@ -22,9 +22,7 @@ import "@fontsource/cairo/600.css";
 // -----------------------------------------------
 
 // -------------------- General Styles --------------------
-// import "./index.css";
-import "./coIndex.css";
-// import "./geIndex.css";
+import "./index.css";
 import { ThemeProvider } from "./contexts/ThemeContext";
 // --------------------------------------------------------
 

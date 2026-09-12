@@ -1,0 +1,22 @@
+{
+  "perfume": "عطر",
+  "company": "شركة",
+  "searchPlaceholder": {
+    "perfume": "ابحث عن عطر…",
+    "company": "ابحث عن شركة…"
+  },
+  "inTitle": "من",
+  "searchToBegin": {
+    "perfume": "ابحث عن عطر للبدء",
+    "company": "ابحث عن شركة للبدء"
+  },
+  "selectToShow": {
+    "perfume": "اختر شركة لعرض عطورها",
+    "company": "اختر عطرًا لعرض شركاته"
+  },
+  "addNew": "لم تجده؟ أضف جديدًا",
+  "useCompound": "استخدام المركّب",
+  "flip": "تبديل اللوحتين",
+  "edit": "تعديل",
+  "delete": "حذف"
+}

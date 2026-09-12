@@ -1,7 +1,12 @@
 import { createSelectSchema } from "drizzle-typebox";
 import { perfumeCompoundsTable } from "../../db/schema";
 import { t, type Static } from "elysia";
-import { ID, type Ctx } from "../../utils/globalSchema";
+import {
+  ID,
+  QueriesMeta,
+  TrimmedString,
+  type Ctx,
+} from "../../utils/globalSchema";
 
 const PerfumeCompoundCreateSchema = createSelectSchema(perfumeCompoundsTable, {
   density: t.Optional(t.Number()),
@@ -19,12 +24,12 @@ const UpdatePfComp = t.Partial(CreatePfComp);
 export type UpdatePfComp = Static<typeof UpdatePfComp>;
 
 // ---------------- Query Perfume Compound ----------------
-const QueryPfComp = t.Partial(
-  t.Object({
-    perfumeName: t.String(),
-    companyName: t.String(),
-  }),
-);
+const QueryPfComp = t.Object({
+  type: t.Union([t.Literal("perfume"), t.Literal("company")]),
+  search: TrimmedString("search"),
+  ...QueriesMeta,
+});
+
 export type QueryPfComp = Static<typeof QueryPfComp>;
 
 // ---------------- Perfume Compound Params ----------------
