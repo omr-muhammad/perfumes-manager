@@ -18,5 +18,22 @@
   "useCompound": "Use compound",
   "flip": "Swap panels",
   "edit": "Edit",
-  "delete": "Delete"
+  "delete": "Delete",
+  "form": {
+    "perfumeLabel": "Perfume",
+    "perfumeSearchPlaceholder": "Search perfumes…",
+    "companyLabel": "Company",
+    "companySearchPlaceholder": "Search companies…",
+    "densityLabel": "Density",
+    "densityPlaceholder": "0.900",
+    "densityInvalid": "Enter a valid density, e.g. 0.900",
+    "addButton": "Add compound",
+    "editButton": "Save changes",
+    "addSuccess": "Compound added",
+    "editSuccess": "Compound updated",
+    "errorGeneric": "Something went wrong. Try again.",
+    "noResults": "No results found",
+    "clearSelection": "Clear selection",
+    "alreadyPaired": "Already paired"
+  }
 }

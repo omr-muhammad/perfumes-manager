@@ -1,0 +1,217 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-inline-size: 32rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+/* ---------------- combobox ---------------- */
+
+.comboboxWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  inline-size: 100%;
+  padding-block: var(--space-3);
+  padding-inline: var(--space-6) var(--space-6);
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--border-hover);
+  background: var(--accent-tint);
+}
+
+.input[readonly] {
+  color: var(--text-secondary);
+  cursor: default;
+}
+
+.iconStart,
+.iconEnd {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xbase);
+}
+
+.iconStart {
+  inset-inline-start: var(--space-3);
+  pointer-events: none;
+}
+
+.iconEnd {
+  inset-inline-end: var(--space-3);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.iconEnd:hover {
+  color: var(--text-primary);
+}
+
+.readOnlyInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.readOnlyInputWrapper .flag {
+  position: absolute;
+  inset-inline-end: var(--space-3);
+}
+
+/* ---------------- dropdown menu ---------------- */
+
+.menu {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: calc(100% + var(--space-2));
+  z-index: 20;
+  max-block-size: 14rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--space-2);
+  list-style: none;
+  background: linear-gradient(180deg, var(--card-bg-start), var(--card-bg-end));
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px var(--shadow-soft);
+  visibility: hidden;
+}
+
+.menu[data-open="true"] {
+  visibility: visible;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.menuItem[data-highlighted="true"] {
+  background: var(--accent-tint);
+}
+
+.menuItem[data-paired="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.menuItemName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pairedBadge {
+  flex-shrink: 0;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.flag {
+  flex-shrink: 0;
+  font-size: var(--font-size-base);
+}
+
+.noResults {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: calc(100% + var(--space-2));
+  padding: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  background: linear-gradient(180deg, var(--card-bg-start), var(--card-bg-end));
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+}
+
+/* ---------------- density / errors ---------------- */
+
+.errorText {
+  font-size: var(--font-size-xs);
+  color: var(--status-error);
+}
+
+/* ---------------- submit ---------------- */
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-block-start: var(--space-2);
+}
+
+.submitButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  background: var(--accent-primary);
+  color: var(--bg-gradient-end);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  transition:
+    background 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: var(--accent-bright);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---------------- misc ---------------- */
+
+.spinIcon {
+  animation: compound-form-spin 0.8s linear infinite;
+}
+
+@keyframes compound-form-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

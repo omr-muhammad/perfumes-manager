@@ -18,5 +18,22 @@
   "useCompound": "استخدام المركّب",
   "flip": "تبديل اللوحتين",
   "edit": "تعديل",
-  "delete": "حذف"
+  "delete": "حذف",
+  "form": {
+    "perfumeLabel": "العطر",
+    "perfumeSearchPlaceholder": "ابحث عن عطر…",
+    "companyLabel": "الشركة",
+    "companySearchPlaceholder": "ابحث عن شركة…",
+    "densityLabel": "الكثافة",
+    "densityPlaceholder": "0.900",
+    "densityInvalid": "أدخل كثافة صحيحة، مثال 0.900",
+    "addButton": "إضافة المركّب",
+    "editButton": "حفظ التعديلات",
+    "addSuccess": "تمت إضافة المركّب",
+    "editSuccess": "تم تحديث المركّب",
+    "errorGeneric": "حدث خطأ ما، حاول مرة أخرى",
+    "noResults": "لا توجد نتائج",
+    "clearSelection": "إلغاء التحديد",
+    "alreadyPaired": "مرتبط بالفعل"
+  }
 }

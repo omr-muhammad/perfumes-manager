@@ -32,6 +32,13 @@ const QueryPfComp = t.Object({
 
 export type QueryPfComp = Static<typeof QueryPfComp>;
 
+const UnpairedQuery = t.Object({
+  search: TrimmedString("search"),
+  mateId: t.Optional(t.Numeric()),
+  type: t.Union([t.Literal("perfume"), t.Literal("company")]),
+});
+
+export type UnpairedQuery = Static<typeof UnpairedQuery>;
 // ---------------- Perfume Compound Params ----------------
 const PfCompParams = t.Object({ compoundId: ID });
 export type PfCompParams = Static<typeof PfCompParams>;
@@ -43,6 +50,7 @@ export interface PfCompCtxs {
   delete: Ctx<unknown, PfCompParams>;
   query: Ctx<unknown, unknown, QueryPfComp>;
   queryOne: Ctx<unknown, PfCompParams>;
+  queryUnpaired: Ctx<unknown, unknown, UnpairedQuery>;
 }
 
 // ---------------- Perfume Compound Schema ----------------
@@ -73,6 +81,13 @@ export const PfCompSchema = {
     query: QueryPfComp,
     detail: {
       summary: "Query perfumes compounds and group by perfume or company",
+      tags: ["Perfume Compounds"],
+    },
+  },
+  queryUnpaired: {
+    query: UnpairedQuery,
+    detail: {
+      summary: "Query perfumes compounds with paired state of passed mate id",
       tags: ["Perfume Compounds"],
     },
   },

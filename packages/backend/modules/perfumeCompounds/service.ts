@@ -10,6 +10,7 @@ import type {
   CreatePfComp,
   PfCompParams,
   QueryPfComp,
+  UnpairedQuery,
   UpdatePfComp,
 } from "./schema";
 
@@ -78,6 +79,14 @@ export async function getCompounds(query: QueryPfComp) {
 
   return unifyResult(await queryFn(query));
 }
+
+export async function getUnpairedCompounds(query: UnpairedQuery) {
+  const { type, mateId, search } = query;
+  if (type === "perfume") return queryUnpairedPfComps(search, mateId);
+  else if (type === "company") return queryUnpairedCoComps(search, mateId);
+
+  throw new AppError(422, "Invalid query type.");
+}
 // -----------------------------------------------------------------
 
 export type CompoundsByPerfume = Awaited<
@@ -87,6 +96,13 @@ export type CompoundsByCompany = Awaited<
   ReturnType<typeof getCompoundsByCompany>
 >;
 type UnionReturn = CompoundsByPerfume | CompoundsByCompany;
+
+type UnpairedReturn = {
+  id: number;
+  name: string;
+  countryCode?: string;
+  paired: boolean;
+};
 
 async function getCompoundsByPerfume({ search, page, limit }: QueryPfComp) {
   const offset = (page - 1) * limit;
@@ -223,4 +239,92 @@ function unifyResult(result: UnionReturn) {
     })),
     pagination: unifiedPag,
   };
+}
+
+async function queryUnpairedPfComps(search: string, mateId?: number) {
+  if (!mateId) {
+    return (await db
+      .select({
+        id: perfumesTable.id,
+        name: perfumesTable.name,
+        // paired: sql<boolean>`false`,
+        // countryCode: sql<string | null>`null`
+      })
+      .from(perfumesTable)
+      .where(ilike(perfumesTable.name, `%${search}%`))) as UnpairedReturn[];
+  }
+
+  const pairedPerfumes = await db
+    .select({
+      id: perfumesTable.id,
+      name: perfumesTable.name,
+      companyId: perfumeCompoundsTable.companyId,
+    })
+    .from(perfumesTable)
+    .innerJoin(
+      perfumeCompoundsTable,
+      eq(perfumesTable.id, perfumeCompoundsTable.perfumeId),
+    )
+    .where(ilike(perfumesTable.name, `%${search}%`));
+
+  const pairingMap = new Map<number, UnpairedReturn>();
+
+  for (const pairedPf of pairedPerfumes) {
+    if (!pairingMap.has(pairedPf.id)) {
+      pairingMap.set(pairedPf.id, { ...pairedPf, paired: false });
+      continue;
+    }
+
+    if (pairedPf.companyId === mateId)
+      pairingMap.get(pairedPf.id)!.paired = true;
+  }
+
+  return Array.from(pairingMap.values());
+}
+
+async function queryUnpairedCoComps(search: string, mateId?: number) {
+  if (!mateId)
+    return (await db
+      .select({
+        id: companiesTable.id,
+        name: companiesTable.name,
+        countryCode: companiesTable.hqCountryCode,
+      })
+      .from(companiesTable)
+      .where(ilike(companiesTable.name, `%${search}%`))) as UnpairedReturn[];
+
+  // -- there is a mateId
+  const pairedCompanies = await db
+    .select({
+      id: companiesTable.id,
+      name: companiesTable.name,
+      countryCode: companiesTable.hqCountryCode,
+      perfumeId: perfumeCompoundsTable.perfumeId,
+    })
+    .from(companiesTable)
+    .innerJoin(
+      perfumeCompoundsTable,
+      eq(companiesTable.id, perfumeCompoundsTable.companyId),
+    )
+    .where(ilike(companiesTable.name, `%${search}%`));
+
+  const pairingMap = new Map<
+    number,
+    {
+      id: number;
+      name: string;
+      countryCode: string;
+      paired: boolean;
+    }
+  >();
+
+  for (const pairedCo of pairedCompanies) {
+    if (!pairingMap.has(pairedCo.id))
+      pairingMap.set(pairedCo.id, { ...pairedCo, paired: false });
+
+    if (pairedCo.perfumeId === mateId)
+      pairingMap.get(pairedCo.id)!.paired = true;
+  }
+
+  return Array.from(pairingMap.values());
 }

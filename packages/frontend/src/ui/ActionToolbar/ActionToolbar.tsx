@@ -3,6 +3,7 @@ import { FiEdit3, FiTrash2 } from "react-icons/fi";
 import styles from "./ActionToolbar.module.css";
 
 interface ActionToolbarProps {
+  disabled: boolean;
   perfumeName: string;
   companyName: string;
   onEdit: () => void;
@@ -14,6 +15,7 @@ export function ActionToolbar({
   companyName,
   onEdit,
   onDelete,
+  disabled,
 }: ActionToolbarProps) {
   const { t } = useTranslation();
 
@@ -26,6 +28,7 @@ export function ActionToolbar({
       </p>
       <div className={styles.actions}>
         <button
+          disabled={disabled}
           type="button"
           className={styles.iconButton}
           onClick={onEdit}
@@ -40,6 +43,7 @@ export function ActionToolbar({
           onClick={onDelete}
           aria-label={t("compounds:delete")}
           title={t("compounds:delete")}
+          disabled={disabled}
         >
           <FiTrash2 aria-hidden="true" />
         </button>

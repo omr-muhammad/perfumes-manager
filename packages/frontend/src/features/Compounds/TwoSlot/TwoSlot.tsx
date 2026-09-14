@@ -13,7 +13,7 @@ import type {
 } from "../types";
 import styles from "./TwoSlot.module.css";
 import { useDebounce } from "../../../hooks/useDebounce";
-import { useInfiniteCompounds } from "../hooks";
+import { useDeleteCompound, useInfiniteCompounds } from "../hooks";
 
 interface TwoSlotProps {
   // Feature-level state — owned and reset by BrowseCompounds (see the
@@ -37,6 +37,7 @@ export function TwoSlot({
   onSelectCompany,
 }: TwoSlotProps) {
   const { t } = useTranslation();
+  const { deleteCompound, deletingCompound } = useDeleteCompound();
 
   const [focusedInput, setFocusedInput] = useState<SlotSide | null>(null);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -158,10 +159,15 @@ export function TwoSlot({
   }
 
   function handleDelete() {
-    console.log("[compounds] delete compound", {
-      selectedPerfume,
-      selectedCompany,
-    });
+    if (!selectedCompany || !selectedPerfume) return;
+
+    const compoundId = (
+      search.type === "perfume"
+        ? selectedCompany.compoundId
+        : selectedPerfume.compoundId
+    )!;
+
+    deleteCompound(compoundId);
     toast(t("compounds:delete"));
   }
 
@@ -194,6 +200,7 @@ export function TwoSlot({
     ) {
       return (
         <ActionToolbar
+          disabled={deletingCompound}
           perfumeName={selectedPerfume.name}
           companyName={selectedCompany.name}
           onEdit={handleEdit}

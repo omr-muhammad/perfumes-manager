@@ -4,6 +4,7 @@ import { TabList, type Tab } from "../../ui/TabList/TabList";
 
 import styles from "./Compounds.module.css";
 import { BrowseCompounds } from "./Browse/BrowseCompounds";
+import { AddCompoundTab } from "./AddCompoundTab";
 
 export function Compounds() {
   const { t } = useTranslation();
@@ -26,6 +27,7 @@ export function Compounds() {
       />
 
       {activeTab.type === "browse" && <BrowseCompounds />}
+      {activeTab.type === "add" && <AddCompoundTab />}
     </div>
   );
 }

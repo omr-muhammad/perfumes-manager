@@ -32,3 +32,9 @@ export async function queryCompounds(ctx: PfCompCtxs["query"]) {
 
   return res.ok("Fetched Success.", { compounds });
 }
+
+export async function queryUnpairedCompounds(ctx: PfCompCtxs["queryUnpaired"]) {
+  const unpairedCompounds = await pfCompService.getUnpairedCompounds(ctx.query);
+
+  return res.ok("fetched unparied compounds", { unpairedCompounds });
+}

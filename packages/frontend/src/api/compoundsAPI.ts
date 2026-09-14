@@ -10,6 +10,12 @@ export type CompoundsGetResponse = NonNullable<
   Treaty.Data<typeof backend.api.compounds.get>["data"]
 >["compounds"]["data"];
 
+type UnpairedCompoundsOptions = NonNullable<
+  Parameters<typeof backend.api.compounds.unpaired.get>[0]
+>;
+export type UnpairedCompoundsQuery = NonNullable<
+  UnpairedCompoundsOptions["query"]
+>;
 // -------------------- Create Types --------------------
 export type NewCompound = Parameters<typeof backend.api.compounds.post>[0];
 
@@ -25,6 +31,15 @@ export async function apiGetCompounds(query: CompoundsQuery) {
     throw new Error(error?.value.message || data?.message);
 
   return data.data!.compounds;
+}
+
+export async function apiGetUnpairedCompounds(query: UnpairedCompoundsQuery) {
+  const { data, error } = await backend.api.compounds.unpaired.get({ query });
+
+  if (error || !data.success)
+    throw new Error(error?.value.message || data?.message);
+
+  return data.data!.unpairedCompounds;
 }
 
 export async function apiGetCompoundById(compoundId: number) {

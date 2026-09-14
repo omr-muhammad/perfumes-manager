@@ -10,10 +10,12 @@ import {
   apiDeleteCompound,
   apiGetCompoundById,
   apiGetCompounds,
+  apiGetUnpairedCompounds,
   apiUpdateCompound,
   type CompoundsGetResponse,
   type CompoundsQuery,
   type NewCompound,
+  type UnpairedCompoundsQuery,
   type UpdateCompound,
 } from "../../api/compoundsAPI";
 import toast from "react-hot-toast";
@@ -53,7 +55,7 @@ export function useInfiniteCompounds(query: CompoundsQuery) {
 
 export function useGetCompound(id: number) {
   const { data, isPending, error } = useQuery({
-    queryKey: ["compounds", "get-one"],
+    queryKey: ["compounds", `compound_${id}`],
     queryFn: () => apiGetCompoundById(id),
     staleTime: 5 * 60 * 1000,
     placeholderData: keepPreviousData,
@@ -62,6 +64,20 @@ export function useGetCompound(id: number) {
   if (error) throw error;
 
   return { perfumeCompound: data, loading: isPending };
+}
+
+export function useUnpairedCompounds(query: UnpairedCompoundsQuery) {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["compounds", "unpaired", query.type, query.search],
+    queryFn: () => apiGetUnpairedCompounds(query),
+    enabled: query.search !== "",
+    staleTime: 5 * 60 * 1000,
+    placeholderData: keepPreviousData,
+  });
+
+  if (error) throw error;
+
+  return { unpairedCompounds: data, loading: isLoading };
 }
 
 export function useCreateCompound() {
@@ -82,11 +98,7 @@ export function useUpdateCompound() {
     mutationKey: ["compounds", "update-compound"],
     mutationFn: ({ id, updates }: { id: number; updates: UpdateCompound }) =>
       apiUpdateCompound(id, updates),
-    onSuccess: () => {
-      toast.success("Perfume Compound updated.");
-
-      queryClient.invalidateQueries({ queryKey: ["compounds"] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["compounds"] }),
     onError: (error) => toast.error(error.message),
   });
 
@@ -99,13 +111,9 @@ export function useDeleteCompound() {
   const { mutate, isPending } = useMutation({
     mutationKey: ["compounds", "delete-compound"],
     mutationFn: (id: number) => apiDeleteCompound(id),
-    onSuccess: () => {
-      toast.success("Perfume Compound updated.");
-
-      queryClient.invalidateQueries({ queryKey: ["compounds"] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["compounds"] }),
     onError: (error) => toast.error(error.message),
   });
 
-  return { deleteCompound: mutate, isDeletingCompound: isPending };
+  return { deleteCompound: mutate, deletingCompound: isPending };
 }
