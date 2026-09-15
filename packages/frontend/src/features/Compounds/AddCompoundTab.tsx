@@ -1,14 +1,10 @@
-// import { useTranslation } from "react-i18next";
-import toast from "react-hot-toast";
-
 import { CompoundForm } from "./CompoundForm";
+import { useCreateCompound } from "./hooks";
 
 export function AddCompoundTab() {
-  // const { t } = useTranslation();
+  const { createCompound, creatingCompound } = useCreateCompound();
 
-  async function handleSubmit() {
-    toast.success("Form submitted");
-  }
-
-  return <CompoundForm onSubmit={handleSubmit} submitting={false} />;
+  return (
+    <CompoundForm onSubmit={createCompound} submitting={creatingCompound} />
+  );
 }

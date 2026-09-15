@@ -9,6 +9,7 @@ export type CompoundsQuery = NonNullable<CompoundsOptions["query"]>;
 export type CompoundsGetResponse = NonNullable<
   Treaty.Data<typeof backend.api.compounds.get>["data"]
 >["compounds"]["data"];
+export type CompoundItem = CompoundsGetResponse[number];
 
 type UnpairedCompoundsOptions = NonNullable<
   Parameters<typeof backend.api.compounds.unpaired.get>[0]

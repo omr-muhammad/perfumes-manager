@@ -7,9 +7,10 @@ import styles from "./company-card-mini.module.css";
 import { useTranslation } from "react-i18next";
 import { useConfirm } from "../../contexts/ConfirmContext";
 import type { Company } from "../../api/companiesAPI";
-import { getFlagEmoji } from "../../utils/countries";
+import { getCountryName, getFlagEmoji } from "../../utils/countries";
 import type { Tab } from "../../ui/TabList/TabList";
 import { useDeleteCompany } from "./hooks";
+import i18n from "../../i18";
 
 // import { useDeletePerfume } from "./hook";
 
@@ -86,7 +87,7 @@ export function CoMiniCard({
         {hqCountryCode && (
           <span
             className={styles.statusIcon}
-            title={t(`countries:${hqCountryCode}`)}
+            title={getCountryName(company.hqCountryCode, i18n.language)}
           >
             {getFlagEmoji(hqCountryCode)}
           </span>

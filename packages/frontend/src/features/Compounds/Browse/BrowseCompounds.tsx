@@ -2,21 +2,30 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import { TwoSlot } from "../TwoSlot/TwoSlot";
-import type { CompoundSearch, NormalizedItem } from "../types";
 
 import styles from "./BrowseCompounds.module.css";
+import type {
+  CompoundItem,
+  CompoundsGetResponse,
+  CompoundsQuery,
+} from "../../../api/compoundsAPI";
 
-const DEFAULT_SEARCH: CompoundSearch = { type: "perfume", text: "" };
+const DEFAULT_SEARCH: CompoundsQuery = {
+  type: "perfume",
+  search: "",
+  page: 1,
+  limit: 10,
+};
 
 export function BrowseCompounds() {
   const { t } = useTranslation();
 
-  const [search, setSearch] = useState<CompoundSearch>(DEFAULT_SEARCH);
-  const [opponentItems, setOpponentItems] = useState<NormalizedItem[]>([]);
-  const [selectedPerfume, setSelectedPerfume] = useState<NormalizedItem | null>(
+  const [query, setQuery] = useState<CompoundsQuery>(DEFAULT_SEARCH);
+  const [opponentItems, setOpponentItems] = useState<CompoundsGetResponse>([]);
+  const [selectedPerfume, setSelectedPerfume] = useState<CompoundItem | null>(
     null,
   );
-  const [selectedCompany, setSelectedCompany] = useState<NormalizedItem | null>(
+  const [selectedCompany, setSelectedCompany] = useState<CompoundItem | null>(
     null,
   );
 
@@ -24,19 +33,19 @@ export function BrowseCompounds() {
 
   const canUseCompound = selectedPerfume !== null && selectedCompany !== null;
 
-  function handleSearch(newValue: typeof search) {
-    if (newValue.text === "") setOpponentItems([]);
+  function handleQuery(newValue: typeof query) {
+    if (newValue.search === "") setOpponentItems([]);
 
-    setSearch((c) => ({ ...c, ...newValue }));
+    setQuery((c) => ({ ...c, ...newValue }));
   }
 
-  function handleSelectPerfume(item: NormalizedItem | null) {
+  function handleSelectPerfume(item: CompoundItem | null) {
     /** A)
      * Selecting a perfume while type isn't perfume
      * means query made by country
      * and the perfume selection completing the compound
      */
-    if (search.type !== "perfume") {
+    if (query.type !== "perfume") {
       setSelectedPerfume(item);
       return;
     }
@@ -47,9 +56,9 @@ export function BrowseCompounds() {
     setOpponentItems(item?.pairings ?? []);
   }
 
-  function handleSelectCompany(item: NormalizedItem | null) {
+  function handleSelectCompany(item: CompoundItem | null) {
     // Same as case A in `handleSelectPerfume
-    if (search.type !== "company") {
+    if (query.type !== "company") {
       setSelectedCompany(item);
       return;
     }
@@ -73,7 +82,7 @@ export function BrowseCompounds() {
 
     setSelectedPerfume(null);
     setSelectedCompany(null);
-    setSearch(DEFAULT_SEARCH);
+    setQuery(DEFAULT_SEARCH);
     setOpponentItems([]);
     setResetToken((k) => k + 1); // remount TwoSlot to clear focusedInput/isFlipped
   }
@@ -82,8 +91,8 @@ export function BrowseCompounds() {
     <div className={styles.page}>
       <TwoSlot
         key={resetToken}
-        search={search}
-        setSearch={handleSearch}
+        query={query}
+        handleQuery={handleQuery}
         opponentItems={opponentItems}
         selectedPerfume={selectedPerfume}
         selectedCompany={selectedCompany}

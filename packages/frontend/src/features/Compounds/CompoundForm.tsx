@@ -1,14 +1,18 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useState, type ChangeEvent, type SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useCombobox } from "downshift";
 import { FiSearch, FiX, FiLoader, FiPlus, FiCheck } from "react-icons/fi";
 import toast from "react-hot-toast";
 
 import styles from "./CompoundForm.module.css";
-import { getFlagEmoji } from "../../utils/countries";
+import { getCountryName, getFlagEmoji } from "../../utils/countries";
 import { useUnpairedCompounds } from "./hooks";
-import type { UnpairedCompoundsQuery } from "../../api/compoundsAPI";
+import type {
+  NewCompound,
+  UnpairedCompoundsQuery,
+} from "../../api/compoundsAPI";
 import { useDebounce } from "../../hooks/useDebounce";
+import i18n from "../../i18";
 
 // ============================================================
 // Temporary types — replace with Eden-generated equivalents
@@ -30,15 +34,9 @@ export interface CompoundFormInitialData {
   density: string;
 }
 
-export interface CompoundFormSubmitPayload {
-  perfumeId: number;
-  companyId: number;
-  density?: string;
-}
-
 interface CompoundFormProps {
   initialData?: CompoundFormInitialData;
-  onSubmit: (payload: CompoundFormSubmitPayload) => void;
+  onSubmit: (payload: NewCompound) => void;
   submitting: boolean;
 }
 
@@ -127,7 +125,7 @@ function CompoundSearchCombobox({
           {type === "company" && selectedItem?.countryCode && (
             <span
               className={styles.flag}
-              title={t(`countries:${selectedItem.countryCode}`)}
+              title={getCountryName(selectedItem.countryCode, i18n.language)}
             >
               {getFlagEmoji(selectedItem.countryCode)}
             </span>
@@ -244,9 +242,6 @@ export function CompoundForm({
   const [density, setDensity] = useState(initialData?.density ?? "");
   const [densityError, setDensityError] = useState<string | null>(null);
 
-  // Queries are built from *current* state on every render, then handed
-  // straight to the hook — no closures captured in a passed-down callback,
-  // so mateId can never go stale.
   const perfumeQuery: UnpairedCompoundsQuery = {
     search: isEditMode ? "" : debouncedPerfumeSearch,
     type: "perfume",
@@ -263,35 +258,30 @@ export function CompoundForm({
   const { unpairedCompounds: companyResults, loading: companyLoading } =
     useUnpairedCompounds(companyQuery);
 
-  const handleDensityChange = (event: ChangeEvent<HTMLInputElement>) => {
+  function handleDensityChange(event: ChangeEvent<HTMLInputElement>) {
     const next = event.target.value;
     if (!DENSITY_TYPING_PATTERN.test(next)) return;
     setDensity(next);
     if (densityError) setDensityError(null);
-  };
+  }
 
-  const handleDensityBlur = () => {
-    if (density.trim() === "") {
-      setDensityError(null);
-      return;
-    }
+  function validateDensityOnBlur() {
+    if (density.trim() === "") return setDensityError(null);
+
     const formatted = formatDensity(density);
-    if (formatted === null) {
-      setDensityError(t("compounds:form.densityInvalid"));
-      return;
-    }
+    if (formatted === null)
+      return setDensityError(t("compounds:form.densityInvalid"));
+
     setDensity(formatted);
     setDensityError(null);
-  };
+  }
 
-  const handleSubmit = (event: FormEvent) => {
-    event.preventDefault();
+  function handleSubmit(e: SubmitEvent) {
+    e.preventDefault();
 
     const formattedDensity = formatDensity(density);
-    if (density.trim() !== "" && formattedDensity === null) {
-      setDensityError(t("compounds:form.densityInvalid"));
-      return;
-    }
+    if (density.trim() !== "" && formattedDensity === null)
+      return setDensityError(t("compounds:form.densityInvalid"));
 
     if (isEditMode) {
       onSubmit({
@@ -302,17 +292,20 @@ export function CompoundForm({
       return;
     }
 
-    if (!selectedPerfume || !selectedCompany) {
-      toast.error(t("compounds:form.errorGeneric"));
-      return;
-    }
+    if (!selectedPerfume || !selectedCompany)
+      return toast.error(t("compounds:form.errorGeneric"));
 
     onSubmit({
       perfumeId: selectedPerfume.id,
       companyId: selectedCompany.id,
       density: formattedDensity ?? undefined,
     });
-  };
+
+    // Reset after success
+    setSelectedPerfume(null);
+    setSelectedCompany(null);
+    setDensity("");
+  }
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
@@ -353,7 +346,7 @@ export function CompoundForm({
           placeholder={t("compounds:form.densityPlaceholder")}
           value={density}
           onChange={handleDensityChange}
-          onBlur={handleDensityBlur}
+          onBlur={validateDensityOnBlur}
           aria-invalid={Boolean(densityError)}
           aria-describedby={densityError ? "compound-density-error" : undefined}
         />

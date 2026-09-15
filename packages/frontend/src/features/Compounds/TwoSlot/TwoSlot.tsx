@@ -5,31 +5,29 @@ import toast from "react-hot-toast";
 import { FiRepeat } from "react-icons/fi";
 import { Slot } from "../Slot/Slot";
 import { ActionToolbar } from "../../../ui/ActionToolbar/ActionToolbar";
-import type {
-  CompoundSearch,
-  EntityType,
-  NormalizedItem,
-  SlotSide,
-} from "../types";
 import styles from "./TwoSlot.module.css";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useDeleteCompound, useInfiniteCompounds } from "../hooks";
+import type {
+  CompoundItem,
+  CompoundsGetResponse,
+  CompoundsQuery,
+} from "../../../api/compoundsAPI";
 
+type SlotSide = "left" | "right";
 interface TwoSlotProps {
-  // Feature-level state — owned and reset by BrowseCompounds (see the
-  // comment there for why). TwoSlot only ever reads/updates it via props.
-  search: CompoundSearch;
-  setSearch: (s: CompoundSearch) => void;
-  opponentItems: NormalizedItem[];
-  selectedPerfume: NormalizedItem | null;
-  selectedCompany: NormalizedItem | null;
-  onSelectPerfume: (item: NormalizedItem | null) => void;
-  onSelectCompany: (item: NormalizedItem | null) => void;
+  query: CompoundsQuery;
+  handleQuery: (s: CompoundsQuery) => void;
+  opponentItems: CompoundsGetResponse;
+  selectedPerfume: CompoundItem | null;
+  selectedCompany: CompoundItem | null;
+  onSelectPerfume: (item: CompoundItem | null) => void;
+  onSelectCompany: (item: CompoundItem | null) => void;
 }
 
 export function TwoSlot({
-  search,
-  setSearch,
+  query,
+  handleQuery,
   opponentItems,
   selectedPerfume,
   selectedCompany,
@@ -44,14 +42,9 @@ export function TwoSlot({
 
   const headerInputRef = useRef<HTMLInputElement>(null);
 
-  const debouncedSearch = useDebounce(search.text, 400);
+  const debouncedSearch = useDebounce(query.search, 400);
   const { compounds, fetchNextPage, isFetchingNextPage, hasNextPage, loading } =
-    useInfiniteCompounds({
-      type: search.type,
-      search: debouncedSearch,
-      page: 1,
-      limit: 10,
-    });
+    useInfiniteCompounds({ ...query, search: debouncedSearch });
 
   // Re-focus the input at its new (header zone) location the moment it
   // mounts there, so the View Transition's visual move is followed by an
@@ -62,10 +55,8 @@ export function TwoSlot({
     }
   }, [focusedInput]);
 
-  const perfumeItemsList =
-    search.type === "perfume" ? compounds : opponentItems;
-  const companyItemsList =
-    search.type === "company" ? compounds : opponentItems;
+  const perfumeItemsList = query.type === "perfume" ? compounds : opponentItems;
+  const companyItemsList = query.type === "company" ? compounds : opponentItems;
 
   // ---- Architecture Decision 4: startViewTransition(() => flushSync(...)).
   // Each Slot gets its own wrapped setter matching the exact `(s) => void`
@@ -79,28 +70,31 @@ export function TwoSlot({
   // piece of state belongs to, so batching a parent-owned setter together
   // with this component's own local `setFocusedInput` works the same way
   // it would if both were local.
-  function makeSetSearch(side: SlotSide) {
-    return (next: CompoundSearch) => {
-      if (focusedInput !== side) {
-        const commitFocus = () =>
-          flushSync(() => {
-            setFocusedInput(side);
-            setSearch(next);
-          });
-        if (typeof document !== "undefined" && document.startViewTransition) {
-          document.startViewTransition(commitFocus);
-        } else {
-          commitFocus(); // feature-detect fallback — no animation, state still updates
-        }
-        return;
+  function makeFocusAwareQuery(side: SlotSide) {
+    return (next: CompoundsQuery) => {
+      const isNewFocus = focusedInput !== side;
+
+      if (!isNewFocus) return handleQuery(next);
+
+      const commitFocus = () =>
+        flushSync(() => {
+          setFocusedInput(side);
+          handleQuery(next);
+        });
+
+      // check of borwser support transition api:
+      // yes => go with it || no => fallback to unanimated moving
+      if (typeof document !== "undefined" && document.startViewTransition) {
+        document.startViewTransition(commitFocus);
+      } else {
+        commitFocus();
       }
-      setSearch(next);
     };
   }
 
   function showInlineInput(side: SlotSide): boolean {
     return (
-      focusedInput === null || (focusedInput !== side && search.text === "")
+      focusedInput === null || (focusedInput !== side && query.search === "")
     );
   }
 
@@ -111,7 +105,7 @@ export function TwoSlot({
         2) anywhere but search.text !== ""
     * */
     if (
-      search.text ||
+      query.search ||
       e.currentTarget
         ?.closest(`.${styles.grid}`)
         ?.contains(e.relatedTarget as Node)
@@ -130,11 +124,11 @@ export function TwoSlot({
     }
   }
 
-  function emptyMessage(type: EntityType): string {
+  function emptyMessage(type: CompoundsQuery["type"]): string {
     const oppositeType = type === "perfume" ? "company" : "perfume";
 
-    if (type !== search.type) {
-      return search.text
+    if (type !== query.type) {
+      return query.search
         ? t(`compounds:selectToShow.${type}`)
         : focusedInput !== null
           ? t(`compounds:searchToBegin.${oppositeType}`)
@@ -145,7 +139,7 @@ export function TwoSlot({
      * if same type and text isn't "" there won't be an emptyMsg
      * since list is already there or `no result found.`
      */
-    return search.text ? "" : t(`compounds:searchToBegin.${type}`);
+    return query.search ? "" : t(`compounds:searchToBegin.${type}`);
   }
 
   const bothSelected = selectedPerfume !== null && selectedCompany !== null;
@@ -162,7 +156,7 @@ export function TwoSlot({
     if (!selectedCompany || !selectedPerfume) return;
 
     const compoundId = (
-      search.type === "perfume"
+      query.type === "perfume"
         ? selectedCompany.compoundId
         : selectedPerfume.compoundId
     )!;
@@ -173,7 +167,7 @@ export function TwoSlot({
 
   const handleFlip = () => setIsFlipped((f) => !f);
 
-  function renderHeaderZone(side: SlotSide, type: EntityType) {
+  function renderHeaderZone(side: SlotSide, type: CompoundsQuery["type"]) {
     if (focusedInput === side) {
       return (
         <>
@@ -183,9 +177,9 @@ export function TwoSlot({
             className={styles.morphingInput}
             style={{ viewTransitionName: `search-input-${type}` }}
             type="text"
-            value={search.text}
+            value={query.search}
             placeholder={t(`compounds:searchPlaceholder.${type}`)}
-            onChange={(e) => setSearch({ ...search, text: e.target.value })}
+            onChange={(e) => handleQuery({ ...query, search: e.target.value })}
             onBlur={handleHeaderBlur}
           />
         </>
@@ -193,7 +187,7 @@ export function TwoSlot({
     }
 
     if (
-      search.type !== type &&
+      query.type !== type &&
       bothSelected &&
       selectedPerfume &&
       selectedCompany
@@ -220,8 +214,8 @@ export function TwoSlot({
       <div className={styles.listA}>
         <Slot
           title="perfume"
-          search={search}
-          setSearch={makeSetSearch("left")}
+          query={query}
+          onFocusChange={makeFocusAwareQuery("left")}
           itemsList={perfumeItemsList}
           selectedItemId={selectedPerfume?.id ?? null}
           onSelectItem={onSelectPerfume}
@@ -250,8 +244,8 @@ export function TwoSlot({
       <div className={styles.listB}>
         <Slot
           title="company"
-          search={search}
-          setSearch={makeSetSearch("right")}
+          query={query}
+          onFocusChange={makeFocusAwareQuery("right")}
           itemsList={companyItemsList}
           selectedItemId={selectedCompany?.id ?? null}
           onSelectItem={onSelectCompany}
