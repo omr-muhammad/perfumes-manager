@@ -1,4 +1,4 @@
-import { createSelectSchema } from "drizzle-typebox";
+import { createInsertSchema, createSelectSchema } from "drizzle-typebox";
 import { perfumeCompoundsTable } from "../../db/schema";
 import { t, type Static } from "elysia";
 import {
@@ -8,8 +8,8 @@ import {
   type Ctx,
 } from "../../utils/globalSchema";
 
-const PerfumeCompoundCreateSchema = createSelectSchema(perfumeCompoundsTable, {
-  density: t.Optional(t.Number()),
+const PerfumeCompoundCreateSchema = createInsertSchema(perfumeCompoundsTable, {
+  density: t.Optional(TrimmedString("density")),
 });
 
 // ---------------- Create Perfume Compound ----------------

@@ -15,14 +15,9 @@ import type {
 } from "./schema";
 
 export async function create(values: CreatePfComp) {
-  const { density, ...rest } = values;
-
   const [pfComp] = await db
     .insert(perfumeCompoundsTable)
-    .values({
-      ...rest,
-      ...(density && { density: density.toFixed(3) }),
-    })
+    .values(values)
     .returning();
 
   if (!pfComp) throw new AppError(400, `Cannot create perfume compound.`);
@@ -31,14 +26,9 @@ export async function create(values: CreatePfComp) {
 }
 
 export async function update(ids: PfCompParams, updates: UpdatePfComp) {
-  const { density, ...rest } = updates;
-
   const [pfComp] = await db
     .update(perfumeCompoundsTable)
-    .set({
-      ...rest,
-      ...(density && { density: density.toFixed(3) }),
-    })
+    .set(updates)
     .where(eq(perfumeCompoundsTable.id, ids.compoundId))
     .returning();
 
@@ -60,8 +50,23 @@ export async function remove(ids: PfCompParams) {
 
 export async function getById(ids: PfCompParams) {
   const [compound] = await db
-    .select()
+    .select({
+      id: perfumeCompoundsTable.id,
+      perfumeId: perfumesTable.id,
+      companyId: companiesTable.id,
+      perfumeName: perfumesTable.name,
+      companyName: companiesTable.name,
+      countryCode: companiesTable.hqCountryCode,
+    })
     .from(perfumeCompoundsTable)
+    .innerJoin(
+      perfumesTable,
+      eq(perfumesTable.id, perfumeCompoundsTable.perfumeId),
+    )
+    .innerJoin(
+      companiesTable,
+      eq(companiesTable.id, perfumeCompoundsTable.companyId),
+    )
     .where(eq(perfumeCompoundsTable.id, ids.compoundId));
 
   if (!compound)
@@ -96,6 +101,15 @@ export type CompoundsByCompany = Awaited<
   ReturnType<typeof getCompoundsByCompany>
 >;
 type UnionReturn = CompoundsByPerfume | CompoundsByCompany;
+
+type PairedItem = {
+  id: number;
+  name: string;
+  countryCode?: string;
+  compoundId?: number;
+  pairings?: PairedItem[];
+};
+type PairedReturn = PairedItem[];
 
 type UnpairedReturn = {
   id: number;
@@ -226,7 +240,7 @@ function unifyResult(result: UnionReturn) {
   const unifiedPag = pagination as CompoundsByPerfume["pagination"];
 
   return {
-    data: result.data.map((item) => ({
+    data: data.map((item) => ({
       id: item.id,
       name: item.name,
       countryCode: "countryCode" in item ? item.countryCode : undefined,
@@ -236,7 +250,7 @@ function unifyResult(result: UnionReturn) {
         name: p.name,
         countryCode: "countryCode" in p ? p.countryCode : undefined,
       })),
-    })),
+    })) as PairedReturn,
     pagination: unifiedPag,
   };
 }
