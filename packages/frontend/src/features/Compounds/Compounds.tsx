@@ -3,8 +3,8 @@ import { useState } from "react";
 import { TabList, type Tab } from "../../ui/TabList/TabList";
 
 import styles from "./Compounds.module.css";
-import { BrowseCompounds } from "./Browse/BrowseCompounds";
 import { AddCompoundTab } from "./AddCompoundTab";
+import { TwoSlot } from "./TwoSlot/TwoSlot";
 
 export function Compounds() {
   const { t } = useTranslation();
@@ -26,7 +26,7 @@ export function Compounds() {
         addLabel={t("panelBtns.add")}
       />
 
-      {activeTab.type === "browse" && <BrowseCompounds />}
+      {activeTab.type === "browse" && <TwoSlot />}
       {activeTab.type === "add" && <AddCompoundTab />}
     </div>
   );

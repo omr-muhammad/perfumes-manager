@@ -47,9 +47,11 @@ export function useInfiniteCompounds(query: CompoundsQuery) {
   return {
     compounds,
     loading: isLoading,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
+    pagination: {
+      fetchNextPage,
+      hasNextPage,
+      isFetchingNextPage,
+    },
   };
 }
 
@@ -105,13 +107,14 @@ export function useUpdateCompound() {
   return { updateCompound: mutate, isUpdatingCompound: isPending };
 }
 
-export function useDeleteCompound() {
+export function useDeleteCompound(query: CompoundsQuery) {
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
-    mutationKey: ["compounds", "delete-compound"],
-    mutationFn: (id: number) => apiDeleteCompound(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["compounds"] }),
+    mutationFn: (compoundId: number) => apiDeleteCompound(compoundId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["compounds", query] });
+    },
     onError: (error) => toast.error(error.message),
   });
 

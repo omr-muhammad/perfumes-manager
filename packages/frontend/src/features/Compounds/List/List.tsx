@@ -1,15 +1,12 @@
 import styles from "./List.module.css";
 import { getCountryName, getFlagEmoji } from "../../../utils/countries";
 import i18n from "../../../i18";
-import type {
-  CompoundItem,
-  CompoundsGetResponse,
-} from "../../../api/compoundsAPI";
+import type { CompoundsGetResponse } from "../../../api/compoundsAPI";
 
 interface ListProps {
   items: CompoundsGetResponse;
   selectedItemId: number | null;
-  onSelectItem: (item: CompoundItem | null) => void;
+  onSelectItem: (id?: number) => void;
 }
 
 export function List({ items, selectedItemId, onSelectItem }: ListProps) {
@@ -23,7 +20,7 @@ export function List({ items, selectedItemId, onSelectItem }: ListProps) {
               type="button"
               className={`${styles.row} ${isActive ? styles.rowActive : ""}`}
               aria-pressed={isActive}
-              onClick={() => onSelectItem(isActive ? null : item)}
+              onClick={() => onSelectItem(isActive ? undefined : item.id)}
             >
               {item.countryCode && (
                 <span

@@ -1,9 +1,11 @@
-/*
-  Two rows (headers / lists) x three columns (list-a / flipper / list-b).
-  Each <Slot> wrapper is permanently assigned to area "a" or "b" in JSX —
-  only this template (via the .flipped modifier) ever changes which
-  physical column those areas sit in. Zero data movement, no remount.
-*/
+.page {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: var(--space-5);
+  height: 100%;
+  min-height: 0;
+}
+
 .grid {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -25,13 +27,16 @@
 .headerA {
   grid-area: header-a;
 }
+
 .headerB {
   grid-area: header-b;
 }
+
 .listA {
   grid-area: list-a;
   min-height: 0;
 }
+
 .listB {
   grid-area: list-b;
   min-height: 0;
@@ -98,6 +103,35 @@
 .morphingInput:focus {
   outline: none;
   border-color: var(--border-hover);
+}
+
+.actionRow {
+  display: flex;
+  justify-content: center;
+}
+
+.useCompoundButton {
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--accent-primary);
+  background: var(--accent-tint);
+  color: var(--accent-bright);
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: var(--font-size-base);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.useCompoundButton:hover:not(:disabled) {
+  background: var(--border-hover);
+}
+
+.useCompoundButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 @media (max-width: 40rem) {

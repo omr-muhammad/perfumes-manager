@@ -7,7 +7,6 @@ import { List } from "../List/List";
 import LoadMore from "../../../ui/LoadMore";
 import { Spinner } from "../../../ui/Spinner";
 import type {
-  CompoundItem,
   CompoundsGetResponse,
   CompoundsQuery,
 } from "../../../api/compoundsAPI";
@@ -18,7 +17,7 @@ interface SlotProps {
   onFocusChange: (q: CompoundsQuery) => void;
   itemsList: CompoundsGetResponse;
   selectedItemId: number | null;
-  onSelectItem: (item: CompoundItem | null) => void;
+  onSelectItem: (id?: number) => void;
   emptyStateMessage: string;
   showInlineInput: boolean;
   loading: boolean;
