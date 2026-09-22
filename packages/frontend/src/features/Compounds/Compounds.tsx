@@ -5,6 +5,7 @@ import { TabList, type Tab } from "../../ui/TabList/TabList";
 import styles from "./Compounds.module.css";
 import { AddCompoundTab } from "./AddCompoundTab";
 import { TwoSlot } from "./TwoSlot/TwoSlot";
+import { EditCompoundTab } from "./EditCompoundTab";
 
 export function Compounds() {
   const { t } = useTranslation();
@@ -12,7 +13,7 @@ export function Compounds() {
     type: "browse",
   });
 
-  function handleTabActivation(tab: Tab) {
+  function handleActiveTab(tab: Tab) {
     setActiveTab(tab);
   }
 
@@ -21,13 +22,18 @@ export function Compounds() {
       <TabList
         className={styles.tabList}
         activeTab={activeTab}
-        setActiveTab={handleTabActivation}
+        setActiveTab={handleActiveTab}
         browseLabel={t("panelBtns.browse")}
         addLabel={t("panelBtns.add")}
       />
 
-      {activeTab.type === "browse" && <TwoSlot />}
+      {activeTab.type === "browse" && (
+        <TwoSlot handleActiveTab={handleActiveTab} />
+      )}
       {activeTab.type === "add" && <AddCompoundTab />}
+      {activeTab.type === "edit" && (
+        <EditCompoundTab compoundId={activeTab.id} />
+      )}
     </div>
   );
 }

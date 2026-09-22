@@ -104,7 +104,7 @@ export function useUpdateCompound() {
     onError: (error) => toast.error(error.message),
   });
 
-  return { updateCompound: mutate, isUpdatingCompound: isPending };
+  return { updateCompound: mutate, updatingCompound: isPending };
 }
 
 export function useDeleteCompound(query: CompoundsQuery) {

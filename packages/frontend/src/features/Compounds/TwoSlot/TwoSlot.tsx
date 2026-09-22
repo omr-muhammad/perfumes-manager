@@ -1,17 +1,21 @@
 import { useLayoutEffect, useRef, useState, type FocusEvent } from "react";
 import { flushSync } from "react-dom";
 import { useTranslation } from "react-i18next";
-import toast from "react-hot-toast";
 import { FiRepeat } from "react-icons/fi";
 import { Slot } from "../Slot/Slot";
 import { ActionToolbar } from "../../../ui/ActionToolbar/ActionToolbar";
 import styles from "./TwoSlot.module.css";
 import type { CompoundsQuery } from "../../../api/compoundsAPI";
 import { useCompoundsSelection } from "../hooks/useCompoundsSelection";
+import type { Tab } from "../../../ui/TabList/TabList";
 
 type SlotSide = "left" | "right";
 
-export function TwoSlot() {
+interface TwoSlotProps {
+  handleActiveTab: (tab: Tab) => void;
+}
+
+export function TwoSlot({ handleActiveTab }: TwoSlotProps) {
   const { t } = useTranslation();
   const { pagination, ...selection } = useCompoundsSelection();
 
@@ -103,11 +107,18 @@ export function TwoSlot() {
   }
 
   function handleEdit() {
-    console.log("[compounds] edit compound", {
-      selectedPerfume: selection.selectedPerfume,
-      selectedCompany: selection.selectedCompany,
+    if (!selection.bothSelected) return;
+
+    const compoundId =
+      selection.selectedPerfume!.compoundId ??
+      selection.selectedCompany!.compoundId;
+    const compoundName = `${selection.selectedPerfume!.name} - ${selection.selectedCompany!.name}`;
+
+    handleActiveTab({
+      type: "edit",
+      id: compoundId!,
+      name: t("panelBtns.edit", { name: compoundName }),
     });
-    toast(t("compounds:edit"));
   }
 
   const handleFlip = () => setIsFlipped((f) => !f);
