@@ -57,6 +57,7 @@ export async function getById(ids: PfCompParams) {
       perfumeName: perfumesTable.name,
       companyName: companiesTable.name,
       countryCode: companiesTable.hqCountryCode,
+      density: perfumeCompoundsTable.density,
     })
     .from(perfumeCompoundsTable)
     .innerJoin(
