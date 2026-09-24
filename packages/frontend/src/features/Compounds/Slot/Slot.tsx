@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import toast from "react-hot-toast";
 import { FiPlus } from "react-icons/fi";
 import styles from "./Slot.module.css";
 import twoSlotStyles from "../TwoSlot/TwoSlot.module.css";
@@ -10,6 +9,7 @@ import type {
   CompoundsGetResponse,
   CompoundsQuery,
 } from "../../../api/compoundsAPI";
+import { useNavigate } from "react-router";
 
 interface SlotProps {
   title: CompoundsQuery["type"];
@@ -24,6 +24,7 @@ interface SlotProps {
   fetchNextPage: () => void;
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
+  navToAddWithPreFilled: () => void;
 }
 
 export function Slot({
@@ -39,42 +40,24 @@ export function Slot({
   hasNextPage,
   isFetchingNextPage,
   loading,
+  navToAddWithPreFilled,
 }: SlotProps) {
   const { t } = useTranslation();
-
+  const navigate = useNavigate();
   const isLiveSide = query.type === title;
-  // The opposite slot can only ever have items here because a selection was
-  // made on the live side (Architecture Decision 1) — so this is a reliable
-  // stand-in for "the opposite slot has a selected item" without needing an
-  // extra prop outside the locked SlotProps shape.
   const opponentHasSelection = !isLiveSide && itemsList.length > 0;
   const showAddNew =
     (isLiveSide && query.search !== "") || opponentHasSelection;
-  // const noMatches = isLiveSide && search.text !== "" && itemsList.length === 0;
 
-  const handleAddNew = () => {
+  function handleAddNew() {
     if (isLiveSide) {
-      // Placeholder — real "create new entity" flow comes later.
-      console.log("[compounds] add new entity", {
-        entityType: title,
-        query: query.search,
-      });
-      toast(t("compounds:addNew"));
+      const dest = title === "perfume" ? "perfumes" : "companies";
+
+      navigate(`/dashboard/${dest}`, { state: { activeTab: "add" } });
     } else {
-      // Placeholder — real "switch to add panel, carrying the opponent's
-      // selection over" flow comes later. `itemsList` is exactly the set
-      // derived from that opponent selection (Architecture Decision 1), so
-      // it's the best available stand-in payload until an actual selected
-      // opponent object is threaded through as real state.
-      console.log("[compounds] switch to add panel", {
-        entityType: title,
-        opponentType: query.type,
-        opponentQuery: query.search,
-        opponentDerivedItems: itemsList,
-      });
-      toast(t("compounds:addNew"));
+      navToAddWithPreFilled();
     }
-  };
+  }
 
   return (
     <div className={styles.slot}>

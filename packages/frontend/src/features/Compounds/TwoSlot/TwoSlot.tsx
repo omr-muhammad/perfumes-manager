@@ -121,6 +121,34 @@ export function TwoSlot({ handleActiveTab }: TwoSlotProps) {
     });
   }
 
+  function navToAdd() {
+    const opponentId =
+      selection.query.type === "perfume"
+        ? selection.selectedPerfume?.id
+        : selection.selectedCompany?.id;
+    const opponentName =
+      selection.query.type === "perfume"
+        ? selection.selectedPerfume?.name
+        : selection.selectedCompany?.name;
+
+    // could be tricky but we send company if title == perfume,
+    // so we need the countryCode when sending company
+    const countryCode =
+      selection.query.type === "company"
+        ? selection.selectedCompany?.countryCode
+        : undefined;
+
+    const payload = {
+      [selection.query.type]: {
+        id: opponentId,
+        name: opponentName,
+        countryCode,
+      },
+    };
+
+    handleActiveTab({ type: "add", data: payload });
+  }
+
   const handleFlip = () => setIsFlipped((f) => !f);
 
   function renderHeaderZone(side: SlotSide, type: CompoundsQuery["type"]) {
@@ -182,6 +210,7 @@ export function TwoSlot({ handleActiveTab }: TwoSlotProps) {
             isFetchingNextPage={pagination.isFetchingNextPage}
             fetchNextPage={pagination.fetchNextPage}
             loading={selection.loading}
+            navToAddWithPreFilled={navToAdd}
           />
         </div>
 
@@ -212,6 +241,7 @@ export function TwoSlot({ handleActiveTab }: TwoSlotProps) {
             isFetchingNextPage={pagination.isFetchingNextPage}
             fetchNextPage={pagination.fetchNextPage}
             loading={selection.loading}
+            navToAddWithPreFilled={navToAdd}
           />
         </div>
       </div>

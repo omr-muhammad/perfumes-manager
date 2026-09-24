@@ -1,8 +1,8 @@
 import { TabButton } from "../TabButton";
 
-export type Tab =
+export type Tab<T = unknown> =
   | { type: "browse" }
-  | { type: "add" }
+  | { type: "add"; data?: T }
   | { type: "edit" | "approve"; id: number; name: string };
 
 interface TabListProps {

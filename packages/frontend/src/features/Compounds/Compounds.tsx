@@ -9,9 +9,8 @@ import { EditCompoundTab } from "./EditCompoundTab";
 
 export function Compounds() {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<Tab>({
-    type: "browse",
-  });
+
+  const [activeTab, setActiveTab] = useState<Tab>({ type: "browse" });
 
   function handleActiveTab(tab: Tab) {
     setActiveTab(tab);
@@ -30,7 +29,9 @@ export function Compounds() {
       {activeTab.type === "browse" && (
         <TwoSlot handleActiveTab={handleActiveTab} />
       )}
-      {activeTab.type === "add" && <AddCompoundTab />}
+      {activeTab.type === "add" && (
+        <AddCompoundTab partialData={activeTab.data} />
+      )}
       {activeTab.type === "edit" && (
         <EditCompoundTab compoundId={activeTab.id} />
       )}

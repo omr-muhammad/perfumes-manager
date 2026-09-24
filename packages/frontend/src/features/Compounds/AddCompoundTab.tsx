@@ -1,10 +1,18 @@
 import { CompoundForm } from "./CompoundForm";
 import { useCreateCompound } from "./hooks";
 
-export function AddCompoundTab() {
+interface AddTabProps {
+  partialData?: any;
+}
+
+export function AddCompoundTab({ partialData }: AddTabProps) {
   const { createCompound, creatingCompound } = useCreateCompound();
 
   return (
-    <CompoundForm onSubmit={createCompound} submitting={creatingCompound} />
+    <CompoundForm
+      initialData={partialData}
+      onSubmit={createCompound}
+      submitting={creatingCompound}
+    />
   );
 }

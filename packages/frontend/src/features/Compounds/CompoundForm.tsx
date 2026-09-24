@@ -29,12 +29,13 @@ export interface NormalizedItem {
 type ComboboxType = UnpairedCompoundsQuery["type"];
 
 export interface CompoundFormInitialData {
-  perfume: NormalizedItem;
-  company: NormalizedItem;
-  density: string;
+  perfume?: NormalizedItem;
+  company?: NormalizedItem;
+  density?: string;
 }
 
 interface CompoundFormProps {
+  isEditMode?: boolean;
   initialData?: CompoundFormInitialData;
   onSubmit: (payload: NewCompound) => void;
   submitting: boolean;
@@ -105,9 +106,6 @@ function CompoundSearchCombobox({
     inputValue,
     selectedItem,
     itemToString: (item) => displayValue(item),
-    // Blocks paired items from both click selection and arrow-key
-    // navigation. This replaces the older `disabled` option on
-    // getItemProps, which downshift removed in v8.
     isItemDisabled: (item) => Boolean(item.paired),
     onInputValueChange: ({ inputValue: nextValue }) => {
       onInputValueChange(nextValue ?? "");
@@ -220,15 +218,19 @@ function CompoundSearchCombobox({
 // ============================================================
 
 export function CompoundForm({
+  isEditMode = false,
   initialData,
   onSubmit,
   submitting,
 }: CompoundFormProps) {
   const { t } = useTranslation();
-  const isEditMode = Boolean(initialData);
 
-  const [perfumeSearch, setPerfumeSearch] = useState("");
-  const [companySearch, setCompanySearch] = useState("");
+  const [perfumeSearch, setPerfumeSearch] = useState(
+    initialData?.perfume?.name ?? "",
+  );
+  const [companySearch, setCompanySearch] = useState(
+    initialData?.company?.name ?? "",
+  );
   const debouncedPerfumeSearch = useDebounce(perfumeSearch, 400);
   const debouncedCompanySearch = useDebounce(companySearch, 400);
 
@@ -238,6 +240,10 @@ export function CompoundForm({
   const [selectedCompany, setSelectedCompany] = useState<NormalizedItem | null>(
     initialData?.company ?? null,
   );
+
+  const bothSelected = selectedPerfume !== null && selectedCompany !== null;
+
+  console.log("Selected Perfume: ", selectedPerfume);
 
   const [density, setDensity] = useState(initialData?.density ?? "");
   const [densityError, setDensityError] = useState<string | null>(null);
@@ -284,16 +290,17 @@ export function CompoundForm({
       return setDensityError(t("compounds:form.densityInvalid"));
 
     if (isEditMode) {
+      if (!bothSelected) return toast.error(`compounds:form.errorGeneric`);
+
       onSubmit({
-        perfumeId: initialData!.perfume.id,
-        companyId: initialData!.company.id,
+        perfumeId: selectedPerfume.id,
+        companyId: selectedCompany.id,
         density: formattedDensity ?? undefined,
       });
       return;
     }
 
-    if (!selectedPerfume || !selectedCompany)
-      return toast.error(t("compounds:form.errorGeneric"));
+    if (!bothSelected) return toast.error(t("compounds:form.errorGeneric"));
 
     onSubmit({
       perfumeId: selectedPerfume.id,

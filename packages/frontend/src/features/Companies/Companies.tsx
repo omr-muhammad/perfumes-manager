@@ -8,11 +8,17 @@ import { BrowseTab } from "./BrowseTab";
 import { AddTab } from "./AddTab";
 import { EditCompanyTab } from "./EditCompanyTab";
 import { TabList, type Tab } from "../../ui/TabList/TabList";
+import { useLocation } from "react-router";
 
 export function Companies() {
+  const location = useLocation();
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<Tab>({
-    type: "browse",
+  const [activeTab, setActiveTab] = useState<Tab>(() => {
+    if (location.state?.activeTab === "add") return { type: "add" };
+
+    return {
+      type: "browse",
+    };
   });
 
   const { data: user } = useQuery(loggedUserQuery);

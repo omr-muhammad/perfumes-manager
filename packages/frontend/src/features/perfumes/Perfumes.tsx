@@ -7,34 +7,37 @@ import styles from "./perfumes.module.css";
 import { AddPerfumeTab } from "./AddPerfumeTab";
 import { EditPerfumeTab } from "./EditPerfumeTab";
 import { TabButton } from "../../ui/TabButton";
-
-type PerfumesTab =
-  | { type: "browse" }
-  | { type: "add" }
-  | { type: "edit" | "approve"; perfumeId: number; perfumeName: string };
+import { useLocation } from "react-router";
+import type { Tab } from "../../ui/TabList/TabList";
 
 export function Perfumes() {
+  const location = useLocation();
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<PerfumesTab>({
-    type: "browse",
+
+  const [activeTab, setActiveTab] = useState<Tab>(() => {
+    if (location.state?.activeTab === "add") return { type: "add" };
+
+    return {
+      type: "browse",
+    };
   });
 
   const { data: user } = useQuery(loggedUserQuery);
   const isAdmin = user?.role === "admin";
 
-  function activeEdit(perfumeId: number, perfumeName: string) {
+  function activeEdit(id: number, name: string) {
     setActiveTab({
       type: "edit",
-      perfumeId,
-      perfumeName,
+      id,
+      name,
     });
   }
 
-  function activeApprove(perfumeId: number, perfumeName: string) {
+  function activeApprove(id: number, name: string) {
     setActiveTab({
       type: "approve",
-      perfumeId,
-      perfumeName,
+      id,
+      name,
     });
   }
 
@@ -64,7 +67,7 @@ export function Perfumes() {
         {activeTab.type === "edit" && (
           <TabButton
             text={t("perfumes:editTabLabel", {
-              perfumeName: activeTab.perfumeName,
+              perfumeName: activeTab.name,
             })}
             buttonId="tab-edit"
             isActive={activeTab.type === "edit"}
@@ -75,7 +78,7 @@ export function Perfumes() {
         {activeTab.type === "approve" && (
           <TabButton
             text={t("perfumes:approveTabLabel", {
-              perfumeName: activeTab.perfumeName,
+              perfumeName: activeTab.name,
             })}
             buttonId="tab-approve"
             isActive={activeTab.type === "approve"}
@@ -118,7 +121,7 @@ export function Perfumes() {
           aria-labelledby="tab-edit"
         >
           <EditPerfumeTab
-            perfumeId={activeTab.perfumeId}
+            perfumeId={activeTab.id}
             isAdmin={isAdmin}
             backToBrowse={activeBrowseTab}
           />
@@ -133,7 +136,7 @@ export function Perfumes() {
           aria-labelledby="tab-approve"
         >
           <EditPerfumeTab
-            perfumeId={activeTab.perfumeId}
+            perfumeId={activeTab.id}
             isAdmin={isAdmin}
             mode="approve"
             backToBrowse={activeBrowseTab}
