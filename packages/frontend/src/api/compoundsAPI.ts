@@ -17,6 +17,11 @@ type UnpairedCompoundsOptions = NonNullable<
 export type UnpairedCompoundsQuery = NonNullable<
   UnpairedCompoundsOptions["query"]
 >;
+
+type UnpairedResponse = NonNullable<
+  Treaty.Data<typeof backend.api.compounds.unpaired.get>["data"]
+>["unpairedCompounds"];
+export type UnpairedItem = UnpairedResponse[number];
 // -------------------- Create Types --------------------
 export type NewCompound = Parameters<typeof backend.api.compounds.post>[0];
 

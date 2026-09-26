@@ -10,6 +10,7 @@ import { useUnpairedCompounds } from "./hooks";
 import type {
   NewCompound,
   UnpairedCompoundsQuery,
+  UnpairedItem,
 } from "../../api/compoundsAPI";
 import { useDebounce } from "../../hooks/useDebounce";
 import i18n from "../../i18";
@@ -18,19 +19,11 @@ import i18n from "../../i18";
 // Temporary types — replace with Eden-generated equivalents
 // ============================================================
 
-export interface NormalizedItem {
-  id: number;
-  name: string;
-  countryCode?: string;
-  /** Server-computed per query (relative to `mateId`); never persisted. */
-  paired?: boolean;
-}
-
 type ComboboxType = UnpairedCompoundsQuery["type"];
 
 export interface CompoundFormInitialData {
-  perfume?: NormalizedItem;
-  company?: NormalizedItem;
+  perfume?: UnpairedItem;
+  company?: UnpairedItem;
   density?: string;
 }
 
@@ -56,7 +49,7 @@ function formatDensity(raw: string): string | null {
   return num.toFixed(3);
 }
 
-function displayValue(item: NormalizedItem | null): string {
+function displayValue(item: UnpairedItem | null): string {
   return item ? item.name : "";
 }
 
@@ -69,12 +62,12 @@ interface CompoundSearchComboboxProps {
   type: ComboboxType;
   label: string;
   placeholder: string;
-  items: NormalizedItem[];
+  items: UnpairedItem[];
   loading: boolean;
   inputValue: string;
   onInputValueChange: (value: string) => void;
-  selectedItem: NormalizedItem | null;
-  onSelectedItemChange: (item: NormalizedItem | null) => void;
+  selectedItem: UnpairedItem | null;
+  onSelectedItemChange: (item: UnpairedItem | null) => void;
   readOnly: boolean;
 }
 
@@ -234,10 +227,10 @@ export function CompoundForm({
   const debouncedPerfumeSearch = useDebounce(perfumeSearch, 400);
   const debouncedCompanySearch = useDebounce(companySearch, 400);
 
-  const [selectedPerfume, setSelectedPerfume] = useState<NormalizedItem | null>(
+  const [selectedPerfume, setSelectedPerfume] = useState<UnpairedItem | null>(
     initialData?.perfume ?? null,
   );
-  const [selectedCompany, setSelectedCompany] = useState<NormalizedItem | null>(
+  const [selectedCompany, setSelectedCompany] = useState<UnpairedItem | null>(
     initialData?.company ?? null,
   );
 
