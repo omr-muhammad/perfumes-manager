@@ -6,5 +6,8 @@ import { PfCompSchema } from "./schema";
 
 export const pfCompRouter = new Elysia({ prefix: "/compounds" })
   .use(protect)
-  .use(restrictTo("owner"))
+  .use(restrictTo("admin", "owner"))
+  .get("", handlers.queryCompounds, PfCompSchema.query)
+  .get("/unpaired", handlers.queryUnpairedCompounds, PfCompSchema.queryUnpaired)
+  .get("/:compoundId", handlers.getPfCompById, PfCompSchema.queryOne)
   .post("", handlers.createPfComp, PfCompSchema.create);

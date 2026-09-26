@@ -28,3 +28,11 @@ export function getFlagEmoji(countryCode: string): string {
 
   return String.fromCodePoint(...codePoints);
 }
+
+export function getCountryName(
+  countryCode: string,
+  locale: string = navigator.language,
+) {
+  const regionNames = new Intl.DisplayNames([locale], { type: "region" });
+  return regionNames.of(countryCode);
+}

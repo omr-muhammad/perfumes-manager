@@ -1,22 +1,22 @@
 // --------- Standalone ---------
-export { perfumesTable } from "./perfumes";
-export { usersTable } from "./users";
-export { companiesTable } from "./companies";
-export { perfumeCompoundsTable } from "./perfumesCompounds";
+export { perfumesTable, perfumesRelations } from "./perfumes";
+export { usersTable, usersRelations } from "./users";
+export { companiesTable, companiesRelations } from "./companies";
+export { perfumeCompoundsTable, pfCompRelations } from "./perfumesCompounds";
 
 // ------------------------------
 
 // --------- Related to User ---------
 export { shopsTable, shopsRelations } from "./shops";
-export { addressesTable } from "./addresses";
+export { addressesTable, addressRelations } from "./addresses";
 // -----------------------------------
 
 // --------- Related to Shop ---------
-export { shopsStaffTable } from "./shopStaff";
+export { shopsStaffTable, shopsStaffRelations } from "./shopStaff";
 export { alcoholsTable, alcoRelations } from "./alcohols";
-export { bottlesTable } from "./bottles";
-export { shopCompsTable } from "./shopCompounds";
-export { ordersTable } from "./orders";
+export { bottlesTable, bottlesRelations } from "./bottles";
+export { shopCompsTable, shopCompsRelations } from "./shopCompounds";
+export { ordersTable, ordersRelations } from "./orders";
 
 // -----------------------------------
 
@@ -25,12 +25,12 @@ export { alcoholLotsTable, alcoLotRelations } from "./alcoholLots";
 // ---------------------------------------
 
 // --------- Related to Bottles ---------
-export { bottlesLotsTable } from "./bottlesLots";
+export { bottlesLotsTable, btlLotsRelations } from "./bottlesLots";
 // --------------------------------------
 
 // --------- Related to Compounds ---------
-export { shopCompLotsTable } from "./shopCompoundLots";
-export { agingsTable } from "./agings";
+export { shopCompLotsTable, shopCompLotRelations } from "./shopCompoundLots";
+export { agingsTable, agingRelations } from "./agings";
 // ----------------------------------------
 
 // --------- Related to Inventory Entities ---------
@@ -38,6 +38,9 @@ export { amountTiersTable } from "./amountTiers";
 // -------------------------------------------------
 
 // --------- Related to Orders ---------
-export { orderBottlesTable } from "./orderBottles";
-export { orderBottleIngredientsTable } from "./orderBottleIngredients";
+export { orderBottlesTable, orderBottlesRelations } from "./orderBottles";
+export {
+  orderBottleIngredientsTable,
+  orderBottleIngredientsRelations,
+} from "./orderBottleIngredients";
 // -------------------------------------------------

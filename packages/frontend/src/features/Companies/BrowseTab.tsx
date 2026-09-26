@@ -9,14 +9,14 @@ import { useInfiniteCompanies } from "./hooks";
 import LoadMore from "../../ui/LoadMore";
 import { CoMiniCard } from "./CoMiniCard";
 import { Filters } from "./Filters";
+import type { Tab } from "../../ui/TabList/TabList";
 
 interface BrowseTabProps {
   isAdmin: boolean;
-  onEdit: (coId: number, coName: string) => void;
-  onApprove: (coId: number, coName: string) => void;
+  handleTabActivation: (tab: Tab) => void;
 }
 
-export function BrowseTab({ isAdmin, onEdit, onApprove }: BrowseTabProps) {
+export function BrowseTab({ isAdmin, handleTabActivation }: BrowseTabProps) {
   const { t } = useTranslation("companies");
   const [query, setQuery] = useState<CoQuery>({
     search: "",
@@ -45,7 +45,7 @@ export function BrowseTab({ isAdmin, onEdit, onApprove }: BrowseTabProps) {
   return (
     <>
       <Filters query={query} onChange={setQuery} />
-      <ActiveFilters tags={tags} onClear={clearAll} nsFile="companies" />
+      <ActiveFilters tags={tags} onClear={clearAll} />
 
       {loading && (
         <p className={styles.stateMessage}>{t("loadingCompanies")}</p>
@@ -68,9 +68,7 @@ export function BrowseTab({ isAdmin, onEdit, onApprove }: BrowseTabProps) {
                 approved: company.approved!,
               }}
               isAdmin={isAdmin}
-              nsFile="companies"
-              onEdit={onEdit}
-              onApprove={onApprove}
+              handleTabActivation={handleTabActivation}
             />
           ))}
 

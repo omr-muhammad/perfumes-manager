@@ -1,0 +1,52 @@
+.slot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  height: 100%;
+  min-height: 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  background: linear-gradient(180deg, var(--card-bg-start), var(--card-bg-end));
+}
+
+.inlineInput {
+  flex: none;
+  width: 100%;
+}
+
+.listArea {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.emptyState {
+  margin: auto 0;
+  padding: var(--space-4) var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+.addNewButton {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--border-hover);
+  color: var(--accent-primary);
+  font-size: var(--font-size-sm);
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.addNewButton:hover {
+  background: var(--accent-tint);
+  color: var(--accent-bright);
+}

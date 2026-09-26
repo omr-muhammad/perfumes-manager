@@ -27,6 +27,17 @@ export const Url = t.String({
   error: "Invalid format, please provide a valid URL",
 });
 
+export const TrimmedString = (field: string, acceptEmpty: boolean = false) =>
+  t
+    .Transform(t.String())
+    .Decode((v) => {
+      const trimmed = v.trim();
+      if (trimmed.length === 0 && !acceptEmpty)
+        throw new Error(`${field} cannot be empty.`);
+      return trimmed;
+    })
+    .Encode((v) => v);
+
 export const AppLanguage = t.Union(enumToUnion(langEn), {
   error: `Language value must be one of (${langEn.enumValues.join(", ")})`,
 });
@@ -111,5 +122,5 @@ export type DbTx = typeof _tx;
 
 export const QueriesMeta = {
   page: t.Number({ minimum: 1, default: 1 }),
-  limit: t.Number({ minimum: 10, default: 20, maximum: 100 }),
+  limit: t.Number({ minimum: 1, default: 20, maximum: 100 }),
 };

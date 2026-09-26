@@ -14,7 +14,7 @@ import { Companies } from "./features/Companies/Companies";
 import { Perfumes } from "./features/perfumes/Perfumes";
 import { queryClient } from "./lib/queryClient";
 import { authLoader } from "./features/Auth/loaders";
-// import { Compounds } from "./features/Compounds/Compounds";
+import { Compounds } from "./features/Compounds/Compounds";
 import { Shops } from "./features/Shops/Shops";
 import { Settings } from "./features/Settings/Settings";
 import { Spinner } from "./ui/Spinner";
@@ -43,11 +43,11 @@ const router = createBrowserRouter([
             element: <Perfumes />,
           },
           { path: "companies", element: <Companies /> },
-          // {
-          //   path: "compounds",
-          //   loader: loadNs("compounds", "countries"),
-          //   element: <Compounds />,
-          // },
+          {
+            path: "compounds",
+            loader: loadNs("compounds", "countries"),
+            element: <Compounds />,
+          },
           { path: "settings", element: <Settings /> },
           {
             path: "profile",

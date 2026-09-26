@@ -13,7 +13,7 @@ const cascadeOnDelete = `
         END;
 
       BEGIN
-        DELETE FROM amount_tiers AS tiers WHERE OLD.id = tiers.entity_id AND tiers.entity_type = v_ent_type;
+        DELETE FROM amount_tiers AS tiers WHERE OLD.id = tiers.entity_id AND tiers.entity_type::TEXT = v_ent_type;
 
         RETURN OLD;
       END;

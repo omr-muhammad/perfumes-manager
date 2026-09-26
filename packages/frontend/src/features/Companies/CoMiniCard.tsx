@@ -7,7 +7,10 @@ import styles from "./company-card-mini.module.css";
 import { useTranslation } from "react-i18next";
 import { useConfirm } from "../../contexts/ConfirmContext";
 import type { Company } from "../../api/companiesAPI";
-import { getFlagEmoji } from "../../utils/countries";
+import { getCountryName, getFlagEmoji } from "../../utils/countries";
+import type { Tab } from "../../ui/TabList/TabList";
+import { useDeleteCompany } from "./hooks";
+import i18n from "../../i18";
 
 // import { useDeletePerfume } from "./hook";
 
@@ -16,24 +19,20 @@ type MiniCo = Omit<Company, "createdAt" | "updatedAt" | "logo">;
 interface CoMiniCardProps {
   company: MiniCo;
   isAdmin: boolean;
-  nsFile?: string;
-  onEdit: (coId: number, coName: string) => void;
-  onApprove: (coId: number, coName: string) => void;
+  handleTabActivation: (tab: Tab) => void;
 }
 
 export function CoMiniCard({
   company,
   isAdmin,
-  nsFile = "perfumes",
-  onEdit,
-  onApprove,
+  handleTabActivation,
 }: CoMiniCardProps) {
-  const { t } = useTranslation([nsFile, "countries"]);
+  const { t } = useTranslation();
   const { name, hqCountryCode, approved, type } = company;
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const confirm = useConfirm();
-  // const { deletePerfume } = useDeletePerfume();
+  const { deleteCo, deleting } = useDeleteCompany();
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -48,26 +47,33 @@ export function CoMiniCard({
 
   function handleEdit() {
     setMenuOpen(false);
-    onEdit(company.id, company.name);
+    handleTabActivation({
+      type: "edit",
+      id: company.id,
+      name: t("panelBtns.edit", { name: company.name }),
+    });
   }
 
   function handleApprove() {
     setMenuOpen(false);
-    onApprove(company.id, company.name);
+    handleTabActivation({
+      type: "approve",
+      id: company.id,
+      name: t("panelBtns.approve", { name: company.name }),
+    });
   }
 
   async function handleDelete() {
     setMenuOpen(false);
 
     const confirmed = await confirm({
-      title: t("confirmDeleteTitle", { coName: company.name }),
-      message: t("warnDeleteMsg"),
+      title: t("modal.confirmDeleteTitle", { name: company.name }),
+      message: t("modal.warnDeleteMsg"),
     });
 
     if (!confirmed) return;
 
-    console.log("Co deleted");
-    // deletePerfume(company.id);
+    deleteCo(company.id);
   }
 
   // console.log(hqCountryCode);
@@ -81,7 +87,7 @@ export function CoMiniCard({
         {hqCountryCode && (
           <span
             className={styles.statusIcon}
-            title={t(`countries:${hqCountryCode}`)}
+            title={getCountryName(company.hqCountryCode, i18n.language)}
           >
             {getFlagEmoji(hqCountryCode)}
           </span>
@@ -127,6 +133,7 @@ export function CoMiniCard({
             aria-expanded={menuOpen}
             aria-label="Card options"
             onClick={() => setMenuOpen((o) => !o)}
+            disabled={deleting}
           >
             <HiDotsVertical />
           </button>
