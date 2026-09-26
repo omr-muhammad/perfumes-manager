@@ -1,8 +1,12 @@
 import toast from "react-hot-toast";
-import type { UpdateCompound } from "../../api/compoundsAPI";
-import { Spinner } from "../../ui/Spinner";
-import { CompoundForm } from "./CompoundForm";
-import { useGetCompound, useUpdateCompound } from "./hooks";
+
+import { Spinner } from "../../../ui/Spinner";
+import { CompoundForm } from "../components/CompoundForm";
+
+import { useGetCompound } from "../hooks/useCompoundId";
+import { useUpdateCompound } from "../hooks/useUpdateCompound";
+
+import type { UpdateCompound } from "../types";
 
 export function EditCompoundTab({ compoundId }: { compoundId: number }) {
   const { perfumeCompound, loading } = useGetCompound(compoundId);
@@ -28,11 +32,13 @@ export function EditCompoundTab({ compoundId }: { compoundId: number }) {
     perfume: {
       id: perfumeId,
       name: perfumeName,
+      paired: true,
     },
     company: {
       id: companyId,
       name: companyName,
       countryCode: countryCode,
+      paired: true,
     },
     density: density,
   };

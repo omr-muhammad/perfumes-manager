@@ -1,15 +1,16 @@
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router";
+
 import { FiPlus } from "react-icons/fi";
-import styles from "./Slot.module.css";
-import twoSlotStyles from "../TwoSlot/TwoSlot.module.css";
-import { List } from "../List/List";
+
+import { List } from "./List";
 import LoadMore from "../../../ui/LoadMore";
 import { Spinner } from "../../../ui/Spinner";
-import type {
-  CompoundsGetResponse,
-  CompoundsQuery,
-} from "../../../api/compoundsAPI";
-import { useNavigate } from "react-router";
+
+import type { CompoundsGetResponse, CompoundsQuery } from "../types";
+
+import browseCompoundsStyles from "../tabs/BrowseCompounds.module.css";
+import styles from "./Slot.module.css";
 
 interface SlotProps {
   title: CompoundsQuery["type"];
@@ -63,7 +64,7 @@ export function Slot({
     <div className={styles.slot}>
       {showInlineInput && (
         <input
-          className={`${twoSlotStyles.morphingInput} ${styles.inlineInput}`}
+          className={`${browseCompoundsStyles.morphingInput} ${styles.inlineInput}`}
           // view-transition-name must be globally unique to work
           style={{ viewTransitionName: `search-input-${title}` }}
           type="text"

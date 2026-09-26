@@ -1,7 +1,7 @@
 import styles from "./List.module.css";
 import { getCountryName, getFlagEmoji } from "../../../utils/countries";
 import i18n from "../../../i18";
-import type { CompoundsGetResponse } from "../../../api/compoundsAPI";
+import type { CompoundsGetResponse } from "../types";
 
 interface ListProps {
   items: CompoundsGetResponse;

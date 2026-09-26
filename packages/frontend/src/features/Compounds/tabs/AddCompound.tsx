@@ -1,5 +1,5 @@
-import { CompoundForm } from "./CompoundForm";
-import { useCreateCompound } from "./hooks";
+import { CompoundForm } from "../components/CompoundForm";
+import { useCreateCompound } from "../hooks/useCreateCompounds";
 
 interface AddTabProps {
   partialData?: any;

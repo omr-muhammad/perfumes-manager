@@ -1,23 +1,27 @@
+// Libs
 import { useState, type ChangeEvent, type SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useCombobox } from "downshift";
-import { FiSearch, FiX, FiLoader, FiPlus, FiCheck } from "react-icons/fi";
+import i18n from "../../../i18";
 import toast from "react-hot-toast";
 
+// Icons
+import { FiSearch, FiX, FiLoader, FiPlus, FiCheck } from "react-icons/fi";
+
+// Styles
 import styles from "./CompoundForm.module.css";
-import { getCountryName, getFlagEmoji } from "../../utils/countries";
-import { useUnpairedCompounds } from "./hooks";
+
+// Utils
+import { getCountryName, getFlagEmoji } from "../../../utils/countries";
+import { useDebounce } from "../../../hooks/useDebounce";
+
+// Hooks
+import { useUnpairedCompounds } from "../hooks/useUnpairedCompounds";
 import type {
   NewCompound,
   UnpairedCompoundsQuery,
   UnpairedItem,
-} from "../../api/compoundsAPI";
-import { useDebounce } from "../../hooks/useDebounce";
-import i18n from "../../i18";
-
-// ============================================================
-// Temporary types — replace with Eden-generated equivalents
-// ============================================================
+} from "../types";
 
 type ComboboxType = UnpairedCompoundsQuery["type"];
 
