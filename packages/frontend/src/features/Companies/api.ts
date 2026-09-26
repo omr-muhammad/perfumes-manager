@@ -1,24 +1,5 @@
-import type { Treaty } from "@elysia/eden";
-import { backend } from "./client";
-
-// ---------- Companies Query ----------
-type CoResponse = Treaty.Data<typeof backend.api.companies.get>;
-export type Company = NonNullable<CoResponse["data"]>["data"][number];
-export type CoOptions = NonNullable<
-  Parameters<typeof backend.api.companies.get>[0]
->;
-export type CoQuery = NonNullable<CoOptions["query"]>;
-// -------------------------------------
-
-// ---------- Comapnies Create ----------
-export type NewCompany = Parameters<typeof backend.api.companies.post>[0];
-// --------------------------------------
-
-// ---------- Comapnies Update ----------
-export type CoUpdates = Parameters<
-  ReturnType<typeof backend.api.admin.companies>["patch"]
->[0];
-// --------------------------------------
+import { backend } from "../../api/client";
+import type { CoQuery, CoUpdates, NewCompany } from "./types";
 
 export async function apiCoQuery(query?: CoQuery) {
   const { data, error } = await backend.api.companies.get({

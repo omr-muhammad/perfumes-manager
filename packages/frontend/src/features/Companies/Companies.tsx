@@ -1,14 +1,16 @@
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { loggedUserQuery } from "../Auth/hooks";
 import { useQuery } from "@tanstack/react-query";
-
-import styles from "./companies.module.css";
-import { BrowseTab } from "./BrowseTab";
-import { AddTab } from "./AddTab";
-import { EditCompanyTab } from "./EditCompanyTab";
-import { TabList, type Tab } from "../../ui/TabList/TabList";
 import { useLocation } from "react-router";
+
+import { BrowseTab } from "./tabs/BrowseTab";
+import { AddTab } from "./tabs/AddTab";
+import { EditCompanyTab } from "./tabs/EditCompanyTab";
+import { TabList, type Tab } from "../../ui/TabList/TabList";
+
+import { loggedUserQuery } from "../Auth/hooks/useUser";
+
+import styles from "./Companies.module.css";
 
 export function Companies() {
   const location = useLocation();

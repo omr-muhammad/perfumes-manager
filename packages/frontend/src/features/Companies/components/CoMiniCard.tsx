@@ -1,21 +1,31 @@
+// Libs
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import i18n from "../../../i18";
+
+// Icons
 import { MdGppGood } from "react-icons/md";
 import { CgSandClock } from "react-icons/cg";
 import { HiDotsVertical } from "react-icons/hi";
 import { BiWorld, BiMapPin } from "react-icons/bi";
-import styles from "./company-card-mini.module.css";
-import { useTranslation } from "react-i18next";
-import { useConfirm } from "../../contexts/ConfirmContext";
-import type { Company } from "../../api/companiesAPI";
-import { getCountryName, getFlagEmoji } from "../../utils/countries";
-import type { Tab } from "../../ui/TabList/TabList";
-import { useDeleteCompany } from "./hooks";
-import i18n from "../../i18";
 
-// import { useDeletePerfume } from "./hook";
+// Styles
+import styles from "./CoMiniCard.module.css";
+
+// Contexts
+import { useConfirm } from "../../../contexts/ConfirmContext";
+
+// Utils
+import { getCountryName, getFlagEmoji } from "../../../utils/countries";
+
+// Types
+import type { Tab } from "../../../ui/TabList/TabList";
+import type { Company } from "../types";
+
+// Hooks
+import { useDeleteCompany } from "../hooks/useDeleteCompany";
 
 type MiniCo = Omit<Company, "createdAt" | "updatedAt" | "logo">;
-
 interface CoMiniCardProps {
   company: MiniCo;
   isAdmin: boolean;

@@ -1,9 +1,13 @@
-import styles from "./companies.module.css";
-import Search from "../../ui/Search";
-import ApproveFilter from "../../ui/ApproveFilter";
+import { t } from "i18next";
 import { type Dispatch, type SetStateAction } from "react";
-import type { CoQuery } from "../../api/companiesAPI";
-import { TypeFilter } from "../../ui/TypeFilter";
+
+import Search from "../../../ui/Search";
+import ApproveFilter from "../../../ui/ApproveFilter";
+import { TypeFilter } from "../../../ui/TypeFilter";
+
+import type { CoQuery } from "../types";
+
+import styles from "../Companies.module.css";
 
 interface FiltersProps {
   query: CoQuery;
@@ -30,24 +34,20 @@ export function Filters({ query, onChange }: FiltersProps) {
           text={query.search}
           handleChange={handleSearch}
           placeholder="searchByName"
-          nsFile="companies"
         />
       </div>
 
       <div className={styles.filterField}>
         <ApproveFilter
+          approvedTxt={t("filters.approved")}
+          pendingTxt={t("filters.pending")}
           approved={query.approved}
           handleActive={handleApprove}
-          nsFile="companies"
         />
       </div>
 
       <div className={styles.filterField}>
-        <TypeFilter
-          coType={query.type}
-          handleActive={handleType}
-          nsFile="companies"
-        />
+        <TypeFilter coType={query.type} handleActive={handleType} />
       </div>
     </div>
   );

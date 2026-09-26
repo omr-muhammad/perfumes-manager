@@ -1,24 +1,30 @@
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-import styles from "./companies.module.css";
-import type { Company } from "../../api/companiesAPI";
-import { LabeledInput } from "../../ui/LabeledInput";
+// Libs
+import { useEffect, useState, type ChangeEvent, type SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { TypeFilter } from "../../ui/TypeFilter";
-import DisplayResult from "../../ui/DisplayResult";
-import { FieldError } from "../../ui/FieldError";
-import { LogoUpload } from "../../ui/LogoUpload";
-import i18n from "../../i18";
-import { getLocalizedCountries } from "../../utils/countries";
-import Button from "../../ui/Button";
-import { Spinner } from "../../ui/Spinner";
-import { useUploadLogo } from "./hooks";
+import i18n from "../../../i18";
+
+// Components
+import { LabeledInput } from "../../../ui/LabeledInput";
+import { TypeFilter } from "../../../ui/TypeFilter";
+import DisplayResult from "../../../ui/DisplayResult";
+import { FieldError } from "../../../ui/FieldError";
+import { LogoUpload } from "../../../ui/LogoUpload";
+import Button from "../../../ui/Button";
+import { Spinner } from "../../../ui/Spinner";
+
+// Types
+import type { Company, FormCompany } from "../types";
+
+// Styles
+import styles from "../Companies.module.css";
+
+// Utils
+import { getLocalizedCountries } from "../../../utils/countries";
+
+// Hooks
+import { useUploadLogo } from "../hooks/useUploadLogo";
 
 const BASE_IMG_URL = import.meta.env.VITE_BASE_CLOUDINARY_URL;
-
-export type FormCompany = Omit<
-  Company,
-  "createdAt" | "updatedAt" | "id" | "approved"
->;
 
 export type FormErrors = Partial<
   Record<"name" | "hqCountryCode" | "type" | "logo" | "root", string>
@@ -120,7 +126,7 @@ export function CoForm({
     return next;
   }
 
-  async function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
 
     const validationErrors = validate();

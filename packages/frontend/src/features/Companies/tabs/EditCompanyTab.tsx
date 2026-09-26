@@ -1,7 +1,9 @@
-import type { CoUpdates } from "../../api/companiesAPI";
-import { Spinner } from "../../ui/Spinner";
-import { CoForm, type FormCompany } from "./CoForm";
-import { useApproveCompany, useCompanyById, useUpdateCompany } from "./hooks";
+import { Spinner } from "../../../ui/Spinner";
+import { CoForm } from "../components/CoForm";
+import { useApproveCompany } from "../hooks/useApproveCompany";
+import { useCompanyId } from "../hooks/useCompanyId";
+import { useUpdateCompany } from "../hooks/useUpdateCompany";
+import type { CoUpdates, FormCompany } from "../types";
 
 type EditCompanyTabProps = {
   isAdmin: boolean;
@@ -16,7 +18,7 @@ export function EditCompanyTab({
   backToBrowse,
   mode,
 }: EditCompanyTabProps) {
-  const { company, loading } = useCompanyById(coId);
+  const { company, loading } = useCompanyId(coId);
   const actionHook = mode === "approve" ? useApproveCompany : useUpdateCompany;
   const { mutate, isPending } = actionHook();
 

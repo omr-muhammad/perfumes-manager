@@ -1,5 +1,5 @@
-import { CoForm } from "./CoForm";
-import { useCreateCompany } from "./hooks";
+import { CoForm } from "../components/CoForm";
+import { useCreateCompany } from "../hooks/useCreateCompany";
 
 export function AddTab() {
   const { createCo, creating } = useCreateCompany();
