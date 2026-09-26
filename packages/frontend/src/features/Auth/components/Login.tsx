@@ -2,8 +2,8 @@ import { useState, type ChangeEvent, type SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "../features/Auth/authlayout.module.css";
 import { Link } from "react-router";
-import { useLogin } from "../features/Auth/hooks";
-import { Spinner } from "../ui/Spinner";
+import { Spinner } from "../../../ui/Spinner";
+import { useLogin } from "../hooks/useLogin";
 
 export function Login() {
   const { t } = useTranslation();
@@ -13,13 +13,13 @@ export function Login() {
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  }
 
   function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
 
     login({ ...form, keepLogin: false });
-  };
+  }
 
   return (
     <>
@@ -49,7 +49,6 @@ export function Login() {
           />
         </div>
 
-
         <div className={styles.field}>
           <label className={styles.label} htmlFor="password">
             {t("auth.fields.password")}
@@ -67,11 +66,7 @@ export function Login() {
         </div>
         {/* </div> */}
 
-        <button
-          className={styles.button}
-          type="submit"
-          disabled={loggingIn}
-        >
+        <button className={styles.button} type="submit" disabled={loggingIn}>
           {loggingIn ? <Spinner size="1.2rem" /> : t("auth.login.submit")}
         </button>
       </form>

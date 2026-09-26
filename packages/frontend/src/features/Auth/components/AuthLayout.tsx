@@ -1,7 +1,7 @@
 import { Outlet } from "react-router";
-import { ThemeToggler } from "../../ui/ThemeToggler";
-import styles from "./authlayout.module.css";
-import { Logo } from "../../ui/Logo";
+import { ThemeToggler } from "../../../ui/ThemeToggler";
+import styles from "./AuthLayout.module.css";
+import { Logo } from "../../../ui/Logo";
 
 export function AuthLayout() {
   return (

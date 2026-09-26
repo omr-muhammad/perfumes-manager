@@ -1,9 +1,9 @@
 import { createBrowserRouter, Link } from "react-router";
 import { RouterProvider } from "react-router/dom";
-import { Login } from "./pages/Login";
-import { Signup } from "./pages/Signup";
-import { AuthLayout } from "./features/Auth/AuthLayout";
-import { AuthNavigator } from "./features/Auth/AuthNavigator";
+import { Login } from "./features/Auth/components/Login";
+import { Signup } from "./features/Auth/components/Signup";
+import { AuthLayout } from "./features/Auth/components/AuthLayout";
+import { AuthNavigator } from "./features/Auth/components/AuthNavigator";
 import { Suspense } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";

@@ -1,6 +1,6 @@
 import { redirect } from "react-router";
 import { queryClient } from "../../lib/queryClient";
-import { loggedUserQuery } from "./hooks";
+import { loggedUserQuery } from "./hooks/useUser";
 
 export async function authLoader() {
   try {

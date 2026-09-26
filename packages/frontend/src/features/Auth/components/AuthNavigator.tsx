@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
-import styles from "./auth-navigator.module.css";
+import styles from "./AuthNavigator.module.css";
 
 export function AuthNavigator() {
   const { t } = useTranslation();
