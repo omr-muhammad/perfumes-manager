@@ -1,23 +1,28 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+
 import { MdGppGood } from "react-icons/md";
 import { CgSandClock } from "react-icons/cg";
 import { HiDotsVertical } from "react-icons/hi";
-import styles from "./perfume-card-mini.module.css";
-import { useTranslation } from "react-i18next";
-import { useConfirm } from "../../contexts/ConfirmContext";
-import { useDeletePerfume } from "./hook";
 
-interface Perfume {
-  id: number;
-  name: string;
-  sex: "male" | "female" | "unisex" | null;
-  approved: boolean;
-}
+import { useConfirm } from "../../../contexts/ConfirmContext";
+
+import { useDeletePerfume } from "../hooks/useDeletePerfume";
+
+import styles from "./PerfumeCardMini.module.css";
+import type { Perfume } from "../types";
+
+// interface Perfume {
+//   id: number;
+//   name: string;
+//   sex: "male" | "female" | "unisex" | null;
+//   approved: boolean;
+// }
+type MiniPerfume = Pick<Perfume, "id" | "name" | "sex" | "approved">;
 
 interface PerfumeCardMiniProps {
-  perfume: Perfume;
+  perfume: MiniPerfume;
   isAdmin: boolean;
-  nsFile?: string;
   onEdit: (perfumeId: number, perfumeName: string) => void;
   onApprove: (perfumeId: number, perfumeName: string) => void;
 }
@@ -25,11 +30,10 @@ interface PerfumeCardMiniProps {
 export function PerfumeCardMini({
   perfume,
   isAdmin,
-  nsFile = "perfumes",
   onEdit,
   onApprove,
 }: PerfumeCardMiniProps) {
-  const { t } = useTranslation(nsFile);
+  const { t } = useTranslation();
   const { name, sex, approved } = perfume;
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -79,13 +83,13 @@ export function PerfumeCardMini({
           <MdGppGood
             className={styles.statusIcon}
             data-status="approved"
-            title={t("approved")}
+            title={t("perfumes:approved")}
           />
         ) : (
           <CgSandClock
             className={styles.statusIcon}
             data-status="pending"
-            title={t("pending")}
+            title={t("perfumes:pending")}
           />
         )}
       </div>
@@ -110,7 +114,7 @@ export function PerfumeCardMini({
                 className={styles.menuItem}
                 onClick={handleEdit}
               >
-                {t("edit")}
+                {t("perfumes:edit")}
               </button>
 
               {!approved && (
@@ -119,7 +123,7 @@ export function PerfumeCardMini({
                   className={styles.menuItem}
                   onClick={handleApprove}
                 >
-                  {t("approve")}
+                  {t("perfumes:approve")}
                 </button>
               )}
 
@@ -128,7 +132,7 @@ export function PerfumeCardMini({
                 className={`${styles.menuItem} ${styles.danger}`}
                 onClick={handleDelete}
               >
-                {t("delete")}
+                {t("perfumes:delete")}
               </button>
             </div>
           )}

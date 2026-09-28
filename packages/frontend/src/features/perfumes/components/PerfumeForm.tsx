@@ -1,20 +1,18 @@
 import { useState, type ChangeEvent, type SubmitEvent } from "react";
-import type { Perfume, PerfumeSex, Season } from "../../api/perfumesAPI";
-import styles from "./perfume-form.module.css";
-import { LabeledInput } from "../../ui/LabeledInput";
-import { useTranslation } from "react-i18next";
-import { SexFilter } from "../../ui/SexFilter";
-import { SeasonsFilter } from "../../ui/SeasonsFilter";
-import LabeledTextarea from "../../ui/LabeledTextarea";
-import { Spinner } from "../../ui/Spinner";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
+
+import { LabeledInput } from "../../../ui/LabeledInput";
+import { SelectOne } from "../../../ui/SelectOne";
+import { SeasonsFilter } from "../../../ui/SeasonsFilter";
+import LabeledTextarea from "../../../ui/LabeledTextarea";
+import { Spinner } from "../../../ui/Spinner";
+
+import type { FormPerfume, PerfumeSex, Season } from "../types";
+
+import styles from "./PerfumeForm.module.css";
+
 // import { FieldError } from "../../ui/FieldError";
-
-export type FormPerfume = Omit<
-  Perfume,
-  "createdAt" | "updatedAt" | "approved" | "id"
->;
-
 interface FormProps {
   initialData?: FormPerfume;
   perfumeId?: number;
@@ -32,15 +30,7 @@ interface FormProps {
 //   descriptionAr?: string;
 // }
 
-interface EmptyPerfume {
-  name: string;
-  sex: PerfumeSex | null;
-  seasons: Season[];
-  descriptionEn: string;
-  descriptionAr: string;
-}
-
-const EmptyPerfume: EmptyPerfume = {
+const EmptyPerfume: FormPerfume = {
   name: "",
   sex: null,
   seasons: [],
@@ -74,11 +64,9 @@ export function PerfumeForm({
     if (name === "seasons") return handleSeasons(value as Season);
 
     setPerfume((cur) => ({ ...cur, [name]: value }));
-
-    console.log(perfume[name]);
   }
 
-  function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
+  function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
 
     const { name, seasons, sex, descriptionAr, descriptionEn } = perfume;
@@ -97,8 +85,6 @@ export function PerfumeForm({
 
   return (
     <form className={styles.apForm} onSubmit={handleSubmit}>
-      {/* <h2>{t("addTab.heading")}</h2> */}
-
       <div className={`${styles.formContent} hide-scrollbar`}>
         <div className={styles.apRow}>
           <LabeledInput
@@ -115,8 +101,14 @@ export function PerfumeForm({
 
         <div className={styles.apRowTwoCol}>
           <div>
-            <SexFilter
-              sex={perfume.sex || undefined}
+            <SelectOne
+              options={[
+                { value: "male", label: t("filters.male") },
+                { value: "female", label: t("filters.female") },
+                { value: "unisex", label: t("filters.unisex") },
+              ]}
+              placeholder={t("filters.selectSex")}
+              value={perfume.sex ?? ""}
               handleSelect={(val) => handleChange("sex", val as PerfumeSex)}
             />
             {/* <FieldError message={errors.sex} /> */}

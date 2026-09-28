@@ -1,6 +1,10 @@
-import { Spinner } from "../../ui/Spinner";
-import { useApprovePerfume, useEditPerfume, usePerfumeById } from "./hook";
-import { PerfumeForm, type FormPerfume } from "./PerfumeForm";
+import { Spinner } from "../../../ui/Spinner";
+import { useApprovePerfume } from "../hooks/useApprovePerfume";
+import { useEditPerfume } from "../hooks/useEditPerfume";
+import { usePerfumeId } from "../hooks/usePerfumeId";
+
+import { PerfumeForm } from "../components/PerfumeForm";
+import type { FormPerfume } from "../types";
 
 interface EditPerfumeTabProps {
   perfumeId: number;
@@ -9,13 +13,13 @@ interface EditPerfumeTabProps {
   backToBrowse: () => void;
 }
 
-export function EditPerfumeTab({
+export function EditPerfume({
   perfumeId,
   isAdmin,
   mode,
   backToBrowse,
 }: EditPerfumeTabProps) {
-  const { perfume, loading } = usePerfumeById(perfumeId);
+  const { perfume, loading } = usePerfumeId(perfumeId);
   const actionHook = mode === "approve" ? useApprovePerfume : useEditPerfume;
   const { mutate, isPending } = actionHook();
 

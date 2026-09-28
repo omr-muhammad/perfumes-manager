@@ -1,14 +1,18 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import styles from "./perfumes.module.css";
-import { useDebounce } from "../../hooks/useDebounce";
-import { useInfinitePerfumes } from "./hook";
-import type { PerfumeQuery } from "../../api/perfumesAPI";
-import { Filters } from "./Filters";
-import { PerfumeCardMini } from "./PerfumeCardMini";
-import { ActiveFilters } from "../../ui/ActiveFilters";
-import { perfumesActiveFiltersTags } from "../../utils/buildTags";
-import LoadMore from "../../ui/LoadMore";
+
+import { Filters } from "../components/Filters";
+import { PerfumeCardMini } from "../components/PerfumeCardMini";
+import { ActiveFilters } from "../../../ui/ActiveFilters";
+import { LoadMore } from "../../../ui/LoadMore";
+
+import { useInfinitePerfumes } from "../hooks/useInfinitePerfumes";
+
+import { perfumesActiveFiltersTags } from "../../../utils/buildTags";
+import { useDebounce } from "../../../hooks/useDebounce";
+
+import styles from "../Perfumes.module.css";
+import type { PerfumeQuery } from "../types";
 
 interface BrowseTabProps {
   isAdmin: boolean;
@@ -16,7 +20,7 @@ interface BrowseTabProps {
   onApprove: (perfumeId: number, perfumeName: string) => void;
 }
 
-export function BrowseTab({ isAdmin, onEdit, onApprove }: BrowseTabProps) {
+export function BrowsePerfumes({ isAdmin, onEdit, onApprove }: BrowseTabProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState<PerfumeQuery>({
     search: "",
@@ -73,12 +77,9 @@ export function BrowseTab({ isAdmin, onEdit, onApprove }: BrowseTabProps) {
           ))}
 
           <LoadMore
-            loadText={t("loadingBtnTxt")}
             onLoadMore={fetchNextPage}
             hasMore={hasNextPage}
             isLoadingMore={isFetchingNextPage}
-            noMoreText={t("noMoreTxt")}
-            errorText={t("loadingErrorTxt")}
           />
         </div>
       )}
