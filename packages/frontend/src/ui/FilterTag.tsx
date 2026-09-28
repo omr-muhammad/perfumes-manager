@@ -10,14 +10,14 @@ interface TagProps {
 }
 
 export function FilterTag({ key, label, onRemove, className }: TagProps) {
-  const { t } = useTranslation("perfumes");
+  const { t } = useTranslation();
   return (
     <span className={className} key={key}>
       {label}
       <button
         type="button"
         className={styles.filterTagRemove}
-        aria-label={t("removeFilter")}
+        aria-label={t("remove")}
         onClick={onRemove}
       >
         <IoIosClose />

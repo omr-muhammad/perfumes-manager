@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import styles from "./styles/load-more.module.css";
 import { Spinner } from "./Spinner";
+import { useTranslation } from "react-i18next";
 
 interface LoadMoreProps {
   onLoadMore: () => void;
@@ -8,25 +9,20 @@ interface LoadMoreProps {
   isLoadingMore: boolean;
   error?: Error | null;
   mode?: "scroll" | "button";
-  noMoreText?: string;
-  loadText?: string;
-  errorText?: string;
   threshold?: number;
   rootMargin?: string;
 }
 
-function LoadMore({
+export function LoadMore({
   onLoadMore,
   hasMore,
   isLoadingMore,
   error = null,
   mode = "scroll",
-  noMoreText = "No more items",
-  loadText = "Load more",
-  errorText = "Couldn't load more. Retry",
   threshold = 0.1,
   rootMargin = "200px",
 }: LoadMoreProps) {
+  const { t } = useTranslation();
   const sentinelRef = useRef(null);
 
   useEffect(() => {
@@ -52,7 +48,7 @@ function LoadMore({
     return (
       <div className={styles.wrapper}>
         <button className={styles.retryButton} onClick={onLoadMore}>
-          {errorText}
+          {t("loadingErrorTxt")}
         </button>
       </div>
     );
@@ -61,7 +57,7 @@ function LoadMore({
   if (!hasMore) {
     return (
       <div className={styles.wrapper}>
-        <p className={styles.endText}>{noMoreText}</p>
+        <p className={styles.endText}>{t("noMoreTxt")}</p>
       </div>
     );
   }
@@ -74,7 +70,11 @@ function LoadMore({
           onClick={onLoadMore}
           disabled={isLoadingMore}
         >
-          {isLoadingMore ? <Spinner size="1.4rem" inline /> : loadText}
+          {isLoadingMore ? (
+            <Spinner size="1.4rem" inline />
+          ) : (
+            t("loadingMoreTxt")
+          )}
         </button>
       </div>
     );
@@ -87,5 +87,3 @@ function LoadMore({
     </div>
   );
 }
-
-export default LoadMore;

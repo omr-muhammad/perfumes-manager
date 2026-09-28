@@ -1,10 +1,11 @@
 import styles from "./styles/app-layout.module.css";
-import { loggedUserQuery, useLogout } from "../features/Auth/hooks";
 import { Spinner } from "./Spinner";
 import { Link } from "react-router";
 import { ThemeToggler } from "./ThemeToggler";
 import { LuLogOut, LuUser } from "react-icons/lu";
 import { useQuery } from "@tanstack/react-query";
+import { useLogout } from "../features/Auth/hooks/useLogout";
+import { loggedUserQuery } from "../features/Auth/hooks/useUser";
 
 export function Header() {
   const { logout, loggingOut } = useLogout();

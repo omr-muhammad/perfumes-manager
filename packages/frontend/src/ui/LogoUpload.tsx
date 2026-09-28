@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 // Adjust this to wherever FieldError actually lives in your ui/ folder.
 import { FieldError } from "./FieldError";
 import styles from "./styles/logo-upload.module.css";
+import { LuUpload, LuX } from "react-icons/lu";
 
 type LogoUploadProps = {
   /** Existing image URL, e.g. when editing a company that already has a logo. */
@@ -85,10 +86,8 @@ export function LogoUpload({
             <img src={preview} alt="" className={styles.preview} />
           ) : (
             <span className={styles.placeholder}>
-              <UploadIcon />
-              <span className={styles.placeholderText}>
-                {t("common:addLogo", "Add logo")}
-              </span>
+              <LuUpload size={20} strokeWidth={1.6} aria-hidden="true" />
+              <span className={styles.placeholderText}>{t("addLogo")}</span>
             </span>
           )}
         </div>
@@ -98,53 +97,14 @@ export function LogoUpload({
             type="button"
             className={styles.removeBtn}
             onClick={handleRemove}
-            aria-label={t("common:removeLogo", "Remove logo")}
+            aria-label={t("removeLogo")}
           >
-            <RemoveIcon />
+            <LuX size={12} aria-hidden="true" />;
           </button>
         )}
       </div>
 
       <FieldError message={error} className={styles.error} />
     </div>
-  );
-}
-
-function UploadIcon() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M12 16V4m0 0 4 4m-4-4-4 4M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function RemoveIcon() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M6 6l12 12M18 6 6 18"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
   );
 }

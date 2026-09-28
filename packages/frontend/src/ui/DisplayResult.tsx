@@ -16,7 +16,7 @@ type DisplayResultProps = {
   noResultsLabel: string;
 };
 
-export default function DisplayResult({
+export function DisplayResult({
   results,
   isOpen,
   onSelect,
