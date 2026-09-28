@@ -1,9 +1,10 @@
 import { useState, type ChangeEvent, type SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
-import styles from "../features/Auth/authlayout.module.css";
 import { Link } from "react-router";
 import { Spinner } from "../../../ui/Spinner";
 import { useLogin } from "../hooks/useLogin";
+
+import styles from "./AuthLayout.module.css";
 
 export function Login() {
   const { t } = useTranslation();
