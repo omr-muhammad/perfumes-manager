@@ -1,29 +1,24 @@
 {
-  "browse": "تصفح",
-  "add": "إضافة",
-  "editTabLabel": "تعديل: {{coName}}",
-  "approveTabLabel": "مراجعة: {{coName}}",
-  "noCoFound": "لم يتم العثور على شركات.",
-  "loadingCompanies": "جارى استحضار الشركات.",
+  "errors": {
+    "logoUploadFailed": "تعذر إرفاق الشعار, حاول مجددا.",
+    "nameRequired": "اسم الشركة إلزامى.",
+    "countryRequired": "اسم الدولة إلزامى.",
+    "typeRequired": "نوع الشركة إلزامى."
+  },
+  "form": {
+    "name": "الاسم *",
+    "countryLabel": "الدولة *",
+    "create": "إضافة شركة",
+    "adminCreate": "إضافة مع التوثيق",
+    "update": "تحديث الشركة",
+    "approve": "توثيق الشركة"
+  },
   "local": "محلية",
-  "l": "م",
   "global": "عالمية",
-  "g": "ع",
   "approved": "موثقة",
   "pending": "قيد الإنتظار",
-  "edit": "تعديل",
-  "approve": "توثيق",
-  "delete": "حذف",
-  "searchByName": "البحث بالاسم...",
-  "activeType": "النوع",
-  "search": "البحث",
-  "clearFilters": "مسح الفلاتر",
-  "removeFilter": "إزالة الفلتر",
-  "countryNameLabel": "اسم الدولة",
-  "logoInputLabel": "رابط شعار الشركة (اختيارى)",
-  "companyNameLabel": "اسم الشركة",
-  "adminAddCoBtn": "أضف مع التوثيق",
-  "addCoBtn": "أضف",
-  "approveCoBtn": "وثٍّق",
-  "editCoBtn": "عدٍّل"
+  "loadingCompanies": "جارى استحضار الشركات.",
+  "noCoFound": "لم يتم العثور على شركات.",
+
+  "activeType": "النوع"
 }

@@ -1,29 +1,24 @@
 {
-  "browse": "Browse",
-  "add": "Add",
-  "editTabLabel": "Edit: {{coName}}",
-  "approveTabLabel": "Approve: {{coName}}",
-  "noCoFound": "No companies found.",
-  "loadingCompanies": "Loading Companies",
+  "errors": {
+    "logoUploadFailed": "Couldn't upload the logo. Try again.",
+    "nameRequired": "Company name is required.",
+    "countryRequired": "Country name is required.",
+    "typeRequired": "Company type is required."
+  },
+  "form": {
+    "name": "Name *",
+    "countryLabel": "Country *",
+    "create": "create company",
+    "adminCreate": "Create approved company",
+    "update": "Update company",
+    "approve": "Approve company"
+  },
   "local": "Local",
-  "l": "L",
   "global": "Global",
-  "g": "G",
   "approved": "Approved",
   "pending": "Pending",
-  "edit": "Edit",
-  "approve": "Approve",
-  "delete": "Delete",
-  "searchByName": "Search by name...",
-  "activeType": "Type",
-  "search": "Search",
-  "clearFilters": "Clear filters",
-  "removeFilter": "Remove filter",
-  "countryNameLabel": "Country Name",
-  "logoInputLabel": "Logo Url (optional)",
-  "companyNameLabel": "Company Name",
-  "adminAddCoBtn": "Add & Approve",
-  "addCoBtn": "Add company",
-  "approveCoBtn": "Approve company",
-  "editCoBtn": "Edit company"
+  "loadingCompanies": "Loading Companies",
+  "noCoFound": "No companies found.",
+
+  "activeType": "Type"
 }
