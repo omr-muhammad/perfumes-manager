@@ -1,28 +1,23 @@
 import { createBrowserRouter, Link } from "react-router";
-import { RouterProvider } from "react-router/dom";
-import { Login } from "./features/Auth/components/Login";
-import { Signup } from "./features/Auth/components/Signup";
+
 import { AuthLayout } from "./features/Auth/components/AuthLayout";
 import { AuthNavigator } from "./features/Auth/components/AuthNavigator";
-import { Suspense } from "react";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { Toaster } from "react-hot-toast";
+import { Login } from "./features/Auth/components/Login";
+import { Signup } from "./features/Auth/components/Signup";
 import { AppLayout } from "./ui/AppLayout";
 import { Dashboard } from "./features/dashboard/Dashboard";
-import { Companies } from "./features/Companies/Companies";
 import { Perfumes } from "./features/perfumes/Perfumes";
-import { queryClient } from "./lib/queryClient";
-import { authLoader } from "./features/Auth/loaders";
+import { Companies } from "./features/Companies/Companies";
 import { Compounds } from "./features/Compounds/Compounds";
 import { Shops } from "./features/Shops/Shops";
 import { Settings } from "./features/Settings/Settings";
-import { Spinner } from "./ui/Spinner";
 import { UpdateUser } from "./features/users/UpdateUser";
 import { UpdateUserPassword } from "./features/users/UpdateUserPassword";
+
+import { authLoader } from "./features/Auth/loaders";
 import { loadNs } from "./i18/loadNs";
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   // /dashboard
   {
     path: "/dashboard",
@@ -99,17 +94,3 @@ const router = createBrowserRouter([
     ],
   },
 ]);
-
-export default function App() {
-  return (
-    <Suspense fallback={<Spinner />}>
-      <QueryClientProvider client={queryClient}>
-        <ReactQueryDevtools initialIsOpen={false} />
-
-        <Toaster position="top-center" reverseOrder={false} />
-        <RouterProvider router={router} />
-      </QueryClientProvider>
-    </Suspense>
-  );
-  // return <RouterProvider router={router} />;
-}
