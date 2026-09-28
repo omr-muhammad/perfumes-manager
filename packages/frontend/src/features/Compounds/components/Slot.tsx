@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { FiPlus } from "react-icons/fi";
 
 import { List } from "./List";
-import LoadMore from "../../../ui/LoadMore";
+import { LoadMore } from "../../../ui/LoadMore";
 import { Spinner } from "../../../ui/Spinner";
 
 import type { CompoundsGetResponse, CompoundsQuery } from "../types";
@@ -98,12 +98,9 @@ export function Slot({
               />
 
               <LoadMore
-                loadText={t("loadingBtnTxt")}
                 onLoadMore={fetchNextPage}
                 hasMore={hasNextPage}
                 isLoadingMore={isFetchingNextPage}
-                noMoreText={t("noMoreTxt")}
-                errorText={t("loadingErrorTxt")}
               />
             </>
           ) : (
