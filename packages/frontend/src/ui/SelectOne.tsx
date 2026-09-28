@@ -1,35 +1,32 @@
-import * as Select from "@radix-ui/react-select";
-import { BsCheck, BsChevronDown } from "react-icons/bs";
-import styles from "./styles/sex-filter.module.css";
-import type { PerfumeSex } from "../api/perfumesAPI";
-import { useTranslation } from "react-i18next";
 import i18n from "../i18";
+import * as Select from "@radix-ui/react-select";
 
-const genders = [
-  { value: "male", label: "male" },
-  { value: "female", label: "female" },
-  { value: "unisex", label: "unisex" },
-];
+import { BsCheck, BsChevronDown } from "react-icons/bs";
 
-type Sex = PerfumeSex | undefined;
-interface SexFilterProps {
-  sex: Sex;
-  handleSelect: (value: Sex) => void;
-  nsFile?: string;
+import styles from "./SelectOne.module.css";
+
+interface Option {
+  value: string;
+  label: string;
 }
 
-export function SexFilter({ sex, handleSelect }: SexFilterProps) {
-  const { t } = useTranslation();
+interface SelectOneProps {
+  value: string;
+  handleSelect: (value: string) => void;
+  placeholder: string;
+  options: Option[];
+}
 
+export function SelectOne({
+  value,
+  handleSelect,
+  placeholder,
+  options,
+}: SelectOneProps) {
   return (
-    <Select.Root
-      value={sex}
-      onValueChange={(value) => handleSelect(value as Sex)}
-    >
+    <Select.Root value={value} onValueChange={(value) => handleSelect(value)}>
       <Select.Trigger className={styles.trigger}>
-        <Select.Value placeholder={t("perfumes:selectSex")}>
-          {t(sex || "")}
-        </Select.Value>
+        <Select.Value placeholder={placeholder}>{value}</Select.Value>
 
         <Select.Icon>
           <BsChevronDown />
@@ -44,13 +41,13 @@ export function SexFilter({ sex, handleSelect }: SexFilterProps) {
           sideOffset={6}
         >
           <Select.Viewport>
-            {genders.map((item) => (
+            {options.map((item) => (
               <Select.Item
                 key={item.value}
                 value={item.value}
                 className={styles.item}
               >
-                <Select.ItemText>{t(`filters.${item.label}`)}</Select.ItemText>
+                <Select.ItemText>{item.label}</Select.ItemText>
 
                 <Select.ItemIndicator className={styles.indicator}>
                   <BsCheck size={14} />
