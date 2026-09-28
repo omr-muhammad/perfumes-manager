@@ -5,8 +5,7 @@ import i18n from "../../../i18";
 
 // Components
 import { LabeledInput } from "../../../ui/LabeledInput";
-import { TypeFilter } from "../../../ui/TypeFilter";
-import DisplayResult from "../../../ui/DisplayResult";
+import { DisplayResult } from "../../../ui/DisplayResult";
 import { FieldError } from "../../../ui/FieldError";
 import { LogoUpload } from "../../../ui/LogoUpload";
 import Button from "../../../ui/Button";
@@ -23,6 +22,7 @@ import { getLocalizedCountries } from "../../../utils/countries";
 
 // Hooks
 import { useUploadLogo } from "../hooks/useUploadLogo";
+import { SegmentedFilter } from "../../../ui/SegmentedFilter";
 
 const BASE_IMG_URL = import.meta.env.VITE_BASE_CLOUDINARY_URL;
 
@@ -94,13 +94,10 @@ export function CoForm({
   }, [serverErrors]);
 
   function handleChange(name: keyof typeof company, value: string) {
+    if (name === "type" && !value) return;
+
     setCompany((cur) => ({ ...cur, [name]: value }));
     setErrors((cur) => ({ ...cur, [name]: undefined }));
-  }
-
-  function handleType(coType: typeof company.type | undefined) {
-    if (!coType) return;
-    handleChange("type", coType);
   }
 
   function validate(): FormErrors {
@@ -235,10 +232,13 @@ export function CoForm({
       </div>
 
       <div className={styles.field}>
-        <TypeFilter
-          coType={company.type}
-          handleActive={handleType}
-          nsFile="companies"
+        <SegmentedFilter
+          value={company.type}
+          onChange={(value) => handleChange("type", value!)}
+          options={[
+            { value: "global", label: t("filters.global") },
+            { value: "local", label: t("filters.local") },
+          ]}
         />
         <FieldError message={errors.type} className={styles.fieldError} />
       </div>

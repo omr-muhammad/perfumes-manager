@@ -12,7 +12,7 @@ type EditCompanyTabProps = {
   mode?: "approve";
 };
 
-export function EditCompanyTab({
+export function EditCompany({
   isAdmin,
   coId,
   backToBrowse,

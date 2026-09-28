@@ -2,8 +2,7 @@ import { t } from "i18next";
 import { type Dispatch, type SetStateAction } from "react";
 
 import Search from "../../../ui/Search";
-import ApproveFilter from "../../../ui/ApproveFilter";
-import { TypeFilter } from "../../../ui/TypeFilter";
+import { SegmentedFilter } from "../../../ui/SegmentedFilter";
 
 import type { CoQuery } from "../types";
 
@@ -14,17 +13,13 @@ interface FiltersProps {
   onChange: Dispatch<SetStateAction<CoQuery>>;
 }
 
+type QueryKeys = Pick<CoQuery, "type" | "search" | "approved">;
+
 export function Filters({ query, onChange }: FiltersProps) {
-  function handleSearch(value: string) {
-    onChange((cur) => ({ ...cur, search: value }));
-  }
-
-  function handleApprove(value: typeof query.approved) {
-    onChange((cur) => ({ ...cur, approved: value }));
-  }
-
-  function handleType(value: typeof query.type) {
-    onChange((cur) => ({ ...cur, type: value }));
+  function handleChange<K extends keyof QueryKeys>(key: K) {
+    return (value: QueryKeys[K]) => {
+      onChange((cur) => ({ ...cur, [key]: value }));
+    };
   }
 
   return (
@@ -32,22 +27,31 @@ export function Filters({ query, onChange }: FiltersProps) {
       <div className={styles.filterField}>
         <Search
           text={query.search}
-          handleChange={handleSearch}
+          handleChange={handleChange("search")}
           placeholder="searchByName"
         />
       </div>
 
       <div className={styles.filterField}>
-        <ApproveFilter
-          approvedTxt={t("filters.approved")}
-          pendingTxt={t("filters.pending")}
-          approved={query.approved}
-          handleActive={handleApprove}
+        <SegmentedFilter
+          value={query.approved}
+          onChange={handleChange("approved")}
+          options={[
+            { value: true, label: t("filters.approved") },
+            { value: false, label: t("filters.pending") },
+          ]}
         />
       </div>
 
       <div className={styles.filterField}>
-        <TypeFilter coType={query.type} handleActive={handleType} />
+        <SegmentedFilter
+          value={query.type}
+          onChange={handleChange("type")}
+          options={[
+            { value: "global", label: t("filters.global") },
+            { value: "local", label: t("filters.local") },
+          ]}
+        />
       </div>
     </div>
   );

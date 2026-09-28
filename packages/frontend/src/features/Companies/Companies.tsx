@@ -3,9 +3,9 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router";
 
-import { BrowseTab } from "./tabs/BrowseTab";
-import { AddTab } from "./tabs/AddTab";
-import { EditCompanyTab } from "./tabs/EditCompanyTab";
+import { BrowseCompanies } from "./tabs/BrowseCompanies";
+import { AddCompany } from "./tabs/AddCompany";
+import { EditCompany } from "./tabs/EditCompany";
 import { TabList, type Tab } from "../../ui/TabList/TabList";
 
 import { loggedUserQuery } from "../Auth/hooks/useUser";
@@ -47,7 +47,7 @@ export function Companies() {
           id="tabpanel-browse"
           aria-labelledby="tab-browse"
         >
-          <BrowseTab
+          <BrowseCompanies
             isAdmin={isAdmin}
             handleTabActivation={handleTabActivation}
           />
@@ -61,7 +61,7 @@ export function Companies() {
           id="tabpanel-browse"
           aria-labelledby="tab-browse"
         >
-          <AddTab />
+          <AddCompany />
         </div>
       )}
 
@@ -72,7 +72,7 @@ export function Companies() {
           id="tabpanel-edit"
           aria-labelledby="tab-edit"
         >
-          <EditCompanyTab
+          <EditCompany
             isAdmin={isAdmin}
             coId={activeTab.id}
             backToBrowse={() => handleTabActivation({ type: "browse" })}
@@ -87,7 +87,7 @@ export function Companies() {
           id="tabpanel-approve"
           aria-labelledby="tab-approve"
         >
-          <EditCompanyTab
+          <EditCompany
             isAdmin={isAdmin}
             coId={activeTab.id}
             backToBrowse={() => handleTabActivation({ type: "browse" })}

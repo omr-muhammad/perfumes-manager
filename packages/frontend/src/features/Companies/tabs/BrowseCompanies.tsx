@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { companiesActiveFiltersTags } from "../../../utils/buildTags";
 import { ActiveFilters } from "../../../ui/ActiveFilters";
-import LoadMore from "../../../ui/LoadMore";
+import { LoadMore } from "../../../ui/LoadMore";
 import { CoMiniCard } from "../components/CoMiniCard";
 import { Filters } from "../components/Filters";
 
@@ -14,14 +14,17 @@ import type { CoQuery } from "../types";
 
 import { useDebounce } from "../../../hooks/useDebounce";
 
-import styles from "./Companies.module.css";
+import styles from "../Companies.module.css";
 
 interface BrowseTabProps {
   isAdmin: boolean;
   handleTabActivation: (tab: Tab) => void;
 }
 
-export function BrowseTab({ isAdmin, handleTabActivation }: BrowseTabProps) {
+export function BrowseCompanies({
+  isAdmin,
+  handleTabActivation,
+}: BrowseTabProps) {
   const { t } = useTranslation("companies");
   const [query, setQuery] = useState<CoQuery>({
     search: "",
@@ -78,12 +81,9 @@ export function BrowseTab({ isAdmin, handleTabActivation }: BrowseTabProps) {
           ))}
 
           <LoadMore
-            loadText={t("common:loadingBtnTxt")}
             onLoadMore={fetchNextPage}
             hasMore={hasNextPage}
             isLoadingMore={isFetchingNextPage}
-            noMoreText={t("common:noMoreTxt")}
-            errorText={t("common:loadingErrorTxt")}
           />
         </div>
       )}

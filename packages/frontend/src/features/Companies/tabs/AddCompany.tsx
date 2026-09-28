@@ -1,7 +1,7 @@
 import { CoForm } from "../components/CoForm";
 import { useCreateCompany } from "../hooks/useCreateCompany";
 
-export function AddTab() {
+export function AddCompany() {
   const { createCo, creating } = useCreateCompany();
 
   return <CoForm isAdmin={true} isSubmitting={creating} onSubmit={createCo} />;

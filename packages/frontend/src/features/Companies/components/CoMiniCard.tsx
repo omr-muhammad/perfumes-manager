@@ -86,8 +86,6 @@ export function CoMiniCard({
     deleteCo(company.id);
   }
 
-  // console.log(hqCountryCode);
-
   return (
     <div className={styles.card}>
       <div className={styles.left}>
@@ -155,7 +153,7 @@ export function CoMiniCard({
                 className={styles.menuItem}
                 onClick={handleEdit}
               >
-                {t("companies:edit")}
+                {t("btns.edit")}
               </button>
 
               {!approved && (
@@ -164,7 +162,7 @@ export function CoMiniCard({
                   className={styles.menuItem}
                   onClick={handleApprove}
                 >
-                  {t("companies:approve")}
+                  {t("btns.approve")}
                 </button>
               )}
 
@@ -173,7 +171,7 @@ export function CoMiniCard({
                 className={`${styles.menuItem} ${styles.danger}`}
                 onClick={handleDelete}
               >
-                {t("companies:delete")}
+                {t("btns.delete")}
               </button>
             </div>
           )}
