@@ -10,7 +10,7 @@ import { TabButton } from "../../ui/TabButton";
 
 import { loggedUserQuery } from "../Auth/hooks/useUser";
 
-import type { Tab } from "../../ui/TabList/TabList";
+import type { Tab } from "../../ui/TabList";
 
 import styles from "./Perfumes.module.css";
 

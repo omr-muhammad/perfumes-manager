@@ -9,7 +9,7 @@ import { Filters } from "../components/Filters";
 
 import { useInfiniteCompanies } from "../hooks/useInfiniteCompanies";
 
-import type { Tab } from "../../../ui/TabList/TabList";
+import type { Tab } from "../../../ui/TabList";
 import type { CoQuery } from "../types";
 
 import { useDebounce } from "../../../hooks/useDebounce";

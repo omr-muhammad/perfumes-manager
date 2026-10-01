@@ -5,10 +5,10 @@ import { useTranslation } from "react-i18next";
 import { FiRepeat } from "react-icons/fi";
 
 import { Slot } from "../components/Slot";
-import { ActionToolbar } from "../../../ui/ActionToolbar/ActionToolbar";
+import { ActionToolbar } from "../../../ui/ActionToolbar";
 import { useCompoundsSelection } from "../hooks/useCompoundsSelection";
 
-import type { Tab } from "../../../ui/TabList/TabList";
+import type { Tab } from "../../../ui/TabList";
 import type { CompoundsQuery } from "../types";
 
 import styles from "./BrowseCompounds.module.css";

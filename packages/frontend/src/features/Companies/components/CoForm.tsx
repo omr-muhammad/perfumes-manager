@@ -185,7 +185,7 @@ export function CoForm({
           <div className={styles.field}>
             <LabeledInput
               name="name"
-              label={t("companies:companyNameLabel") + " *"}
+              label={t("companies:form.name")}
               value={company.name}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 handleChange("name", e.target.value)
@@ -206,7 +206,7 @@ export function CoForm({
             >
               <LabeledInput
                 name="country-name"
-                label={t("companies:countryNameLabel") + " *"}
+                label={t("companies:form.countryLabel")}
                 value={countryName || ""}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setCountryName(e.target.value)
@@ -250,14 +250,14 @@ export function CoForm({
           <Spinner size="1rem" inline />
         ) : approve === undefined ? (
           isAdmin ? (
-            t("companies:adminAddCoBtn")
+            t("companies:form.adminCreate")
           ) : (
-            t("companies:addCoBtn")
+            t("companies:form.create")
           )
         ) : approve ? (
-          t("companies:approveCoBtn")
+          t("companies:form.approve")
         ) : (
-          t("companies:editCoBtn")
+          t("companies:form.update")
         )}
       </Button>
     </form>

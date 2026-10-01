@@ -28,7 +28,7 @@ export function Filters({ query, onChange }: FiltersProps) {
         <Search
           text={query.search}
           handleChange={handleChange("search")}
-          placeholder="searchByName"
+          placeholder={t("filters.searchPlaceholder")}
         />
       </div>
 

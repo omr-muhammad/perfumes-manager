@@ -7,7 +7,7 @@ import { BrowseCompounds } from "./tabs/BrowseCompounds";
 
 import styles from "./Compounds.module.css";
 
-import { TabList, type Tab } from "../../ui/TabList/TabList";
+import { TabList, type Tab } from "../../ui/TabList";
 
 export function Compounds() {
   const { t } = useTranslation();

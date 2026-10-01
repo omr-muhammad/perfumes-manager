@@ -19,7 +19,7 @@ import { useConfirm } from "../../../contexts/ConfirmContext";
 import { getCountryName, getFlagEmoji } from "../../../utils/countries";
 
 // Types
-import type { Tab } from "../../../ui/TabList/TabList";
+import type { Tab } from "../../../ui/TabList";
 import type { Company } from "../types";
 
 // Hooks
