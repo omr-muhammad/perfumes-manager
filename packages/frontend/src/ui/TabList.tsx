@@ -1,4 +1,4 @@
-import { TabButton } from "../TabButton";
+import { TabButton } from "./TabButton";
 
 export type Tab<T = unknown> =
   | { type: "browse" }

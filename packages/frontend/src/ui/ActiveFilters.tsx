@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import styles from "./styles/active-filters.module.css";
+import styles from "./ActiveFilters.module.css";
 import { LuX } from "react-icons/lu";
 
 interface Tag {

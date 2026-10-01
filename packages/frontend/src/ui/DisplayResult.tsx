@@ -1,4 +1,4 @@
-import styles from "./styles/display-result.module.css";
+import styles from "./DisplayResult.module.css";
 
 export type ResultItem = {
   code: string;

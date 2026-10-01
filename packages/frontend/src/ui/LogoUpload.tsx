@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState, type ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
 // Adjust this to wherever FieldError actually lives in your ui/ folder.
 import { FieldError } from "./FieldError";
-import styles from "./styles/logo-upload.module.css";
+import styles from "./LogoUpload.module.css";
 import { LuUpload, LuX } from "react-icons/lu";
 
 type LogoUploadProps = {

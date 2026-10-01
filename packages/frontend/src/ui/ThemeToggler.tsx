@@ -1,6 +1,6 @@
 import { LuMoon, LuSun } from "react-icons/lu";
 import { useTheme } from "../contexts/ThemeContext";
-import styles from "./styles/themetoggler.module.css";
+import styles from "./ThemeToggler.module.css";
 
 export function ThemeToggler({ wrap = true }: { wrap?: boolean }) {
   const { theme, toggleTheme } = useTheme();

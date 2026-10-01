@@ -1,4 +1,4 @@
-import styles from "./styles/spinner.module.css";
+import styles from "./Spinner.module.css";
 
 export interface SpinnerProps {
   /**

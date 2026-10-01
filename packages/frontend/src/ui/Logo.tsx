@@ -1,5 +1,5 @@
 import { LuFlower2 } from "react-icons/lu";
-import styles from "./styles/logo.module.css";
+import styles from "./Logo.module.css";
 
 export function Logo() {
   return (

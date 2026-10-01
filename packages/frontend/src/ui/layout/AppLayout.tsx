@@ -1,9 +1,9 @@
 import { Outlet } from "react-router";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
-import styles from "./styles/app-layout.module.css";
-// import styles from "./styles/ge-app-layout.module.css";
-import { ConfirmProvider } from "../contexts/ConfirmContext";
+import styles from "./AppLayout.module.css";
+
+import { ConfirmProvider } from "../../contexts/ConfirmContext";
 
 export function AppLayout({ whichNav }: { whichNav?: "shops" }) {
   return (

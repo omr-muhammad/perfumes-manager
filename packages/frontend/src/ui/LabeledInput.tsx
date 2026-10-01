@@ -1,6 +1,6 @@
 import { useId, useState } from "react";
 import type { ChangeEvent, FocusEvent, InputHTMLAttributes } from "react";
-import styles from "./styles/labeled-input.module.css";
+import styles from "./LabeledInput.module.css";
 
 interface DynamicLabelInputProps extends Omit<
   InputHTMLAttributes<HTMLInputElement>,

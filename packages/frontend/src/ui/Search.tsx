@@ -1,4 +1,4 @@
-import styles from "./styles/search.module.css";
+import styles from "./Search.module.css";
 
 type SearchProps = {
   placeholder: string;

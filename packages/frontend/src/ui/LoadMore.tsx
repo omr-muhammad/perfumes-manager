@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import styles from "./styles/load-more.module.css";
+import styles from "./LoadMore.module.css";
 import { Spinner } from "./Spinner";
 import { useTranslation } from "react-i18next";
 

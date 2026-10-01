@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./styles/button.module.css";
+import styles from "./Button.module.css";
 
 export type ButtonSize = "small" | "mid" | "large";
 export type ButtonVariant = "primary" | "secondary" | "delete";

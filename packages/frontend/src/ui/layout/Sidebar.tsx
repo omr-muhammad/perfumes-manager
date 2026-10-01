@@ -1,6 +1,6 @@
-import styles from "./styles/app-layout.module.css";
-import { Logo } from "./Logo";
-import MainNav from "./MainNav";
+import styles from "./AppLayout.module.css";
+import { Logo } from "../Logo";
+import MainNav from "../MainNav";
 
 export function Sidebar({ whichNav }: { whichNav?: "shops" }) {
   return (
