@@ -4,7 +4,7 @@ import { AuthLayout } from "./features/Auth/components/AuthLayout";
 import { AuthNavigator } from "./features/Auth/components/AuthNavigator";
 import { Login } from "./features/Auth/components/Login";
 import { Signup } from "./features/Auth/components/Signup";
-import { AppLayout } from "./ui/AppLayout";
+import { AppLayout } from "./ui/layout/AppLayout";
 import { Dashboard } from "./features/dashboard/Dashboard";
 import { Perfumes } from "./features/perfumes/Perfumes";
 import { Companies } from "./features/Companies/Companies";
@@ -22,6 +22,7 @@ export const router = createBrowserRouter([
   {
     path: "/dashboard",
     loader: authLoader,
+    shouldRevalidate: () => true,
     ErrorBoundary: () => (
       <h1>
         Error here <Link to="/dashboard">Back</Link>
