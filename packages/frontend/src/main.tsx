@@ -1,8 +1,18 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { Suspense } from "react";
+import { RouterProvider } from "react-router/dom";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { Toaster } from "react-hot-toast";
 
-import App from "./App";
-import "./i18";
+import { Spinner } from "@/ui/Spinner";
+
+import { queryClient } from "@/lib/queryClient";
+
+import { router } from "@/router";
+
+import "@/i18";
 
 // -------------------- Fonts --------------------
 // En
@@ -31,7 +41,14 @@ const root = document.getElementById("root")!;
 createRoot(root).render(
   <StrictMode>
     <ThemeProvider>
-      <App />
+      <Suspense fallback={<Spinner />}>
+        <QueryClientProvider client={queryClient}>
+          <ReactQueryDevtools initialIsOpen={false} />
+
+          <Toaster position="top-center" reverseOrder={false} />
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </Suspense>
     </ThemeProvider>
   </StrictMode>,
 );

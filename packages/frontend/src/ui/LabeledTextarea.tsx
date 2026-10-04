@@ -5,7 +5,7 @@ import type {
   FocusEvent,
   TextareaHTMLAttributes,
 } from "react";
-import styles from "./styles/labeled-textarea.module.css";
+import styles from "./LabeledTextarea.module.css";
 
 interface LabeledTextareaProps extends Omit<
   TextareaHTMLAttributes<HTMLTextAreaElement>,

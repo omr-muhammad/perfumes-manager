@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import styles from "./styles/confirm-dialog.module.css";
+import styles from "./ConfirmDialog.module.css";
 
 type ConfirmDialogProps = {
   open: boolean;

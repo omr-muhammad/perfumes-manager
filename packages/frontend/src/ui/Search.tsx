@@ -1,4 +1,4 @@
-import styles from "./styles/search.module.css";
+import styles from "./Search.module.css";
 
 type SearchProps = {
   placeholder: string;
@@ -6,11 +6,7 @@ type SearchProps = {
   handleChange: (value: string) => void;
 };
 
-export default function Search({
-  placeholder,
-  text,
-  handleChange,
-}: SearchProps) {
+export function Search({ placeholder, text, handleChange }: SearchProps) {
   return (
     <div className={styles.container}>
       <input

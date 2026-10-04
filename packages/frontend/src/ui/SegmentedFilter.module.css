@@ -1,0 +1,87 @@
+.filter {
+  position: relative;
+
+  display: inline-grid;
+  grid-template-columns: repeat(2, 1fr);
+
+  overflow: hidden;
+
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+
+  background: linear-gradient(180deg, var(--card-bg-start), var(--card-bg-end));
+
+  box-shadow: 0 10px 24px var(--shadow-soft);
+
+  isolation: isolate;
+}
+
+/* Sliding window */
+.filter::before {
+  content: "";
+
+  position: absolute;
+  inset: 3px;
+
+  width: calc(50% - 3px);
+
+  border-radius: calc(var(--radius-md) - 3px);
+
+  background: var(--accent-primary);
+
+  transition:
+    transform 220ms ease,
+    opacity 220ms ease;
+
+  z-index: -1;
+
+  opacity: 0;
+}
+
+/* No filter */
+.none::before {
+  opacity: 0;
+  transform: translateX(calc(-100% + 3px));
+}
+
+:global(html[dir="rtl"]) .none::before {
+  transform: translateX(calc(100% + 3px));
+}
+
+.first::before {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.second::before {
+  opacity: 1;
+  transform: translateX(100%);
+}
+
+:global(html[dir="rtl"]) .first::before {
+  transform: translateX(0);
+}
+
+:global(html[dir="rtl"]) .second::before {
+  transform: translateX(-100%);
+}
+
+.option {
+  padding: var(--space-2) var(--space-4);
+
+  color: var(--text-primary);
+
+  transition: color 220ms ease;
+
+  z-index: 1;
+}
+
+/* Active text becomes dark on golden background */
+.first .option:first-child,
+.second .option:last-child {
+  color: var(--bg-gradient-end);
+}
+
+.option:hover {
+  background: var(--accent-tint);
+}

@@ -3,6 +3,9 @@
     "searchPlaceholder": "Search...",
     "approved": "Approved",
     "pending": "Pending",
+    "global": "Global",
+    "local": "Local",
+    "selectSex": "Select sex",
     "male": "Male",
     "female": "Female",
     "unisex": "Unisex",
@@ -18,6 +21,12 @@
     "add": "Add",
     "edit": "Edit: {{name}}",
     "approve": "Approve: {{name}}"
+  },
+  "btns": {
+    "create": "Create",
+    "edit": "Edit",
+    "approve": "Approve",
+    "delete": "Delete"
   },
   "countries": {
     "selectCountryPlaceholder": "Select a country"
@@ -71,8 +80,10 @@
     "confirmText": "Confirm",
     "cancelText": "Cancel"
   },
-  "loadingBtnTxt": "Load more",
+  "loadingMoreTxt": "Load more",
   "noMoreTxt": "No more items",
   "loadingErrorTxt": "Couldn't load more. Retry",
-  "noResultsFound": "No results found."
+  "noResultsFound": "No results found.",
+  "addLogo": "Add logo",
+  "removeLogo": "Remove logo"
 }

@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { NavLink } from "react-router";
-import styles from "./styles/nav-item.module.css";
+import styles from "./NavItem.module.css";
 import { useTranslation } from "react-i18next";
 
 export interface NavItemProps {

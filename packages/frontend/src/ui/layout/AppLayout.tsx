@@ -1,0 +1,23 @@
+import { Outlet } from "react-router";
+import { Header } from "./Header";
+import { Sidebar } from "./Sidebar";
+import styles from "./AppLayout.module.css";
+
+import { ConfirmProvider } from "../../contexts/ConfirmContext";
+
+export function AppLayout({ whichNav }: { whichNav?: "shops" }) {
+  return (
+    <div className={styles.layout}>
+      <Header />
+      <Sidebar whichNav={whichNav} />
+
+      <ConfirmProvider>
+        <main className={styles.main}>
+          <div className={styles.container}>
+            <Outlet />
+          </div>
+        </main>
+      </ConfirmProvider>
+    </div>
+  );
+}

@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import styles from "./styles/active-filters.module.css";
+import styles from "./ActiveFilters.module.css";
+import { LuX } from "react-icons/lu";
 
 interface Tag {
   key: string;
@@ -25,20 +26,10 @@ export function ActiveFilters({ tags, onClear }: ActiveFiltersProps) {
           <button
             type="button"
             className={styles.filterTagRemove}
-            aria-label={t("removeFilter")}
+            aria-label={t("filters.remove")}
             onClick={tag.onRemove}
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M18 6L6 18" />
-              <path d="M6 6l12 12" />
-            </svg>
+            <LuX size={24} strokeWidth={3} />
           </button>
         </span>
       ))}

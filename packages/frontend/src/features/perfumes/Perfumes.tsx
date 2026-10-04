@@ -1,14 +1,18 @@
 import { useState } from "react";
-import { loggedUserQuery } from "../Auth/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { BrowseTab } from "./BrowseTab";
-import styles from "./perfumes.module.css";
-import { AddPerfumeTab } from "./AddPerfumeTab";
-import { EditPerfumeTab } from "./EditPerfumeTab";
-import { TabButton } from "../../ui/TabButton";
 import { useLocation } from "react-router";
-import type { Tab } from "../../ui/TabList/TabList";
+
+import { BrowsePerfumes } from "./tabs/BrowsePerfumes";
+import { AddPerfume } from "./tabs/AddPerfume";
+import { EditPerfume } from "./tabs/EditPerfume";
+import { TabButton } from "@/ui/TabButton";
+
+import { loggedUserQuery } from "../Auth/hooks/useUser";
+
+import type { Tab } from "@/ui/TabList";
+
+import styles from "./Perfumes.module.css";
 
 export function Perfumes() {
   const location = useLocation();
@@ -94,7 +98,7 @@ export function Perfumes() {
           id="tabpanel-browse"
           aria-labelledby="tab-browse"
         >
-          <BrowseTab
+          <BrowsePerfumes
             isAdmin={isAdmin}
             onEdit={activeEdit}
             onApprove={activeApprove}
@@ -109,7 +113,7 @@ export function Perfumes() {
           id="tabpanel-add"
           aria-labelledby="tab-add"
         >
-          <AddPerfumeTab isAdmin={isAdmin} />
+          <AddPerfume isAdmin={isAdmin} />
         </div>
       )}
 
@@ -120,7 +124,7 @@ export function Perfumes() {
           id="tabpanel-edit"
           aria-labelledby="tab-edit"
         >
-          <EditPerfumeTab
+          <EditPerfume
             perfumeId={activeTab.id}
             isAdmin={isAdmin}
             backToBrowse={activeBrowseTab}
@@ -135,7 +139,7 @@ export function Perfumes() {
           id="tabpanel-approve"
           aria-labelledby="tab-approve"
         >
-          <EditPerfumeTab
+          <EditPerfume
             perfumeId={activeTab.id}
             isAdmin={isAdmin}
             mode="approve"

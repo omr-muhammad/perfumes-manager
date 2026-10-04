@@ -1,11 +1,12 @@
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { TabList, type Tab } from "../../ui/TabList/TabList";
+
+import { AddCompoundTab } from "./tabs/AddCompound";
+import { EditCompoundTab } from "./tabs/EditCompound";
+import { BrowseCompounds } from "./tabs/BrowseCompounds";
+import { TabList, type Tab } from "@/ui/TabList";
 
 import styles from "./Compounds.module.css";
-import { AddCompoundTab } from "./AddCompoundTab";
-import { TwoSlot } from "./TwoSlot/TwoSlot";
-import { EditCompoundTab } from "./EditCompoundTab";
 
 export function Compounds() {
   const { t } = useTranslation();
@@ -27,7 +28,7 @@ export function Compounds() {
       />
 
       {activeTab.type === "browse" && (
-        <TwoSlot handleActiveTab={handleActiveTab} />
+        <BrowseCompounds handleActiveTab={handleActiveTab} />
       )}
       {activeTab.type === "add" && (
         <AddCompoundTab partialData={activeTab.data} />

@@ -2,9 +2,9 @@ import * as Popover from "@radix-ui/react-popover";
 import { Command } from "cmdk";
 import { FiChevronDown, FiCheck } from "react-icons/fi";
 import { useState, useMemo } from "react";
-import i18n from "../i18";
-import { getLocalizedCountries } from "../utils/countries";
-import styles from "./styles/select-country.module.css";
+import i18n from "@/i18";
+import { getLocalizedCountries } from "@/utils/countries";
+import styles from "./SelectCountry.module.css";
 
 export interface SelectCountryProps {
   /** Currently selected ISO 3166-1 alpha-2 code ("" for none). Controlled — comes from the parent form. */

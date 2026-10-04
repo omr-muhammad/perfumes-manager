@@ -6,7 +6,7 @@ import {
   HiOutlineBuildingStorefront,
 } from "react-icons/hi2";
 import NavItem, { type NavItemProps } from "./NavItem";
-import styles from "./styles/main-nav.module.css";
+import styles from "./MainNav.module.css";
 import { HiOutlineUsers } from "react-icons/hi";
 import { IoArrowBack } from "react-icons/io5";
 import { GiDelicatePerfume } from "react-icons/gi";

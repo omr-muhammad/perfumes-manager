@@ -1,4 +1,4 @@
-import styles from "./styles/tab-button.module.css";
+import styles from "./TabButton.module.css";
 
 interface TabButtonProps {
   buttonId: string;
