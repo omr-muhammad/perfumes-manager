@@ -1,4 +1,4 @@
-import type { backend } from "../../api/client";
+import type { backend } from "@/api/client";
 
 export type LoginCredentials = Parameters<
   typeof backend.api.users.login.post

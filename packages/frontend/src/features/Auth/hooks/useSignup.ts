@@ -1,8 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
-import { apiSignup } from "../api";
-import type { SignupUser } from "../types";
 import toast from "react-hot-toast";
+
+import { apiSignup } from "../api";
+
+import type { SignupUser } from "../types";
 
 export function useSignup() {
   const navigate = useNavigate();
