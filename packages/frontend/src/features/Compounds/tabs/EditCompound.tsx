@@ -1,6 +1,6 @@
 import toast from "react-hot-toast";
 
-import { Spinner } from "../../../ui/Spinner";
+import { Spinner } from "@/ui/Spinner";
 import { CompoundForm } from "../components/CompoundForm";
 
 import { useGetCompound } from "../hooks/useCompoundId";

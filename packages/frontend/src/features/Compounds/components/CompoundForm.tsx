@@ -2,7 +2,7 @@
 import { useState, type ChangeEvent, type SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useCombobox } from "downshift";
-import i18n from "../../../i18";
+import i18n from "@/i18";
 import toast from "react-hot-toast";
 
 // Icons

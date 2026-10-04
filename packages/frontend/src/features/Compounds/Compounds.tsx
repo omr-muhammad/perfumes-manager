@@ -4,10 +4,9 @@ import { useState } from "react";
 import { AddCompoundTab } from "./tabs/AddCompound";
 import { EditCompoundTab } from "./tabs/EditCompound";
 import { BrowseCompounds } from "./tabs/BrowseCompounds";
+import { TabList, type Tab } from "@/ui/TabList";
 
 import styles from "./Compounds.module.css";
-
-import { TabList, type Tab } from "../../ui/TabList";
 
 export function Compounds() {
   const { t } = useTranslation();

@@ -1,4 +1,4 @@
-import { backend } from "../../api/client";
+import { backend } from "@/api/client";
 import type {
   CompoundsQuery,
   NewCompound,

@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { useDebounce } from "../../../hooks/useDebounce";
 import toast from "react-hot-toast";
-import type { CompoundsQuery } from "../types";
+
 import { useDeleteCompound } from "./useDeleteCompound";
 import { useInfiniteCompounds } from "./useInfiniteCompounds";
+
+import { useDebounce } from "@/hooks/useDebounce";
+
+import type { CompoundsQuery } from "../types";
 
 const DEFAULT_SEARCH: CompoundsQuery = {
   type: "perfume",

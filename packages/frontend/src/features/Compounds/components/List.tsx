@@ -1,7 +1,10 @@
-import styles from "./List.module.css";
-import { getCountryName, getFlagEmoji } from "../../../utils/countries";
-import i18n from "../../../i18";
+import i18n from "@/i18";
+
 import type { CompoundsGetResponse } from "../types";
+
+import { getCountryName, getFlagEmoji } from "@/utils/countries";
+
+import styles from "./List.module.css";
 
 interface ListProps {
   items: CompoundsGetResponse;

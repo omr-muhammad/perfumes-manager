@@ -4,8 +4,8 @@ import { useNavigate } from "react-router";
 import { FiPlus } from "react-icons/fi";
 
 import { List } from "./List";
-import { LoadMore } from "../../../ui/LoadMore";
-import { Spinner } from "../../../ui/Spinner";
+import { LoadMore } from "@/ui/LoadMore";
+import { Spinner } from "@/ui/Spinner";
 
 import type { CompoundsGetResponse, CompoundsQuery } from "../types";
 
