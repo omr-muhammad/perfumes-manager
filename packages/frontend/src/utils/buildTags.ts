@@ -1,7 +1,7 @@
 import { type Dispatch, type SetStateAction } from "react";
-import type { PerfumeQuery } from "../api/perfumesAPI";
 import type { TFunction } from "i18next";
-import type { CoQuery } from "../api/companiesAPI";
+import type { PerfumeQuery } from "@/features/perfumes/types";
+import type { CoQuery } from "@/features/Companies/types";
 
 interface Params<T> {
   filters: T;

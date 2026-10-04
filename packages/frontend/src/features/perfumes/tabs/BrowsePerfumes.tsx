@@ -3,16 +3,17 @@ import { useTranslation } from "react-i18next";
 
 import { Filters } from "../components/Filters";
 import { PerfumeCardMini } from "../components/PerfumeCardMini";
-import { ActiveFilters } from "../../../ui/ActiveFilters";
-import { LoadMore } from "../../../ui/LoadMore";
+import { ActiveFilters } from "@/ui/ActiveFilters";
+import { LoadMore } from "@/ui/LoadMore";
 
 import { useInfinitePerfumes } from "../hooks/useInfinitePerfumes";
 
-import { perfumesActiveFiltersTags } from "../../../utils/buildTags";
-import { useDebounce } from "../../../hooks/useDebounce";
+import { perfumesActiveFiltersTags } from "@/utils/buildTags";
+import { useDebounce } from "@/hooks/useDebounce";
+
+import type { PerfumeQuery } from "../types";
 
 import styles from "../Perfumes.module.css";
-import type { PerfumeQuery } from "../types";
 
 interface BrowseTabProps {
   isAdmin: boolean;

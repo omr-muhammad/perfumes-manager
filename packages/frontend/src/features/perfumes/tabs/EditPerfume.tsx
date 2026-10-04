@@ -1,9 +1,10 @@
-import { Spinner } from "../../../ui/Spinner";
+import { Spinner } from "@/ui/Spinner";
+import { PerfumeForm } from "../components/PerfumeForm";
+
 import { useApprovePerfume } from "../hooks/useApprovePerfume";
 import { useEditPerfume } from "../hooks/useEditPerfume";
 import { usePerfumeId } from "../hooks/usePerfumeId";
 
-import { PerfumeForm } from "../components/PerfumeForm";
 import type { FormPerfume } from "../types";
 
 interface EditPerfumeTabProps {

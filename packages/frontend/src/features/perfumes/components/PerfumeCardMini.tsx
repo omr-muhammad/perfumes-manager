@@ -5,12 +5,13 @@ import { MdGppGood } from "react-icons/md";
 import { CgSandClock } from "react-icons/cg";
 import { HiDotsVertical } from "react-icons/hi";
 
-import { useConfirm } from "../../../contexts/ConfirmContext";
+import { useConfirm } from "@/contexts/ConfirmContext";
 
 import { useDeletePerfume } from "../hooks/useDeletePerfume";
 
-import styles from "./PerfumeCardMini.module.css";
 import type { Perfume } from "../types";
+
+import styles from "./PerfumeCardMini.module.css";
 
 // interface Perfume {
 //   id: number;

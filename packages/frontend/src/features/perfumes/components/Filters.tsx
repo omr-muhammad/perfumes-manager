@@ -1,14 +1,14 @@
 import { type Dispatch, type SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
 
-import Search from "../../../ui/Search";
-import { SeasonsFilter } from "../../../ui/SeasonsFilter";
+import { Search } from "@/ui/Search";
+import { SeasonsFilter } from "@/ui/SeasonsFilter";
+import { SegmentedFilter } from "@/ui/SegmentedFilter";
+import { SelectOne } from "@/ui/SelectOne";
 
 import type { PerfumeQuery, Season } from "../types";
 
 import styles from "../Perfumes.module.css";
-import { SegmentedFilter } from "../../../ui/SegmentedFilter";
-import { SelectOne } from "../../../ui/SelectOne";
 
 interface FiltersProps {
   query: PerfumeQuery;

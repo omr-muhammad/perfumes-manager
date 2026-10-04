@@ -1,4 +1,4 @@
-import { backend } from "../../api/client";
+import { backend } from "@/api/client";
 import type { NewPerfume, PerfumeQuery, PerfumeUpdates } from "./types";
 
 export async function apiPerfumesQuery(query?: PerfumeQuery) {

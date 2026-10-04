@@ -2,8 +2,8 @@ import * as Popover from "@radix-ui/react-popover";
 import { Command } from "cmdk";
 import { FiChevronDown, FiCheck } from "react-icons/fi";
 import { useState, useMemo } from "react";
-import i18n from "../i18";
-import { getLocalizedCountries } from "../utils/countries";
+import i18n from "@/i18";
+import { getLocalizedCountries } from "@/utils/countries";
 import styles from "./SelectCountry.module.css";
 
 export interface SelectCountryProps {

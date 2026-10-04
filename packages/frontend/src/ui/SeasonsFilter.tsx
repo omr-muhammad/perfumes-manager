@@ -3,7 +3,7 @@ import * as Checkbox from "@radix-ui/react-checkbox";
 import styles from "./SeasonsFilter.module.css";
 import { HiCheck } from "react-icons/hi";
 import { useTranslation } from "react-i18next";
-import type { Season } from "../features/perfumes/types";
+import type { Season } from "@/features/perfumes/types";
 
 const options = [
   { value: "spring", label: "spring" },

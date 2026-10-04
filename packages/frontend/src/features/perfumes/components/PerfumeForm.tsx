@@ -2,11 +2,11 @@ import { useState, type ChangeEvent, type SubmitEvent } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 
-import { LabeledInput } from "../../../ui/LabeledInput";
-import { SelectOne } from "../../../ui/SelectOne";
-import { SeasonsFilter } from "../../../ui/SeasonsFilter";
-import LabeledTextarea from "../../../ui/LabeledTextarea";
-import { Spinner } from "../../../ui/Spinner";
+import { LabeledInput } from "@/ui/LabeledInput";
+import { SelectOne } from "@/ui/SelectOne";
+import { SeasonsFilter } from "@/ui/SeasonsFilter";
+import LabeledTextarea from "@/ui/LabeledTextarea";
+import { Spinner } from "@/ui/Spinner";
 
 import type { FormPerfume, PerfumeSex, Season } from "../types";
 

@@ -1,21 +1,21 @@
 import { createBrowserRouter, Link } from "react-router";
 
-import { AuthLayout } from "./features/Auth/components/AuthLayout";
-import { AuthNavigator } from "./features/Auth/components/AuthNavigator";
-import { Login } from "./features/Auth/components/Login";
-import { Signup } from "./features/Auth/components/Signup";
-import { AppLayout } from "./ui/layout/AppLayout";
-import { Dashboard } from "./features/dashboard/Dashboard";
-import { Perfumes } from "./features/perfumes/Perfumes";
-import { Companies } from "./features/Companies/Companies";
-import { Compounds } from "./features/Compounds/Compounds";
-import { Shops } from "./features/Shops/Shops";
-import { Settings } from "./features/Settings/Settings";
-import { UpdateUser } from "./features/users/UpdateUser";
-import { UpdateUserPassword } from "./features/users/UpdateUserPassword";
+import { AuthLayout } from "@/features/Auth/components/AuthLayout";
+import { AuthNavigator } from "@/features/Auth/components/AuthNavigator";
+import { Login } from "@/features/Auth/components/Login";
+import { Signup } from "@/features/Auth/components/Signup";
+import { AppLayout } from "@/ui/layout/AppLayout";
+import { Dashboard } from "@/features/dashboard/Dashboard";
+import { Perfumes } from "@/features/perfumes/Perfumes";
+import { Companies } from "@/features/Companies/Companies";
+import { Compounds } from "@/features/Compounds/Compounds";
+import { Shops } from "@/features/Shops/Shops";
+import { Settings } from "@/features/Settings/Settings";
+import { UpdateUser } from "@/features/users/UpdateUser";
+import { UpdateUserPassword } from "@/features/users/UpdateUserPassword";
 
-import { authLoader } from "./features/Auth/loaders";
-import { loadNs } from "./i18/loadNs";
+import { authLoader } from "@/features/Auth/loaders";
+import { loadNs } from "@/i18/loadNs";
 
 export const router = createBrowserRouter([
   // /dashboard

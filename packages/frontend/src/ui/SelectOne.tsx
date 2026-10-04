@@ -1,4 +1,4 @@
-import i18n from "../i18";
+import i18n from "@/i18";
 import * as Select from "@radix-ui/react-select";
 
 import { BsCheck, BsChevronDown } from "react-icons/bs";

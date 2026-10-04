@@ -6,13 +6,13 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "react-hot-toast";
 
-import { Spinner } from "./ui/Spinner";
+import { Spinner } from "@/ui/Spinner";
 
-import { queryClient } from "./lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 
-import { router } from "./router";
+import { router } from "@/router";
 
-import "./i18";
+import "@/i18";
 
 // -------------------- Fonts --------------------
 // En

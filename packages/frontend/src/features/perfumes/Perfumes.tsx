@@ -6,11 +6,11 @@ import { useLocation } from "react-router";
 import { BrowsePerfumes } from "./tabs/BrowsePerfumes";
 import { AddPerfume } from "./tabs/AddPerfume";
 import { EditPerfume } from "./tabs/EditPerfume";
-import { TabButton } from "../../ui/TabButton";
+import { TabButton } from "@/ui/TabButton";
 
 import { loggedUserQuery } from "../Auth/hooks/useUser";
 
-import type { Tab } from "../../ui/TabList";
+import type { Tab } from "@/ui/TabList";
 
 import styles from "./Perfumes.module.css";
 

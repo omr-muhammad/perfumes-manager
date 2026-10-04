@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { uploadImgToCloudinary } from "../utils/uploadImage";
+import { uploadImgToCloudinary } from "@/utils/uploadImage";
 import toast from "react-hot-toast";
 
 interface MutationParams<T> {
