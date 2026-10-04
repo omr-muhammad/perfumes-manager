@@ -7,8 +7,6 @@
   "promote": "Promote",
   "discard": "Discard",
   "update": "Update",
-  "phoneCountry": "Country calling code",
-  "searchCountry": "Search country or code",
   "fields": {
     "oldPassword": "Old password",
     "newPassword": "New password"

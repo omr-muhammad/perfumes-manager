@@ -7,8 +7,6 @@
   "promote": "ترقية",
   "discard": "تجاهل",
   "update": "تحديث",
-  "phoneCountry": "رمز الدولة",
-  "searchCountry": "ابحث عن دولة أو رمز",
   "fields": {
     "oldPassword": "كلمة المرور القديمة",
     "newPassword": "كلمة المرور الجديدة"

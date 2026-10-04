@@ -80,6 +80,10 @@
     "confirmText": "Confirm",
     "cancelText": "Cancel"
   },
+  "phone": {
+    "phoneCountry": "Country calling code",
+    "searchCountry": "Search country or code"
+  },
   "loadingMoreTxt": "Load more",
   "noMoreTxt": "No more items",
   "loadingErrorTxt": "Couldn't load more. Retry",
