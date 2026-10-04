@@ -1,0 +1,32 @@
+{
+  "roles": {
+    "user": "مستخدم",
+    "admin": "مدير",
+    "owner": "مالك"
+  },
+  "promote": "ترقية",
+  "discard": "تجاهل",
+  "update": "تحديث",
+  "phoneCountry": "رمز الدولة",
+  "searchCountry": "ابحث عن دولة أو رمز",
+  "fields": {
+    "oldPassword": "كلمة المرور القديمة",
+    "newPassword": "كلمة المرور الجديدة"
+  },
+  "changePassword": "تغيير كلمة المرور",
+  "errors": {
+    "usernameMin": "يجب ألا يقل اسم المستخدم عن {{min}} أحرف",
+    "usernameSpaces": "لا يمكن أن يحتوي اسم المستخدم على مسافات",
+    "emailInvalid": "أدخل بريدًا إلكترونيًا صالحًا",
+    "phoneInvalid": "أدخل رقم هاتف صالحًا",
+    "newPasswordMin": "يجب ألا تقل كلمة المرور عن {{min}} أحرف",
+    "newPasswordSame": "يجب أن تختلف كلمة المرور الجديدة عن القديمة",
+    "loadFailed": "تعذّر تحميل ملفك الشخصي"
+  },
+  "toasts": {
+    "profileUpdated": "تم تحديث الملف الشخصي",
+    "profileUpdateFailed": "تعذّر تحديث ملفك الشخصي",
+    "passwordChanged": "تم تغيير كلمة المرور",
+    "passwordChangeFailed": "تعذّر تغيير كلمة المرور"
+  }
+}

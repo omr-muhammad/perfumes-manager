@@ -1,0 +1,32 @@
+{
+  "roles": {
+    "user": "User",
+    "admin": "Admin",
+    "owner": "Owner"
+  },
+  "promote": "Promote",
+  "discard": "Discard",
+  "update": "Update",
+  "phoneCountry": "Country calling code",
+  "searchCountry": "Search country or code",
+  "fields": {
+    "oldPassword": "Old password",
+    "newPassword": "New password"
+  },
+  "changePassword": "Change password",
+  "errors": {
+    "usernameMin": "Username must be at least {{min}} characters",
+    "usernameSpaces": "Username can't contain spaces",
+    "emailInvalid": "Enter a valid email address",
+    "phoneInvalid": "Enter a valid phone number",
+    "newPasswordMin": "Password must be at least {{min}} characters",
+    "newPasswordSame": "New password must be different from the old one",
+    "loadFailed": "Couldn't load your profile"
+  },
+  "toasts": {
+    "profileUpdated": "Profile updated",
+    "profileUpdateFailed": "Couldn't update your profile",
+    "passwordChanged": "Password changed",
+    "passwordChangeFailed": "Couldn't change your password"
+  }
+}
