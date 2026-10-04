@@ -1,4 +1,4 @@
-import { backend } from "../../api/client";
+import { backend } from "@/api/client";
 import type { CoQuery, CoUpdates, NewCompany } from "./types";
 
 export async function apiCoQuery(query?: CoQuery) {

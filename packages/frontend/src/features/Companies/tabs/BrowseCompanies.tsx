@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { companiesActiveFiltersTags } from "../../../utils/buildTags";
-import { ActiveFilters } from "../../../ui/ActiveFilters";
-import { LoadMore } from "../../../ui/LoadMore";
+import { companiesActiveFiltersTags } from "@/utils/buildTags";
+import { ActiveFilters } from "@/ui/ActiveFilters";
+import { LoadMore } from "@/ui/LoadMore";
 import { CoMiniCard } from "../components/CoMiniCard";
 import { Filters } from "../components/Filters";
 
 import { useInfiniteCompanies } from "../hooks/useInfiniteCompanies";
 
-import type { Tab } from "../../../ui/TabList";
+import type { Tab } from "@/ui/TabList";
 import type { CoQuery } from "../types";
 
-import { useDebounce } from "../../../hooks/useDebounce";
+import { useDebounce } from "@/hooks/useDebounce";
 
 import styles from "../Companies.module.css";
 

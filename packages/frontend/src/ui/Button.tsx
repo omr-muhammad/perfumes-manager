@@ -44,5 +44,3 @@ export function getButtonVariantClassName(
 ): string {
   return styles[`variant-${variant}`];
 }
-
-export default Button;

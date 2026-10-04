@@ -1,7 +1,7 @@
 // Libs
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import i18n from "../../../i18";
+import i18n from "@/i18";
 
 // Icons
 import { MdGppGood } from "react-icons/md";
@@ -13,13 +13,13 @@ import { BiWorld, BiMapPin } from "react-icons/bi";
 import styles from "./CoMiniCard.module.css";
 
 // Contexts
-import { useConfirm } from "../../../contexts/ConfirmContext";
+import { useConfirm } from "@/contexts/ConfirmContext";
 
 // Utils
-import { getCountryName, getFlagEmoji } from "../../../utils/countries";
+import { getCountryName, getFlagEmoji } from "@/utils/countries";
 
 // Types
-import type { Tab } from "../../../ui/TabList";
+import type { Tab } from "@/ui/TabList";
 import type { Company } from "../types";
 
 // Hooks

@@ -6,11 +6,7 @@ type SearchProps = {
   handleChange: (value: string) => void;
 };
 
-export default function Search({
-  placeholder,
-  text,
-  handleChange,
-}: SearchProps) {
+export function Search({ placeholder, text, handleChange }: SearchProps) {
   return (
     <div className={styles.container}>
       <input

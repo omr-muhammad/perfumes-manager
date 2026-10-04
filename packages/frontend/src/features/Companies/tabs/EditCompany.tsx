@@ -1,8 +1,10 @@
-import { Spinner } from "../../../ui/Spinner";
-import { CoForm } from "../components/CoForm";
 import { useApproveCompany } from "../hooks/useApproveCompany";
 import { useCompanyId } from "../hooks/useCompanyId";
 import { useUpdateCompany } from "../hooks/useUpdateCompany";
+
+import { Spinner } from "@/ui/Spinner";
+import { CoForm } from "../components/CoForm";
+
 import type { CoUpdates, FormCompany } from "../types";
 
 type EditCompanyTabProps = {

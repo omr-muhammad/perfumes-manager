@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { uploadImgToCloudinary } from "../../../utils/uploadImage";
+import { uploadImgToCloudinary } from "@/utils/uploadImage";
 
 export function useUploadLogo() {
   const { mutateAsync, isPending } = useMutation({

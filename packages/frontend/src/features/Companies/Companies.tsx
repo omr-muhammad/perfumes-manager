@@ -6,7 +6,7 @@ import { useLocation } from "react-router";
 import { BrowseCompanies } from "./tabs/BrowseCompanies";
 import { AddCompany } from "./tabs/AddCompany";
 import { EditCompany } from "./tabs/EditCompany";
-import { TabList, type Tab } from "../../ui/TabList";
+import { TabList, type Tab } from "@/ui/TabList";
 
 import { loggedUserQuery } from "../Auth/hooks/useUser";
 

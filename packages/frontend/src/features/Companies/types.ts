@@ -1,5 +1,5 @@
 import type { Treaty } from "@elysia/eden";
-import type { backend } from "../../api/client";
+import type { backend } from "@/api/client";
 
 // ------------------------------ QUERY ------------------------------
 type CoResponse = Treaty.Data<typeof backend.api.companies.get>;

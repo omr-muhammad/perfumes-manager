@@ -1,15 +1,15 @@
 // Libs
 import { useEffect, useState, type ChangeEvent, type SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
-import i18n from "../../../i18";
+import i18n from "@/i18";
 
 // Components
-import { LabeledInput } from "../../../ui/LabeledInput";
-import { DisplayResult } from "../../../ui/DisplayResult";
-import { FieldError } from "../../../ui/FieldError";
-import { LogoUpload } from "../../../ui/LogoUpload";
-import Button from "../../../ui/Button";
-import { Spinner } from "../../../ui/Spinner";
+import { LabeledInput } from "@/ui/LabeledInput";
+import { DisplayResult } from "@/ui/DisplayResult";
+import { FieldError } from "@/ui/FieldError";
+import { LogoUpload } from "@/ui/LogoUpload";
+import { Button } from "@/ui/Button";
+import { Spinner } from "@/ui/Spinner";
 
 // Types
 import type { Company, FormCompany } from "../types";

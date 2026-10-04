@@ -1,8 +1,8 @@
 import { t } from "i18next";
 import { type Dispatch, type SetStateAction } from "react";
 
-import Search from "../../../ui/Search";
-import { SegmentedFilter } from "../../../ui/SegmentedFilter";
+import { Search } from "@/ui/Search";
+import { SegmentedFilter } from "@/ui/SegmentedFilter";
 
 import type { CoQuery } from "../types";
 
