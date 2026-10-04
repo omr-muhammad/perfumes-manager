@@ -1,7 +1,28 @@
+/* Sizes drive everything through two custom properties, so the circle,
+   the badge and the badge position always stay in proportion. */
 .wrap {
+  --logo-size: 5.5rem;
+  --badge-size: 1.75rem;
+
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-2);
+}
+
+.wrap[data-size="sm"] {
+  --logo-size: 3.5rem;
+  --badge-size: 1.25rem;
+}
+
+.wrap[data-size="lg"] {
+  --logo-size: 7.5rem;
+  --badge-size: 2rem;
+}
+
+.wrap[data-size="xl"] {
+  --logo-size: 10rem;
+  --badge-size: 2.25rem;
 }
 
 .label {
@@ -9,22 +30,23 @@
   font-weight: 500;
   letter-spacing: 0.3px;
   color: var(--text-secondary);
-  text-transform: uppercase;
 }
 
-.row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.dropzone {
+/* The frame is NOT clipped, so the badge can sit on the circle's border.
+   The clipped part is .circle. */
+.frame {
   position: relative;
-  inline-size: 5.5rem;
-  block-size: 5.5rem;
+  inline-size: var(--logo-size);
+  block-size: var(--logo-size);
   flex-shrink: 0;
+}
+
+.circle {
+  position: relative;
+  inline-size: 100%;
+  block-size: 100%;
   overflow: hidden;
-  border-radius: var(--radius-md);
+  border-radius: 50%;
   border: 1.5px dashed var(--border-default);
   background: var(--accent-tint);
   transition:
@@ -32,31 +54,22 @@
     background 0.2s ease;
 }
 
-.wrap[data-size="sm"] .dropzone {
-  inline-size: 3.5rem;
-  block-size: 3.5rem;
-}
-
-.wrap[data-size="lg"] .dropzone {
-  inline-size: 7.5rem;
-  block-size: 7.5rem;
-}
-
-.dropzone:hover {
+.circle[data-editable="true"]:hover {
   border-color: var(--border-hover);
 }
 
-.dropzone[data-has-image="true"] {
+.circle[data-has-image="true"] {
   border-style: solid;
-  border-color: var(--border-default);
   background: transparent;
 }
 
-.dropzone[data-invalid="true"] {
+.circle[data-invalid="true"] {
   border-color: var(--status-error);
   background: var(--status-error-tint);
 }
 
+/* Invisible file input stretched over the circle: a click anywhere opens the
+   picker. Keyboard users use the badge button instead (input has tabIndex -1). */
 .input {
   position: absolute;
   inset: 0;
@@ -80,33 +93,69 @@
   position: absolute;
   inset: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-1);
   color: var(--text-secondary);
   pointer-events: none;
 }
 
-.placeholderText {
-  font-size: var(--font-size-xs);
+.placeholder svg {
+  inline-size: 36%;
+  block-size: 36%;
 }
 
-.removeBtn {
+.overlay {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  inline-size: 1.5rem;
-  block-size: 1.5rem;
-  border-radius: 50%;
-  border: 1px solid var(--border-default);
-  color: var(--text-secondary);
-  background: var(--card-bg-start);
+  color: var(--accent-primary);
+  background: color-mix(in srgb, var(--card-bg-start) 70%, transparent);
+  pointer-events: none;
 }
 
-.removeBtn:hover {
-  border-color: var(--status-error);
-  color: var(--status-error);
+/* Badge centre sits on the circle's 45° point (bottom-end):
+   distance from each edge = size * (1 - cos 45°) / 2 ≈ 14.64% of size. */
+.badge {
+  position: absolute;
+  inset-inline-end: calc(var(--logo-size) * 0.1464 - var(--badge-size) / 2);
+  inset-block-end: calc(var(--logo-size) * 0.1464 - var(--badge-size) / 2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--badge-size);
+  block-size: var(--badge-size);
+  border-radius: 50%;
+  border: 2px solid var(--bg-gradient-mid);
+  background: var(--accent-interactive, var(--accent-primary));
+  color: var(--card-bg-start);
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.badge svg {
+  inline-size: 52%;
+  block-size: 52%;
+}
+
+.badge:hover:not(:disabled) {
+  background: var(--accent-interactive-hover, var(--accent-mid));
+}
+
+.badge:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.badge:focus-visible {
+  outline: 2px solid var(--accent-interactive, var(--accent-primary));
+  outline-offset: 2px;
+}
+
+.badge:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .error {
