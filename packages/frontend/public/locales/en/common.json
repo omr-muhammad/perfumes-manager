@@ -81,8 +81,8 @@
     "cancelText": "Cancel"
   },
   "phone": {
-    "phoneCountry": "Country calling code",
-    "searchCountry": "Search country or code"
+    "searchCountry": "Search country or code",
+    "countryCode": "Country calling code"
   },
   "loadingMoreTxt": "Load more",
   "noMoreTxt": "No more items",
