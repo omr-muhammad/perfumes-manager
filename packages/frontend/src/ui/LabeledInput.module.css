@@ -3,43 +3,17 @@
   width: 100%;
 }
 
-.dliInput {
-  width: 100%;
-  padding: var(--space-4) var(--space-3) var(--space-2);
-  background: transparent;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-family: var(--font-body);
-  font-size: var(--font-size-base);
-  transition:
-    border-color 0.3s ease,
-    box-shadow 0.3s ease;
+/* Floating mode needs extra room above the text for the label.
+   BaseInput reads these two properties (16 + 8 = same 24px as its default). */
+.dliGroup[data-label-position="floating"] {
+  --input-pt: var(--space-4);
+  --input-pb: var(--space-2);
 }
 
-.dliInput:hover:not(:focus):not(:disabled) {
-  border-color: var(--border-hover);
-}
+/* NOTE: the input's own class lives in BaseInput.module.css, so rules here
+   that look at the input use the `input` element selector, not a class. */
 
-.dliInput:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--accent-tint);
-}
-
-.dliInput:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.dliInput[aria-invalid="true"] {
-  border-color: var(--status-error);
-}
-
-.dliInput[aria-invalid="true"]:focus {
-  box-shadow: 0 0 0 3px var(--status-error-tint);
-}
-
+/* ===== Floating label ===== */
 /* Label sits inside the field until focus/value pushes it up */
 .dliLabel {
   position: absolute;
@@ -67,15 +41,81 @@
   background: var(--card-bg-start, var(--bg-gradient-mid));
 }
 
+/* Browsers hide an autofilled value from JS until the person interacts, so the
+   `value.length` check can't float the label. Float it from the autofill state. */
+input:-webkit-autofill ~ .dliLabel {
+  top: 0;
+  transform: translateY(-50%) scale(0.85);
+  color: var(--accent-primary);
+  background: var(--card-bg-start, var(--bg-gradient-mid));
+}
+
 html[dir="rtl"] .dliLabel {
   left: auto;
   right: var(--space-3);
 }
 
-.dliInput[aria-invalid="true"] ~ .dliLabelFloating {
+input[aria-invalid="true"] ~ .dliLabelFloating {
   color: var(--status-error);
 }
 
+/* ===== Beside label ===== */
+.dliGroup[data-label-position="beside"] {
+  display: grid;
+  grid-template-columns: var(--label-width, 10rem) minmax(0, 1fr);
+  column-gap: var(--space-4);
+  align-items: center;
+}
+
+.dliGroup[data-label-position="beside"] input {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.dliLabelBeside {
+  grid-column: 1;
+  grid-row: 1;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  overflow-wrap: anywhere;
+  transition: color 0.2s ease;
+}
+
+input:focus ~ .dliLabelBeside {
+  color: var(--accent-primary);
+}
+
+input[aria-invalid="true"] ~ .dliLabelBeside {
+  color: var(--status-error);
+}
+
+.dliGroup[data-label-position="beside"] .dliError {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+/* Narrow screens: the label stacks above the input. */
+@media (max-width: 40rem) {
+  .dliGroup[data-label-position="beside"] {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-1);
+  }
+  .dliGroup[data-label-position="beside"] .dliLabelBeside {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dliGroup[data-label-position="beside"] input {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .dliGroup[data-label-position="beside"] .dliError {
+    grid-column: 1;
+    grid-row: 3;
+  }
+}
+
+/* ===== Shared ===== */
 .dliRequired {
   color: var(--status-error);
 }

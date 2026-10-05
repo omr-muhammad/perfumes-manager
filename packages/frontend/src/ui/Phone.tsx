@@ -13,68 +13,22 @@ import { LuChevronDown, LuSearch } from "react-icons/lu";
 import {
   getCountryCallingCode,
   isSupportedCountry,
-  isValidPhoneNumber,
   parsePhoneNumberFromString,
   type CountryCode,
 } from "libphonenumber-js/max";
-import { LabeledInput } from "@/ui/LabeledInput";
+import { BaseInput } from "@/ui/BaseInput";
 import {
   getCountryName,
   getFlagEmoji,
   getLocalizedCountries,
 } from "@/utils/countries";
+import {
+  MAX_NATIONAL_DIGITS,
+  normalizeDigits,
+  onlyDigits,
+  type PhoneValue,
+} from "@/utils/phone";
 import styles from "./Phone.module.css";
-
-/* ============================================
-   Types + helpers (also used by UserProfile)
-   ============================================ */
-
-/** `number` holds national digits only, without the calling code. */
-export type PhoneValue = { country: CountryCode; number: string };
-
-export const DEFAULT_COUNTRY: CountryCode = "EG";
-
-const MAX_NATIONAL_DIGITS = 15;
-
-/** Arabic-Indic (٠-٩) and Persian (۰-۹) digits -> ASCII, then keep digits only. */
-function onlyDigits(input: string): string {
-  return input
-    .replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660))
-    .replace(/[\u06f0-\u06f9]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
-    .replace(/\D/g, "");
-}
-
-/** Turns the value stored in the DB (ideally E.164) into the component's value. */
-export function parsePhone(stored?: string | null): PhoneValue {
-  const raw = (stored ?? "").trim();
-  if (!raw) return { country: DEFAULT_COUNTRY, number: "" };
-
-  const parsed = parsePhoneNumberFromString(raw, DEFAULT_COUNTRY);
-  if (parsed?.country) {
-    return { country: parsed.country, number: parsed.nationalNumber };
-  }
-  return {
-    country: DEFAULT_COUNTRY,
-    number: onlyDigits(raw).slice(0, MAX_NATIONAL_DIGITS),
-  };
-}
-
-/** E.164 string for the payload, or "" when empty / not a valid number. */
-export function toE164(value: PhoneValue): string {
-  if (!value.number) return "";
-  const parsed = parsePhoneNumberFromString(value.number, value.country);
-  return parsed?.isValid() ? parsed.number : "";
-}
-
-/** Empty is valid (the phone is optional). */
-export function isPhoneValid(value: PhoneValue): boolean {
-  return !value.number || isValidPhoneNumber(value.number, value.country);
-}
-
-/** Stable key for dirty detection. An empty number ignores the country. */
-export function phoneKey(value: PhoneValue): string {
-  return value.number ? `${value.country}:${value.number}` : "";
-}
 
 /* ============================================
    Country list (built lazily, cached per language)
@@ -119,17 +73,10 @@ function getPhoneCountries(locale: string): PhoneCountry[] {
 }
 
 function filterCountries(all: PhoneCountry[], query: string): PhoneCountry[] {
-  const q = simplify(onlyDigitsOrText(query.trim().replace(/^\+/, "")));
+  const q = simplify(normalizeDigits(query.trim().replace(/^\+/, "")));
   if (!q) return all;
   if (/^\d+$/.test(q)) return all.filter((c) => c.dial.startsWith(q));
   return all.filter((c) => c.search.includes(q));
-}
-
-/** Converts Arabic digits in a query, leaves letters untouched. */
-function onlyDigitsOrText(text: string): string {
-  return text
-    .replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660))
-    .replace(/[\u06f0-\u06f9]/g, (d) => String(d.charCodeAt(0) - 0x06f0));
 }
 
 /* ============================================
@@ -230,8 +177,8 @@ function CountryPopover({
           aria-activedescendant={
             activeItem ? `${listId}-${activeItem.code}` : undefined
           }
-          aria-label={t("searchCountry")}
-          placeholder={t("searchCountry")}
+          aria-label={t("phone.searchCountry")}
+          placeholder={t("phone.searchCountry")}
           className={styles.search}
           value={query}
           onChange={handleQuery}
@@ -354,7 +301,7 @@ function CountrySelect({
         data-open={open}
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label={`${t("phoneCountry")}: ${name} +${dial}`}
+        aria-label={`${t("phone.countryCode")}: ${name} +${dial}`}
         title={name}
         disabled={disabled}
         onClick={() => setOpen((o) => !o)}
@@ -381,12 +328,15 @@ function CountrySelect({
 
 /* ============================================
    Phone
+   The label is always beside (before the selector): a floating label over
+   the number input with a label-less selector next to it looks unbalanced.
    ============================================ */
 
 type PhoneProps = {
-  label?: string;
   value: PhoneValue;
   onChange: (value: PhoneValue) => void;
+  /** Defaults to the common "Phone" label. Pass e.g. "Phone (optional)". */
+  label?: string;
   error?: string;
   onBlur?: () => void;
   name?: string;
@@ -394,15 +344,17 @@ type PhoneProps = {
 };
 
 export function Phone({
-  label,
   value,
   onChange,
+  label,
   error,
   onBlur,
   name = "phone",
   disabled,
 }: PhoneProps) {
   const { t } = useTranslation();
+  const inputId = useId();
+  const errorId = `${inputId}-error`;
 
   function handleNumber(e: ChangeEvent<HTMLInputElement>) {
     const raw = e.target.value;
@@ -423,28 +375,42 @@ export function Phone({
   }
 
   return (
-    <div className={styles.row}>
-      <CountrySelect
-        value={value.country}
-        onChange={(country) => onChange({ ...value, country })}
-        invalid={Boolean(error)}
-        disabled={disabled}
-      />
-      <LabeledInput
-        className={styles.number}
-        name={name}
-        label={
-          label || `${t("auth.fields.phone")} ${t("auth.fields.optional")}`
-        }
-        value={value.number}
-        onChange={handleNumber}
-        onBlur={onBlur}
-        error={error}
-        type="tel"
-        inputMode="tel"
-        dir="ltr"
-        disabled={disabled}
-      />
+    <div className={styles.group} data-invalid={Boolean(error)}>
+      <label htmlFor={inputId} className={styles.label}>
+        {label ?? t("auth.fields.phone")}
+      </label>
+
+      <div className={styles.field}>
+        <CountrySelect
+          value={value.country}
+          onChange={(country) => onChange({ ...value, country })}
+          invalid={Boolean(error)}
+          disabled={disabled}
+        />
+        <BaseInput
+          id={inputId}
+          className={styles.number}
+          name={name}
+          type="tel"
+          inputMode="tel"
+          dir="ltr"
+          autoComplete="tel-national"
+          value={value.number}
+          onChange={handleNumber}
+          onBlur={onBlur}
+          disabled={disabled}
+          invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
+        />
+      </div>
+
+      {error && (
+        <span id={errorId} className={styles.error} role="alert">
+          {error}
+        </span>
+      )}
     </div>
   );
 }
+
+export default Phone;

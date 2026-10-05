@@ -1,28 +1,78 @@
-.row {
+.group {
+  display: grid;
+  grid-template-columns: var(--label-width, 10rem) minmax(0, 1fr);
+  column-gap: var(--space-4);
+  row-gap: var(--space-1);
+  align-items: center;
+}
+
+.label {
+  grid-column: 1;
+  grid-row: 1;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  overflow-wrap: anywhere;
+  transition: color 0.2s ease;
+}
+
+.group:focus-within .label {
+  color: var(--accent-primary);
+}
+
+.group[data-invalid="true"] .label {
+  color: var(--status-error);
+}
+
+.field {
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
-  align-items: flex-start; /* trigger stays aligned to the input box when an error appears */
+  align-items: stretch; /* the selector always matches the input's height */
   gap: var(--space-2);
+  min-inline-size: 0;
 }
 
 .number {
   flex: 1;
   min-inline-size: 0;
+  inline-size: auto;
+}
+
+.error {
+  grid-column: 2;
+  grid-row: 2;
+  font-size: var(--font-size-xs);
+  color: var(--status-error);
+}
+
+@media (max-width: 40rem) {
+  .group {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .label,
+  .field,
+  .error {
+    grid-column: 1;
+  }
+  .field {
+    grid-row: 2;
+  }
+  .error {
+    grid-row: 3;
+  }
 }
 
 .selectWrap {
   position: relative;
   flex-shrink: 0;
+  display: flex;
 }
 
-/* Same box as LabeledInput's input: top padding space-4, bottom space-2,
-   one line of text, 1px borders. 3.125rem is the fallback for browsers
-   without the `lh` unit. */
 .trigger {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  block-size: 3.125rem;
-  block-size: calc(var(--space-4) + var(--space-2) + 1lh + 2px);
   padding-inline: var(--space-3);
   background: transparent;
   border: 1px solid var(--border-default);
