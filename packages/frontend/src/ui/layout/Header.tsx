@@ -17,7 +17,7 @@ export function Header() {
         <div className={styles.wrapper}>
           <img
             className={styles.avatar}
-            src="/default-avatar.png"
+            src={user.avatar ? user.avatar : "/default-avatar.png"}
             alt={`Avatar of ${user.name}`}
           />
           <span>{user.username}</span>
