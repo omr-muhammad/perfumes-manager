@@ -17,16 +17,7 @@ import { Button } from "@/ui/Button";
 import { Spinner } from "@/ui/Spinner";
 
 import styles from "./UserProfile.module.css";
-
-type User = {
-  name: string;
-  username: string;
-  email: string;
-  phone?: string | null;
-  role: string;
-  /** Not in the schema yet. The UI is ready for it. */
-  logo?: string | null;
-};
+import type { FormUser, LoggedUser } from "../types";
 
 type FormState = {
   name: string;
@@ -42,16 +33,11 @@ type FieldErrors = Partial<Record<FieldName, string>>;
 const MIN_USERNAME_LENGTH = 3;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-async function updateProfile(payload: {
-  name: string;
-  username: string;
-  email: string;
-  phone: string;
-}) {
+async function updateProfile(payload: FormUser) {
   console.log("updateProfile", payload);
 }
 
-function toForm(user: User): FormState {
+function toForm(user: LoggedUser): FormState {
   return {
     name: user.name ?? "",
     username: user.username ?? "",
@@ -70,7 +56,7 @@ function snapshot(form: FormState): string {
   ]);
 }
 
-export function ProfileForm({ user }: { user: User }) {
+export function ProfileForm({ user }: { user: LoggedUser }) {
   const { t } = useTranslation();
   const { uploadImg, uploadingImg } = useUploadImage();
 
@@ -172,7 +158,7 @@ export function ProfileForm({ user }: { user: User }) {
         {/* The logo is not part of the form: picking a file uploads it on its own. */}
         <LogoUpload
           size="xl"
-          value={user.logo}
+          value={user.avatar}
           loading={uploadingImg}
           onChange={(file) => uploadImg({ file })}
         />

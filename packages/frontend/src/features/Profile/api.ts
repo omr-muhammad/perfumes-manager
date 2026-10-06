@@ -10,7 +10,7 @@ export async function updateProfile(updates: UserUpdates) {
   return data.data!.user;
 }
 
-export async function changePassword(newCredentials: UpdatePassword) {
+export async function updateUserPassword(newCredentials: UpdatePassword) {
   const { data, error } =
     await backend.api.users.profile["change-password"].patch(newCredentials);
 
