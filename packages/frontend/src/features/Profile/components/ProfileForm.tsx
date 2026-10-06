@@ -8,16 +8,16 @@ import {
   type PhoneValue,
 } from "@/utils/phone";
 import { useState, type ChangeEvent, type SubmitEvent } from "react";
-import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { RoleBadge } from "./RoleBadge";
 import { LabeledInput } from "@/ui/LabeledInput";
-import Phone from "@/ui/Phone";
+import { Phone } from "@/ui/Phone";
 import { Button } from "@/ui/Button";
 import { Spinner } from "@/ui/Spinner";
 
 import styles from "./UserProfile.module.css";
-import type { FormUser, LoggedUser } from "../types";
+import type { LoggedUser } from "../types";
+import { useUpdateUser } from "../hooks/useUpdateUser";
 
 type FormState = {
   name: string;
@@ -32,10 +32,6 @@ type FieldErrors = Partial<Record<FieldName, string>>;
 
 const MIN_USERNAME_LENGTH = 3;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-async function updateProfile(payload: FormUser) {
-  console.log("updateProfile", payload);
-}
 
 function toForm(user: LoggedUser): FormState {
   return {
@@ -59,13 +55,12 @@ function snapshot(form: FormState): string {
 export function ProfileForm({ user }: { user: LoggedUser }) {
   const { t } = useTranslation();
   const { uploadImg, uploadingImg } = useUploadImage();
+  const { updateUserProfile, updatingUserProfile } = useUpdateUser();
 
-  const [baseline, setBaseline] = useState<FormState>(() => toForm(user));
-  const [form, setForm] = useState<FormState>(baseline);
+  const [form, setForm] = useState<FormState>(() => toForm(user));
   const [errors, setErrors] = useState<FieldErrors>({});
-  const [submitting, setSubmitting] = useState(false);
 
-  const isDirty = snapshot(form) !== snapshot(baseline);
+  const isDirty = snapshot(form) !== snapshot(toForm(user));
 
   function validate(f: FormState): FieldErrors {
     const errs: FieldErrors = {};
@@ -114,53 +109,41 @@ export function ProfileForm({ user }: { user: LoggedUser }) {
   }
 
   function handleDiscard() {
-    // Resets the text fields only. The logo is independent and stays as chosen.
-    setForm(baseline);
+    setForm(toForm(user));
     setErrors({});
   }
 
-  async function handleSubmit(e: SubmitEvent) {
+  function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
-    if (!isDirty || submitting) return;
+    if (!isDirty || updatingUserProfile) return;
 
     const errs = validate(form);
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
 
-    const next: FormState = {
+    const updates = {
       ...form,
       name: form.name.trim(),
       username: form.username.trim(),
       email: form.email.trim(),
+      phone: toE164(form.phone),
     };
 
-    setSubmitting(true);
-    try {
-      await updateProfile({
-        name: next.name,
-        username: next.username,
-        email: next.email,
-        phone: toE164(next.phone),
-      });
-      setForm(next);
-      setBaseline(next);
-      toast.success(t("profile:toasts.profileUpdated"));
-    } catch {
-      toast.error(t("profile:toasts.profileUpdateFailed"));
-    } finally {
-      setSubmitting(false);
-    }
+    updateUserProfile(updates);
+  }
+
+  function handleLogo(url: string) {
+    updateUserProfile({ avatar: url });
   }
 
   return (
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
       <div className={styles.side}>
-        {/* The logo is not part of the form: picking a file uploads it on its own. */}
         <LogoUpload
           size="xl"
           value={user.avatar}
           loading={uploadingImg}
-          onChange={(file) => uploadImg({ file })}
+          onChange={(file) => uploadImg({ file, action: handleLogo })}
         />
         <RoleBadge role={user.role} />
       </div>
@@ -175,7 +158,7 @@ export function ProfileForm({ user }: { user: LoggedUser }) {
           onChange={handleText("name")}
           onBlur={() => validateField("name")}
           error={errors.name}
-          disabled={submitting}
+          disabled={updatingUserProfile}
           required
         />
         <LabeledInput
@@ -187,7 +170,7 @@ export function ProfileForm({ user }: { user: LoggedUser }) {
           onChange={handleText("username")}
           onBlur={() => validateField("username")}
           error={errors.username}
-          disabled={submitting}
+          disabled={updatingUserProfile}
           required
         />
         <LabeledInput
@@ -200,7 +183,7 @@ export function ProfileForm({ user }: { user: LoggedUser }) {
           onChange={handleText("email")}
           onBlur={() => validateField("email")}
           error={errors.email}
-          disabled={submitting}
+          disabled={updatingUserProfile}
           required
         />
         <Phone
@@ -209,19 +192,19 @@ export function ProfileForm({ user }: { user: LoggedUser }) {
           onChange={handlePhone}
           onBlur={() => validateField("phone")}
           error={errors.phone}
-          disabled={submitting}
+          disabled={updatingUserProfile}
         />
 
         <div className={styles.actions}>
           <Button
             variant="secondary"
             onClick={handleDiscard}
-            disabled={!isDirty || submitting}
+            disabled={!isDirty || updatingUserProfile}
           >
             {t("profile:discard")}
           </Button>
-          <Button type="submit" disabled={!isDirty || submitting}>
-            {submitting && <Spinner inline size="1rem" />}
+          <Button type="submit" disabled={!isDirty || updatingUserProfile}>
+            {updatingUserProfile && <Spinner inline size="1rem" />}
             {t("profile:update")}
           </Button>
         </div>
