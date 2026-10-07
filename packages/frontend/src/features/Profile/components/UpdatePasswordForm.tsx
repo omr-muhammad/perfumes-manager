@@ -1,33 +1,22 @@
 import { useState, type SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
-import toast from "react-hot-toast";
 import { Button } from "@/ui/Button";
 import { LabeledInput } from "@/ui/LabeledInput";
 import { Spinner } from "@/ui/Spinner";
 import styles from "./UpdatePasswordForm.module.css";
+import { useUpdatePassword } from "../hooks/useUpdatePassword";
 
 const MIN_PASSWORD_LENGTH = 8;
 
-/* Placeholder API action (replace with the real call later).
-   Passwords are redacted on purpose, so they never reach the console. */
-async function changePassword(_payload: {
-  oldPassword: string;
-  newPassword: string;
-}) {
-  console.log("changePassword", { oldPassword: "***", newPassword: "***" });
-}
-
 export function UpdatePasswordForm() {
   const { t } = useTranslation();
+  const { updatePassword, updatingPassword } = useUpdatePassword();
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newPasswordError, setNewPasswordError] = useState<string>();
-  const [submitting, setSubmitting] = useState(false);
 
-  // Whitespace-only counts as empty. The values themselves are sent as typed,
-  // because trimming a real password could silently change it.
   const canSubmit =
-    oldPassword.trim() !== "" && newPassword.trim() !== "" && !submitting;
+    oldPassword.trim() !== "" && newPassword.trim() !== "" && !updatingPassword;
 
   async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
@@ -44,17 +33,9 @@ export function UpdatePasswordForm() {
       return;
     }
 
-    setSubmitting(true);
-    try {
-      await changePassword({ oldPassword, newPassword });
-      setOldPassword("");
-      setNewPassword("");
-      toast.success(t("profile:toasts.passwordChanged"));
-    } catch {
-      toast.error(t("profile:toasts.passwordChangeFailed"));
-    } finally {
-      setSubmitting(false);
-    }
+    updatePassword({ oldPw: oldPassword, newPw: newPassword });
+    setOldPassword("");
+    setNewPassword("");
   }
 
   return (
@@ -66,7 +47,7 @@ export function UpdatePasswordForm() {
         autoComplete="current-password"
         value={oldPassword}
         onChange={(e) => setOldPassword(e.target.value)}
-        disabled={submitting}
+        disabled={updatingPassword}
       />
       <LabeledInput
         name="newPassword"
@@ -79,11 +60,11 @@ export function UpdatePasswordForm() {
           setNewPasswordError(undefined);
         }}
         error={newPasswordError}
-        disabled={submitting}
+        disabled={updatingPassword}
       />
       <div className={styles.actions}>
         <Button type="submit" disabled={!canSubmit}>
-          {submitting && <Spinner inline size="1rem" />}
+          {updatingPassword && <Spinner inline size="1rem" />}
           {t("profile:changePassword")}
         </Button>
       </div>
