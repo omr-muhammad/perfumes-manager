@@ -132,6 +132,7 @@ export async function ChangePassword(
       password: newHashed,
       tokenVersion: sql`${usersTable.tokenVersion} + 1`,
     })
+    .where(eq(usersTable.id, userId))
     .returning();
 
   if (!updated)
