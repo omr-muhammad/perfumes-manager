@@ -8,6 +8,7 @@ export type FormUser = Pick<
   LoggedUser,
   "name" | "username" | "email" | "phone"
 >;
+export type UserLanguage = LoggedUser["language"];
 export type UserUpdates = Parameters<typeof backend.api.users.profile.patch>[0];
 export type UpdatePassword = Parameters<
   (typeof backend.api.users.profile)["change-password"]["patch"]

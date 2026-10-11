@@ -26,7 +26,9 @@ export function SelectOne({
   return (
     <Select.Root value={value} onValueChange={(value) => handleSelect(value)}>
       <Select.Trigger className={styles.trigger}>
-        <Select.Value placeholder={placeholder}>{value}</Select.Value>
+        <Select.Value placeholder={placeholder}>
+          {options.find((option) => option.value === value)?.label}
+        </Select.Value>
 
         <Select.Icon>
           <BsChevronDown />

@@ -90,5 +90,9 @@
   "noResultsFound": "No results found.",
   "uploadLogo": "Upload logo",
   "changeLogo": "Change logo",
-  "removeLogo": "Remove logo"
+  "removeLogo": "Remove logo",
+  "settings": {
+    "selectLanguage": "Select language",
+    "language": "Language"
+  }
 }
