@@ -1,0 +1,15 @@
+/* No padding or margin on purpose. Scrolling comes from the global
+   .hide-scrollbar class; overflow-y is repeated so this file stands alone. */
+.profile {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* --border-hover is gold in both themes while --accent-primary turns navy in
+   light mode, so the accent token is the one that stays "the accent colour". */
+.divider {
+  border: 0;
+  border-block-start: 1px solid var(--accent-primary);
+  margin-block: var(--space-6);
+}

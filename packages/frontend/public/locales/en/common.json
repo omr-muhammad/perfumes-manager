@@ -80,10 +80,15 @@
     "confirmText": "Confirm",
     "cancelText": "Cancel"
   },
+  "phone": {
+    "searchCountry": "Search country or code",
+    "countryCode": "Country calling code"
+  },
   "loadingMoreTxt": "Load more",
   "noMoreTxt": "No more items",
   "loadingErrorTxt": "Couldn't load more. Retry",
   "noResultsFound": "No results found.",
-  "addLogo": "Add logo",
+  "uploadLogo": "Upload logo",
+  "changeLogo": "Change logo",
   "removeLogo": "Remove logo"
 }

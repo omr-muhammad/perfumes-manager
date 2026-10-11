@@ -1,0 +1,56 @@
+.input {
+  width: 100%;
+  padding-block: var(--input-pt, var(--space-3)) var(--input-pb, var(--space-3));
+  padding-inline: var(--space-3);
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.input:hover:not(:focus):not(:disabled) {
+  border-color: var(--border-hover);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-tint);
+}
+
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--status-error);
+}
+
+.input[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px var(--status-error-tint);
+}
+
+/* ===== Browser autofill =====
+   When a suggestion is picked, Chrome/Safari paint a pale blue/white
+   background and force a dark text colour. Those declarations are !important
+   in the browser's stylesheet, so they can't be overridden directly. Instead:
+   - the background change is delayed ~forever with a transition, so the field
+     keeps its transparent background (focus ring and borders keep working);
+   - the text colour is forced with -webkit-text-fill-color, which wins. */
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-primary);
+  caret-color: var(--text-primary);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 600000s 0s,
+    color 600000s 0s;
+}

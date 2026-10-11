@@ -139,7 +139,7 @@ export async function updateMe(context: UserCTXs["UpdateMe"]) {
 
   const user = await usersService.update(authPayload.userId, body);
 
-  const { password, role, active, tokenVersion, ...safeInfo } = user;
+  const { password, active, tokenVersion, ...safeInfo } = user;
   return res.ok("User updated", { user: safeInfo });
 }
 

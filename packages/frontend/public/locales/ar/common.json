@@ -79,6 +79,10 @@
     "confirmText": "تأكيد",
     "cancelText": "تراجع"
   },
+  "phone": {
+    "searchCountry": "ابحث عن دولة أو رمز",
+    "countryCode": "رمز الدولة"
+  },
   "loadingBtnTxt": "المزيد",
   "noMoreTxt": "ليس هناك المزيد",
   "loadingErrorTxt": "لا يمكن تحميل المزيد, أعد المحاولة",

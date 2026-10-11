@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import type { ChangeEvent, FocusEvent, InputHTMLAttributes } from "react";
+import { BaseInput } from "@/ui/BaseInput";
 import styles from "./LabeledInput.module.css";
 
 interface DynamicLabelInputProps extends Omit<
@@ -12,10 +13,16 @@ interface DynamicLabelInputProps extends Omit<
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   /** Input `name` attribute, passed by the parent (e.g. for forms / formik / react-hook-form). */
   name: string;
-  /** Text shown as the label, floats above the input on focus or when filled. */
+  /** Text shown as the label. */
   label: string;
   /** Optional error message — shows red state + helper text below the input. */
   error?: string;
+  /**
+   * "floating" (default): label sits inside the field and floats up on focus / when filled.
+   * "beside": static label in its own column before the input. Set `--label-width`
+   * on a parent to align the labels of several fields (default 10rem).
+   */
+  labelPosition?: "floating" | "beside";
 }
 
 /**
@@ -23,6 +30,7 @@ interface DynamicLabelInputProps extends Omit<
  * Fully controlled — this component holds no data state.
  * The only local state is `isFocused`, which is transient UI state
  * (whether the label should float), not form data, so it stays here.
+ * The input itself is BaseInput; this component adds the label + error.
  */
 export function LabeledInput({
   name,
@@ -30,9 +38,11 @@ export function LabeledInput({
   value,
   onChange,
   error,
+  labelPosition = "floating",
   type = "text",
   required,
   disabled,
+  placeholder,
   onFocus,
   onBlur,
   className,
@@ -43,7 +53,8 @@ export function LabeledInput({
   const inputId = rest.id ?? `dli-${name}-${reactId}`;
   const errorId = `${inputId}-error`;
 
-  const isFloating = isFocused || value.length > 0;
+  const beside = labelPosition === "beside";
+  const isFloating = !beside && (isFocused || value.length > 0);
 
   function handleFocus(e: FocusEvent<HTMLInputElement>) {
     setIsFocused(true);
@@ -55,9 +66,16 @@ export function LabeledInput({
     onBlur?.(e);
   }
 
+  const labelClass = beside
+    ? styles.dliLabelBeside
+    : `${styles.dliLabel}${isFloating ? ` ${styles.dliLabelFloating}` : ""}`;
+
   return (
-    <div className={`${styles.dliGroup}${className ? ` ${className}` : ""}`}>
-      <input
+    <div
+      className={`${styles.dliGroup}${className ? ` ${className}` : ""}`}
+      data-label-position={labelPosition}
+    >
+      <BaseInput
         {...rest}
         id={inputId}
         name={name}
@@ -68,16 +86,12 @@ export function LabeledInput({
         onBlur={handleBlur}
         required={required}
         disabled={disabled}
-        placeholder=" "
-        className={styles.dliInput}
-        aria-invalid={Boolean(error)}
+        // The floating label needs a blank placeholder; "beside" can use a real one.
+        placeholder={beside ? placeholder : " "}
+        invalid={Boolean(error)}
         aria-describedby={error ? errorId : undefined}
-        autoComplete="off"
       />
-      <label
-        htmlFor={inputId}
-        className={`${styles.dliLabel}${isFloating ? ` ${styles.dliLabelFloating}` : ""}`}
-      >
+      <label htmlFor={inputId} className={labelClass}>
         {label}
         {required && <span className={styles.dliRequired}> *</span>}
       </label>

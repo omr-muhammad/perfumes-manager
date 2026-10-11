@@ -11,11 +11,10 @@ import { Companies } from "@/features/Companies/Companies";
 import { Compounds } from "@/features/Compounds/Compounds";
 import { Shops } from "@/features/Shops/Shops";
 import { Settings } from "@/features/Settings/Settings";
-import { UpdateUser } from "@/features/users/UpdateUser";
-import { UpdateUserPassword } from "@/features/users/UpdateUserPassword";
 
 import { authLoader } from "@/features/Auth/loaders";
 import { loadNs } from "@/i18/loadNs";
+import Profile from "./features/Profile/Profile";
 
 export const router = createBrowserRouter([
   // /dashboard
@@ -41,17 +40,14 @@ export const router = createBrowserRouter([
           { path: "companies", element: <Companies /> },
           {
             path: "compounds",
-            loader: loadNs("compounds", "countries"),
+            loader: loadNs("compounds"),
             element: <Compounds />,
           },
           { path: "settings", element: <Settings /> },
           {
             path: "profile",
-            element: (
-              <>
-                <UpdateUser /> <UpdateUserPassword />
-              </>
-            ),
+            loader: loadNs("profile"),
+            element: <Profile />,
           },
         ],
       },

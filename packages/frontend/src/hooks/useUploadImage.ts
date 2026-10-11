@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 
 interface MutationParams<T> {
   file: File;
-  action?: (url: string) => Promise<T>;
+  action?: (url: string) => T;
 }
 
 export function useUploadImage<T>() {
