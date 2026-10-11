@@ -88,5 +88,9 @@
   "loadingErrorTxt": "لا يمكن تحميل المزيد, أعد المحاولة",
   "noResultsFound": "لا توجد نتائج.",
   "addLogo": "ارفق شعارا (صورة)",
-  "removeLogo": "احذف الشعار"
+  "removeLogo": "احذف الشعار",
+  "settings": {
+    "selectLanguage": "اختر لغة",
+    "language": "اللغة"
+  }
 }

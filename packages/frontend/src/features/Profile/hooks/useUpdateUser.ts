@@ -3,7 +3,7 @@ import { updateProfile } from "../api";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 
-export function useUpdateUser() {
+export function useUpdateUser({ silent = false }: { silent?: boolean } = {}) {
   const { t } = useTranslation();
   const clientQuery = useQueryClient();
 
@@ -12,7 +12,8 @@ export function useUpdateUser() {
     mutationFn: updateProfile,
     onSuccess: (updatedUser) => {
       clientQuery.setQueryData(["user"], () => updatedUser);
-      toast.success(t("profile:toasts.profileUpdated"));
+
+      if (!silent) toast.success(t("profile:toasts.profileUpdated"));
     },
     onError: (err) => {
       console.log("Updating User Profile ERR: ", err);
