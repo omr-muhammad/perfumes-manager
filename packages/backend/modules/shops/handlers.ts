@@ -29,7 +29,7 @@ export async function getShops(context: ShopsCTXs["QueryShops"]) {
     ? service(query)
     : service(query, authPayload.userId));
 
-  return res.ok("Shops fetched.", { shops });
+  return res.ok("Shops fetched.", shops);
 }
 
 export async function getShopById(context: ShopsCTXs["QueryShopById"]) {
@@ -42,6 +42,14 @@ export async function getShopById(context: ShopsCTXs["QueryShopById"]) {
     : service(params.shopId, authPayload.userId));
 
   return res.ok("Shop fetched.", { shop });
+}
+
+export async function getShopsLocations(context: ShopsCTXs["QueryShops"]) {
+  const { authPayload } = context;
+  const id = authPayload.role === "admin" ? undefined : authPayload.userId;
+  const cities = await shopsService.queryDistinctCities(id);
+
+  return res.ok("Fetched citites", cities);
 }
 
 export async function deleteShopById(context: ShopsCTXs["DelShop"]) {

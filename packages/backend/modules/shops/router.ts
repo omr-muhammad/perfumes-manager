@@ -11,9 +11,10 @@ import { orderRouter } from "../orders/router";
 
 export const shopsRouter = new Elysia({ prefix: "/shops" })
   .use(protect)
-  .use(restrictTo("owner"))
+  .use(restrictTo("owner", "admin"))
   .post("", handlers.createNewShop, ShopSchema.CreateShop)
   .get("", handlers.getShops, ShopSchema.Query)
+  .get("/locations", handlers.getShopsLocations, ShopSchema.Query)
 
   // /api/shops/:shopId
   .group("/:shopId", (app) =>

@@ -1,6 +1,11 @@
-import { and, eq, ilike, ne } from "drizzle-orm";
+import { and, eq, ilike, ne, sql } from "drizzle-orm";
 import { db } from "../../db/config";
-import { addressesTable, shopsTable, usersTable } from "../../db/schema";
+import {
+  addressesTable,
+  ordersTable,
+  shopsTable,
+  usersTable,
+} from "../../db/schema";
 import type {
   CreateShop,
   ShopsQueryFilters,
@@ -100,43 +105,59 @@ export async function remove(shopId: number, ownerId?: number) {
 }
 
 export async function query(filters: ShopsQueryFilters, ownerId?: number) {
-  try {
-    const conditions = prepareShopsQuery(filters);
-    const { page = 1, limit = 20 } = filters;
+  const conditions = prepareShopsQuery(filters);
+  const { page = 1, limit = 20 } = filters;
 
-    if (!ownerId)
-      return await db
-        .select()
-        .from(shopsTable)
-        .leftJoin(addressesTable, eq(addressesTable.shopId, shopsTable.id))
-        .where(and(...conditions))
-        .offset((page - 1) * limit)
-        .limit(limit);
-
+  if (ownerId) {
     await assertIsOwner(ownerId);
-
-    const result = await db
-      .select()
-      .from(shopsTable)
-      .leftJoin(usersTable, eq(usersTable.id, ownerId))
-      .leftJoin(addressesTable, eq(addressesTable.shopId, shopsTable.id))
-      .where(
-        and(
-          eq(shopsTable.ownerId, ownerId),
-          eq(shopsTable.active, true),
-          eq(usersTable.active, true),
-          ...conditions,
-        ),
-      )
-      .offset((page - 1) * limit)
-      .limit(limit);
-
-    return result.map((item) => ({ ...item.shops, address: item.addresses }));
-  } catch (e: any) {
-    console.log("Error: ", e);
-    console.log("Error Cause: ", e.cause);
-    throw e;
+    conditions.push(
+      eq(shopsTable.ownerId, ownerId),
+      eq(usersTable.active, true),
+    );
   }
+
+  const pendingOrders = sql<number>`
+      SELECT COUNT(*)::INT
+      FROM ${ordersTable}
+      WHERE 
+        ${ordersTable.shopId} = ${shopsTable.id}
+        AND ${ordersTable.orderStatus} = 'pending'
+    `;
+
+  const result = await db
+    .select({
+      id: shopsTable.id,
+      name: shopsTable.name,
+      logo: shopsTable.logo,
+      active: shopsTable.active,
+      hidden: shopsTable.hidden,
+      pendingOrders,
+      address: {
+        country: addressesTable.country,
+        city: addressesTable.city,
+        district: addressesTable.district,
+      },
+      totalCount: sql<number>`count(*) over()`.as("total_count"),
+    })
+    .from(shopsTable)
+    .leftJoin(addressesTable, eq(addressesTable.shopId, shopsTable.id))
+    .where(and(...conditions))
+    .offset((page - 1) * limit)
+    .limit(limit);
+
+  const total = result[0]?.totalCount ?? 0;
+  const shops = result.map(({ totalCount, ...shop }) => shop);
+
+  return {
+    shops,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page * limit < total,
+    },
+  };
 }
 
 export async function queryById(shopId: number, ownerId?: number) {
@@ -153,6 +174,16 @@ export async function queryById(shopId: number, ownerId?: number) {
   const { shops, addresses } = shop;
 
   return { ...shops, address: addresses };
+}
+
+export async function queryDistinctCities(ownerId?: number) {
+  const cities = await db
+    .selectDistinct({ city: addressesTable.city })
+    .from(shopsTable)
+    .innerJoin(addressesTable, eq(shopsTable.id, addressesTable.shopId))
+    .where(ownerId ? eq(shopsTable.ownerId, ownerId) : undefined);
+
+  return cities.map((row) => row.city);
 }
 
 export async function handleActivation(shopId: number, active: boolean) {
