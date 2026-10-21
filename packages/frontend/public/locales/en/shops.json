@@ -1,0 +1,52 @@
+{
+  "filters": {
+    "search": "Search",
+    "city": "City",
+    "cityPlaceholder": "Filter by city",
+    "loadingCities": "Loading cities..."
+  },
+  "card": {
+    "orders_one": "You got <strong>{{count}}</strong> order",
+    "orders_other": "You got <strong>{{count}}</strong> orders",
+    "noPendingOrders": "No pending orders",
+    "locatedIn": "Located in {{country}}",
+    "visibility": {
+      "visible": "Visible to customers",
+      "hidden": "Hidden from customers",
+      "hide": "Hide from customers",
+      "show": "Show to customers",
+      "ownerOnly": "Only the shop owner can change this"
+    },
+    "status": {
+      "active": "Active",
+      "suspended": "Suspended by admin",
+      "suspend": "Suspend shop",
+      "activate": "Activate shop",
+      "adminOnly": "Only an admin can change this"
+    }
+  },
+  "confirm": {
+    "hide": {
+      "title": "Hide {{name}}?",
+      "message": "Customers won't see this shop until you show it again."
+    },
+    "show": {
+      "title": "Show {{name}}?",
+      "message": "Customers will be able to see this shop again."
+    },
+    "suspend": {
+      "title": "Suspend {{name}}?",
+      "message": "Customers won't see this shop and its owner won't be able to edit it."
+    },
+    "activate": {
+      "title": "Activate {{name}}?",
+      "message": "The shop will be active again and its owner can edit it."
+    }
+  },
+  "toast": {
+    "hide": "{{name}} is now hidden",
+    "show": "{{name}} is now visible to customers",
+    "suspend": "{{name}} was suspended",
+    "activate": "{{name}} was activated"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "filters": {
+    "search": "بحث",
+    "city": "المدينة",
+    "cityPlaceholder": "تصفية حسب المدينة",
+    "loadingCities": "جارٍ تحميل المدن..."
+  },
+  "card": {
+    "orders_zero": "لا توجد طلبات معلقة",
+    "orders_one": "لديك طلب واحد",
+    "orders_two": "لديك طلبان",
+    "orders_few": "لديك <strong>{{count}}</strong> طلبات",
+    "orders_many": "لديك <strong>{{count}}</strong> طلبًا",
+    "orders_other": "لديك <strong>{{count}}</strong> طلب",
+    "noPendingOrders": "لا توجد طلبات معلقة",
+    "locatedIn": "يقع في {{country}}",
+    "visibility": {
+      "visible": "ظاهر للعملاء",
+      "hidden": "مخفي عن العملاء",
+      "hide": "إخفاء عن العملاء",
+      "show": "إظهار للعملاء",
+      "ownerOnly": "يمكن لمالك المتجر فقط تغيير هذا"
+    },
+    "status": {
+      "active": "نشط",
+      "suspended": "موقوف من الإدارة",
+      "suspend": "إيقاف المتجر",
+      "activate": "تفعيل المتجر",
+      "adminOnly": "يمكن للإدارة فقط تغيير هذا"
+    }
+  },
+  "confirm": {
+    "hide": {
+      "title": "إخفاء {{name}}؟",
+      "message": "لن يظهر المتجر للعملاء حتى تعيد إظهاره."
+    },
+    "show": {
+      "title": "إظهار {{name}}؟",
+      "message": "سيظهر المتجر للعملاء مرة أخرى."
+    },
+    "suspend": {
+      "title": "إيقاف {{name}}؟",
+      "message": "لن يظهر المتجر للعملاء ولن يتمكن مالكه من تعديله."
+    },
+    "activate": {
+      "title": "تفعيل {{name}}؟",
+      "message": "سيعود المتجر نشطًا ويمكن لمالكه تعديله."
+    }
+  },
+  "toast": {
+    "hide": "تم إخفاء {{name}}",
+    "show": "{{name}} ظاهر الآن للعملاء",
+    "suspend": "تم إيقاف {{name}}",
+    "activate": "تم تفعيل {{name}}"
+  }
+}
